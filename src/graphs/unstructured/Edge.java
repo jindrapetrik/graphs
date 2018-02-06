@@ -6,7 +6,7 @@ import graphs.unstructured.Node;
  *
  * @author JPEXS
  */
-public class Edge {
+public class Edge implements Comparable<Edge> {
 
     public Node from;
     public Node to;
@@ -45,6 +45,15 @@ public class Edge {
     @Override
     public String toString() {
         return from.toString() + "->" + to.toString();
+    }
+
+    @Override
+    public int compareTo(Edge o) {
+        int ret = from.compareTo(o.from);
+        if (ret != 0) {
+            return ret;
+        }
+        return to.compareTo(o.to);
     }
 
 }

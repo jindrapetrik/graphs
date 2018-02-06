@@ -63,18 +63,18 @@ public class GraphVizFacade {
         });
         orderedNodes.addAll(nodes);
         MutableGraph ret = Factory.mutGraph("mygraph").setDirected(true).setLabel("mygraph");
-        Set<Edge> edges = new HashSet<>();
+        Set<Edge> orderedEdges = new TreeSet<>();
         for (Node node : orderedNodes) {
             for (Node prev : node.getPrev()) {
-                edges.add(new Edge(prev, node));
+                orderedEdges.add(new Edge(prev, node));
             }
             for (Node next : node.getNext()) {
-                edges.add(new Edge(node, next));
+                orderedEdges.add(new Edge(node, next));
             }
         }
         Map<String, guru.nidi.graphviz.model.MutableNode> graphNodes = new HashMap<>();
         Set<Node> edgeNodes = new HashSet<>();
-        for (Edge edge : edges) {
+        for (Edge edge : orderedEdges) {
             if (!graphNodes.containsKey(edge.from.getId())) {
                 graphNodes.put(edge.from.getId(), Factory.mutNode(edge.from.getId()));
                 ret.add(graphNodes.get(edge.from.getId()));

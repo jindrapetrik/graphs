@@ -135,6 +135,41 @@ public class CodeStructureDetector {
         return ret;
     }
 
+    private void removeExitPointFromPrevDlists(Node node, Node exitPoint, Set<Node> processedNodes) {
+        boolean lastOne = false;
+        if (processedNodes.contains(node)) {
+            return;
+        }
+        processedNodes.add(node);
+        for (Node prev : node.getPrev()) {
+            if (node.equals(prev)) {
+                lastOne = true;
+                break;
+            }
+        }
+
+        for (Node prev : node.getPrev()) {
+            Edge edge = new Edge(prev, node);
+            List<Node> decisionList = decistionLists.get(edge);
+            if (decisionList != null) {
+                if (!decisionList.isEmpty() && decisionList.get(decisionList.size() - 1).equals(exitPoint)) {
+                    List<Node> truncDecisionList = new ArrayList<>();
+                    truncDecisionList.addAll(decisionList);
+                    truncDecisionList.remove(truncDecisionList.size() - 1);
+                    decistionLists.put(edge, truncDecisionList);
+                }
+            }
+        }
+        if (!lastOne) {
+            for (Node prev : node.getPrev()) {
+                if (loopContinues.contains(prev)) {
+                    continue;
+                }
+                removeExitPointFromPrevDlists(prev, exitPoint, processedNodes);
+            }
+        }
+    }
+
     private List<Node> calculateDecisionListFromPrevNodes(Node BOD, List<Node> prevNodes) {
         List<Node> nextDecisionList;
         List<List<Node>> prevDecisionLists = new ArrayList<>();
@@ -165,6 +200,8 @@ public class CodeStructureDetector {
 
             loopcheck:
             while (true) {
+
+                //search for same decision lists, join them to endif
                 for (int i = 0; i < prevDecisionLists.size(); i++) {
                     List<Node> decisionListI = prevDecisionLists.get(i);
                     Set<Integer> sameIndices = new TreeSet<>(new Comparator<Integer>() {
@@ -182,58 +219,105 @@ public class CodeStructureDetector {
                             List<Node> decisionListJ = prevDecisionLists.get(j);
                             if (decisionListJ.equals(decisionListI)) {
                                 sameIndices.add(j);
-                            } else {
                             }
                         }
                     }
                     int numSame = sameIndices.size();
-                    if (numSame > 1) {
-                        //endif
+                    if (numSame > 1) { //Actually, there can be more than 2 branches - it's not an if, but... it's kind of structured...
                         Node decisionNode = decisionListI.get(decisionListI.size() - 1);
                         int numBranches = getNextNodes(decisionNode).size();
                         if (numSame == numBranches) {
                             List<Node> shorterDecisionList = new ArrayList<>(decisionListI);
                             shorterDecisionList.remove(shorterDecisionList.size() - 1);
                             List<Node> endIfPrevNodes = new ArrayList<>();
-                            //BasicMutableEndIfNode endIfNode = new BasicMutableEndIfNode(decisionNode);
                             for (int index : sameIndices) {
                                 prevDecisionLists.remove(index);
                                 Node prev = decisionListNodes.remove(index);
                                 endIfPrevNodes.add(prev);
-                                //endIfNode.addPrev(prev);                                
                             }
 
                             fireNoNodeSelected();
                             Node endIfNode = injectEndIf(decisionNode, endIfPrevNodes, BOD);
-                            //BOD = endIfNode;
                             alreadyProcessed.add(endIfNode);
                             decisionListNodes.add(endIfNode);
                             prevDecisionLists.add(shorterDecisionList);
                             decistionLists.put(new Edge(endIfNode, BOD), shorterDecisionList);
                             fireUpdateDecisionLists(decistionLists);
-
                             fireStep();
-                            //endIfNode.addNext(BOD);                            
                             continue loopcheck;
                         }
                     }
                 }
 
-                /*for (int i = 0; i < prevDecisionLists.size(); i++) {
-                    List<String> decisionListI = prevDecisionLists.get(i);
+                int maxDecListSize = 0;
+                for (int i = 0; i < prevDecisionLists.size(); i++) {
+                    int size = prevDecisionLists.get(i).size();
+                    if (size > maxDecListSize) {
+                        maxDecListSize = size;
+                    }
+                }
+
+                //- order decisionLists by their size, descending
+                //- search for decisionlist K, and J, decisionlist J has is same as K and has one more added node
+                //- replace the longer one with the shorter version
+                //- this means that one branch of ifblock does not finish in endif - it might be return / continue / break or some unstructured goto
+                loopsize:
+                for (int findSize = maxDecListSize; findSize > 1; findSize--) {
                     for (int j = 0; j < prevDecisionLists.size(); j++) {
-                        List<String> decisionListJ = prevDecisionLists.get(j);
-                        if (decisionListJ.size() == decisionListI.size() + 1) {
-                            List<String> decisionListJKratsi = new ArrayList<>();
-                            decisionListJKratsi.addAll(decisionListJ);
-                            decisionListJKratsi.remove(decisionListJKratsi.size() - 1);
-                            if (decisionListI.equals(decisionListJKratsi)) {
-                                prevDecisionLists.remove(i);
-                                continue loopcheck;
+                        List<Node> decisionListJ = prevDecisionLists.get(j);
+                        if (decisionListJ.size() == findSize) {
+                            for (int k = 0; k < prevDecisionLists.size(); k++) {
+                                if (j == k) {
+                                    continue;
+                                }
+                                List<Node> decisionListK = prevDecisionLists.get(k);
+                                if (decisionListK.size() == findSize - 1) {
+                                    List<Node> decisionListJKratsi = new ArrayList<>();
+                                    decisionListJKratsi.addAll(decisionListJ);
+                                    decisionListJKratsi.remove(decisionListJKratsi.size() - 1);
+                                    if (decisionListJKratsi.equals(decisionListK)) {
+                                        rememberedDecisionLists.add(decisionListJ);
+                                        prevDecisionLists.set(j, Collections.unmodifiableList(decisionListJKratsi));
+                                        decistionLists.put(new Edge(decisionListNodes.get(j), BOD), decisionListJKratsi);
+                                        Node decisionNode = decisionListK.get(decisionListK.size() - 1);
+                                        Node outSideNode = decisionListJ.get(decisionListJ.size() - 1);
+
+                                        //----
+                                        List<Node> endIfPrevNodes = new ArrayList<>();
+                                        int higherIndex = j > k ? j : k;
+                                        int lowerIndex = j < k ? j : k;
+
+                                        Node longerPrev = decisionListNodes.get(j);
+
+                                        //Trick: remove higher index first. If we removed the lower first, higher indices would change.
+                                        prevDecisionLists.remove(higherIndex);
+                                        endIfPrevNodes.add(decisionListNodes.remove(higherIndex));
+                                        prevDecisionLists.remove(lowerIndex);
+                                        endIfPrevNodes.add(decisionListNodes.remove(lowerIndex));
+
+                                        fireNoNodeSelected();
+
+                                        List<Node> shorterDecisionList = new ArrayList<>(decisionListK);
+                                        shorterDecisionList.remove(shorterDecisionList.size() - 1);
+                                        Node endIfNode = injectEndIf(decisionNode, endIfPrevNodes, BOD);
+                                        alreadyProcessed.add(endIfNode);
+                                        decisionListNodes.add(endIfNode);
+                                        prevDecisionLists.add(shorterDecisionList);
+                                        decistionLists.put(new Edge(endIfNode, BOD), shorterDecisionList);
+                                        //----
+                                        fireUpdateDecisionLists(decistionLists);
+                                        fireStep();
+                                        removeExitPointFromPrevDlists(longerPrev, outSideNode, new HashSet<>());
+                                        fireUpdateDecisionLists(decistionLists);
+                                        fireStep();
+                                        continue loopcheck;
+                                    }
+                                }
                             }
                         }
                     }
-                }*/
+                }
+
                 break;
             } //loopcheck
 
