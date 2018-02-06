@@ -1,0 +1,13 @@
+digraph ifif {
+start->if1;
+if1->ontrue1->if2;
+if1->onfalse1->after2;
+
+if2->ontrue2->after2;
+if2->onfalse2->after2;
+
+
+
+
+after2-> a->b->c->end;
+}

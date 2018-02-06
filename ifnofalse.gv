@@ -1,0 +1,8 @@
+digraph if {
+start->if;
+if->ontrue->after;
+if->after
+
+
+after-> end;
+}

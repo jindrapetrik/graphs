@@ -1,0 +1,11 @@
+digraph while {
+start->podminka;
+podminka->after->end;
+podminka->body;
+body->a;
+a->b;
+a->c;
+b->d;
+c->d;
+d->podminka;
+}

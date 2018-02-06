@@ -1,0 +1,9 @@
+/*a*/
+digraph while {
+start->if;
+if->ontrue->after;
+if->onfalse->after
+
+
+after-> end;
+}

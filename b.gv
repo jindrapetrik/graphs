@@ -1,0 +1,23 @@
+/*b*/
+digraph while {
+start->if;
+if->while;
+if->side;
+side->x->y->after;
+
+while;
+while->after->end->bagr->kombajn;
+while->wbody;
+wbody->a;
+a->b;
+a->c;
+
+b->b2;
+b->contWhile1->while;
+
+b2->d;
+
+
+c->d;
+d->while;
+}

@@ -1,0 +1,41 @@
+/*
+switch(P){
+   case 1:
+      1
+      (break)
+   case 2:
+       2
+       (break)
+   case 3:
+       3
+       (break);     
+    default:
+        D
+}
+A
+*/
+digraph x {
+start [shape="point" width="0.2"]
+start -> S1
+S1 -> fin2;
+S1 -> S;
+S -> fin;
+fin->fin2;
+S -> "P1";
+"P1" -> "P2";
+"P1" -> 1;
+"P2" -> "P3";
+"P2" -> 2;
+"P3" -> 3;
+"P3" -> D;
+//1 -> 2 [ label="nobreak"];
+2 -> 3 [ label="nobreak"];
+3 -> D [ label="nobreak"];
+1 -> A [ label="break"];
+//2 -> A [ label="break"];
+//3 ->A [ label="break"];
+D ->A;
+A -> fin;
+fin2-> end;
+end [shape="point" width="0.2"]
+}

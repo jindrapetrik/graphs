@@ -1,0 +1,20 @@
+digraph pcode {
+start;
+
+start->if;
+
+if->ontrue;
+if->onfalse;
+ontrue->do;
+while->endif;
+onfalse->endif;
+do->body;
+body->while;
+
+while->do;
+
+endif->end;
+
+end;
+
+}

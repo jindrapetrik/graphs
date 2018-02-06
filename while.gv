@@ -1,0 +1,27 @@
+digraph while {
+start->if1;
+
+if1->ontrue->if;
+if1->onfalse->join;
+if->whilecond->while;
+if->side;
+side->x->y->after;
+
+while->after;
+while->wbody;
+wbody->a;
+a->b;
+a->c;
+
+b->b2;
+b->contWhile1->whilecond;
+
+b2->d->d1->d2;
+
+c->exit;
+c->d;
+d2->whilecond;
+after->join;
+
+join->end;
+}

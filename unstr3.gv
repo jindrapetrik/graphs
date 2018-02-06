@@ -1,0 +1,32 @@
+digraph for {
+start [shape="point" width="0.2"]
+end [shape="point" width="0.2"]
+start -> S;
+S -> A;
+S -> J6;
+A -> E;
+A -> B;
+E -> N;
+E  -> M;
+B -> C;
+B -> D;
+C -> X;
+C -> J1;
+X -> J1;
+D -> Y;
+D -> Z;
+M -> J2;
+J1 -> J2;
+Y -> J2;
+Z -> J2;
+J2 -> J3;
+N -> J3;
+Z -> J4;
+J3 -> Q;
+Q -> R -> J5;
+Q -> J4;
+J4  -> J5;
+
+J5 -> J6;
+J6 -> end;
+}
