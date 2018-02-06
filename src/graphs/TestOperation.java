@@ -22,7 +22,7 @@ public class TestOperation extends AbstractOperation {
     }
 
     @Override
-    protected void executeOnMutableGraph(Map<String, Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap) {
+    protected void executeOnMutableGraph(Map<String, Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
         Node endifNode = new BasicMutableNode("endif-if");
         Node ifNode = new BasicMutableNode("if");
         Node after = new BasicMutableNode("after");

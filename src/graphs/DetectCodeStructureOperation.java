@@ -39,7 +39,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
     }
 
     @Override
-    public void executeOnMutableGraph(Map<String, Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap) {
+    public void executeOnMutableGraph(Map<String, Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
         CodeStructureDetector det = new CodeStructureDetector();
         det.addListener(new CodeStructureDetectorProgressListener() {
             @Override
@@ -84,11 +84,17 @@ public class DetectCodeStructureOperation extends AbstractOperation {
             @Override
             public void endIfAdded(EndIfNode node) {
                 nodes.put(node.getId(), node);
+                for (Node prev : node.getPrev()) {
+                    edgeCompassesMap.put(new Edge(prev, node), "s:");
+                }
+                for (Node next : node.getNext()) {
+                    edgeCompassesMap.put(new Edge(node, next), "s:");
+                }
                 regenerate();
             }
 
             private void regenerate() {
-                regenerateGraph(new HashSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap);
+                regenerateGraph(new HashSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
             }
         });
         //regenerateGraph(new TreeSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap);

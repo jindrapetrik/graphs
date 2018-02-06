@@ -8,6 +8,7 @@ package graphs;
 import graphs.unstructured.BasicMutableNode;
 import graphs.unstructured.Edge;
 import graphs.unstructured.Node;
+import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.MutableGraph;
@@ -40,9 +41,11 @@ public class GraphVizFacade {
         MutableGraph g = graphFromString(text);
         Map<Node, AttributesBag> nodeAttributesMap = new HashMap<>();
         Map<Edge, AttributesBag> edgeAttributesMap = new HashMap<>();
+        Map<Edge, String> edgeCompassesMap = new HashMap<>();
 
-        Map<String, Node> nodes = graphToNodes(g, nodeAttributesMap, edgeAttributesMap);
-        return graphToString(generateGraph(new HashSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap));
+        Map<String, Node> nodes = graphToNodes(g, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
+        String ret = graphToString(generateGraph(new HashSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
+        return ret;
 
     }
 
@@ -54,7 +57,7 @@ public class GraphVizFacade {
         }
     }
 
-    public MutableGraph generateGraph(Set<Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap) {
+    public MutableGraph generateGraph(Set<Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
         Set<Node> orderedNodes = new TreeSet<>(new Comparator<Node>() {
             @Override
             public int compare(Node o1, Node o2) {
@@ -81,26 +84,43 @@ public class GraphVizFacade {
             }
             if (!graphNodes.containsKey(edge.to.getId())) {
                 graphNodes.put(edge.to.getId(), Factory.mutNode(edge.to.getId()));
-                //ret.add(graphNodes.get(edge.to.getId()));
             }
             guru.nidi.graphviz.model.MutableNode n1 = graphNodes.get(edge.from.getId());
             guru.nidi.graphviz.model.MutableNode n2 = graphNodes.get(edge.to.getId());
-            n1.addLink(n2);
-            if (edgeAttributesMap.containsKey(edge)) {
-                AttributesBag attributesToSet = edgeAttributesMap.get(edge);
-                n1.links().forEach(new Consumer<Link>() {
-                    @Override
-                    public void accept(Link t) {
-                        if (((MutableNodePoint) t.from()).node() == n1 && ((MutableNodePoint) t.to()).node() == n2) {
+            guru.nidi.graphviz.model.MutableLinkSource l1 = n1;
+            guru.nidi.graphviz.model.LinkTarget l2 = n2;
+
+            String compassArr[] = new String[]{"", ""};
+            if (edgeCompassesMap.containsKey(edge)) {
+                String compasses = edgeCompassesMap.get(edge);
+                compassArr = compasses.split(":");
+            }
+            l1.addLink(l2);
+            AttributesBag attributesToSet = edgeAttributesMap.get(edge);
+            final String setCompassArr[] = compassArr;
+            n1.links().forEach(new Consumer<Link>() {
+                @Override
+                public void accept(Link t) {
+                    MutableNodePoint fromNp = (MutableNodePoint) t.from();
+                    MutableNodePoint toNp = (MutableNodePoint) t.to();
+
+                    if (fromNp.node() == n1 && toNp.node() == n2) {
+
+                        fromNp.setCompass(strToCompass(setCompassArr[0]));
+                        if (setCompassArr.length > 1) {
+                            toNp.setCompass(strToCompass(setCompassArr[1]));
+                        }
+
+                        if (attributesToSet != null) {
                             for (String attrName : attributesToSet.keySet()) {
                                 Object attrValue = attributesToSet.get(attrName);
                                 t.attrs().add(attrName, attrValue);
                             }
-
                         }
                     }
-                });
-            }
+                }
+            });
+
             edgeNodes.add(edge.from);
             edgeNodes.add(edge.to);
         }
@@ -123,7 +143,61 @@ public class GraphVizFacade {
         return new Serializer(g).serialize();
     }
 
-    public Map<String, Node> graphToNodes(MutableGraph g, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap) {
+    private Compass strToCompass(String c) {
+        if (c.isEmpty()) {
+            return null;
+        }
+        switch (c) {
+            case "c":
+                return Compass.CENTER;
+            case "e":
+                return Compass.EAST;
+            case "n":
+                return Compass.NORTH;
+            case "ne":
+                return Compass.NORTH_EAST;
+            case "nw":
+                return Compass.NORTH_WEST;
+            case "s":
+                return Compass.SOUTH;
+            case "se":
+                return Compass.SOUTH_EAST;
+            case "sw":
+                return Compass.SOUTH_WEST;
+            case "w":
+                return Compass.WEST;
+        }
+        return null;
+    }
+
+    private String compassToStr(Compass c) {
+        if (c == null) {
+            return "";
+        }
+        switch (c) {
+            case CENTER:
+                return "c";
+            case EAST:
+                return "e";
+            case NORTH:
+                return "n";
+            case NORTH_EAST:
+                return "ne";
+            case NORTH_WEST:
+                return "nw";
+            case SOUTH:
+                return "s";
+            case SOUTH_EAST:
+                return "se";
+            case SOUTH_WEST:
+                return "sw";
+            case WEST:
+                return "w";
+        }
+        return "";
+    }
+
+    public Map<String, Node> graphToNodes(MutableGraph g, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
         Map<String, Node> ret = new HashMap<>();
         g.nodes().forEach(new Consumer<MutableNode>() {
             @Override
@@ -148,8 +222,14 @@ public class GraphVizFacade {
                 node.links().forEach(new Consumer<Link>() {
                     @Override
                     public void accept(Link link) {
-                        String fromId = ((MutableNodePoint) link.from()).node().label().toString();
-                        String toId = ((MutableNodePoint) link.to()).node().label().toString();
+                        MutableNodePoint fromNodePoint = (MutableNodePoint) link.from();
+                        String fromCompass = compassToStr(fromNodePoint.compass());
+                        String fromId = fromNodePoint.node().label().toString();
+                        MutableNodePoint toNodePoint = (MutableNodePoint) link.to();
+                        String toCompass = compassToStr(toNodePoint.compass());
+                        String toId = toNodePoint.node().label().toString();
+                        String edgeCompass = fromCompass + ":" + toCompass;
+
                         if (!ret.containsKey(fromId)) {
                             ret.put(fromId, new BasicMutableNode(fromId));
                         }
@@ -161,6 +241,9 @@ public class GraphVizFacade {
                         fromNode.addNext(toNode);
                         toNode.addPrev(fromNode);
                         Edge edge = new Edge(fromNode, toNode);
+                        if (!edgeCompass.equals(":")) {
+                            edgeCompassesMap.put(edge, edgeCompass);
+                        }
                         AttributesBag edgeAttributes = new AttributesBag();
                         Iterator<Map.Entry<String, Object>> linkAttrIterator = link.attrs().iterator();
                         while (linkAttrIterator.hasNext()) {

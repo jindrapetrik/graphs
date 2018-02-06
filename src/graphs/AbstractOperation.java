@@ -48,7 +48,7 @@ public abstract class AbstractOperation implements Operation {
         return String.join(join, strs);
     }
 
-    protected abstract void executeOnMutableGraph(Map<String, Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap);
+    protected abstract void executeOnMutableGraph(Map<String, Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap);
     protected StepHandler stepHandler;
 
     @Override
@@ -73,15 +73,16 @@ public abstract class AbstractOperation implements Operation {
         this.currentGraph = parsedGraph;
         Map<Node, AttributesBag> nodeAttributesMap = new HashMap<>();
         Map<Edge, AttributesBag> edgeAttributesMap = new HashMap<>();
-        Map<String, Node> nodes = facade.graphToNodes(currentGraph, nodeAttributesMap, edgeAttributesMap);
+        Map<Edge, String> edgeCompassesMap = new HashMap<>();
+        Map<String, Node> nodes = facade.graphToNodes(currentGraph, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
 
-        executeOnMutableGraph(nodes, nodeAttributesMap, edgeAttributesMap);
-        return facade.graphToString(facade.generateGraph(new TreeSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap));
+        executeOnMutableGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
+        return facade.graphToString(facade.generateGraph(new TreeSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
     }
 
-    protected void regenerateGraph(Set<Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap) {
+    protected void regenerateGraph(Set<Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
         GraphVizFacade f = new GraphVizFacade();
-        currentGraph = f.generateGraph(nodes, nodeAttributesMap, edgeAttributesMap);
+        currentGraph = f.generateGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
     }
 
     protected MutableNode getMutableNode(MutableGraph g, Node sourceNode) {
