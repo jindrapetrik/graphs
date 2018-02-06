@@ -240,7 +240,6 @@ public class Graphs {
                         try {
                             setOperation(new DetectCodeStructureOperation(runText));
                             String newText = op.execute();
-                            System.err.println(newText);
                             try {
                                 img = textToImage(newText);
                             } catch (IOException ex) {
