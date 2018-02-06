@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 
 /**
@@ -75,7 +76,7 @@ public abstract class AbstractOperation implements Operation {
         Map<String, Node> nodes = facade.graphToNodes(currentGraph, nodeAttributesMap, edgeAttributesMap);
 
         executeOnMutableGraph(nodes, nodeAttributesMap, edgeAttributesMap);
-        return facade.graphToString(currentGraph);
+        return facade.graphToString(facade.generateGraph(new TreeSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap));
     }
 
     protected void regenerateGraph(Set<Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap) {

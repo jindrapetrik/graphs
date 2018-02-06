@@ -17,11 +17,13 @@ import guru.nidi.graphviz.model.MutableNodePoint;
 import guru.nidi.graphviz.model.Serializer;
 import guru.nidi.graphviz.parse.Parser;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import java.util.Set;
@@ -71,6 +73,7 @@ public class GraphVizFacade {
             }
         }
         Map<String, guru.nidi.graphviz.model.MutableNode> graphNodes = new HashMap<>();
+        Set<Node> edgeNodes = new HashSet<>();
         for (Edge edge : edges) {
             if (!graphNodes.containsKey(edge.from.getId())) {
                 graphNodes.put(edge.from.getId(), Factory.mutNode(edge.from.getId()));
@@ -83,7 +86,6 @@ public class GraphVizFacade {
             guru.nidi.graphviz.model.MutableNode n1 = graphNodes.get(edge.from.getId());
             guru.nidi.graphviz.model.MutableNode n2 = graphNodes.get(edge.to.getId());
             n1.addLink(n2);
-            //ret.add(n1.link(n2));
             if (edgeAttributesMap.containsKey(edge)) {
                 AttributesBag attributesToSet = edgeAttributesMap.get(edge);
                 n1.links().forEach(new Consumer<Link>() {
@@ -99,8 +101,21 @@ public class GraphVizFacade {
                     }
                 });
             }
+            edgeNodes.add(edge.from);
+            edgeNodes.add(edge.to);
         }
-        //System.err.println(graphToString(ret));
+        for (Node node : orderedNodes) {
+            if (!edgeNodes.contains(node) || (nodeAttributesMap.containsKey(node) && !nodeAttributesMap.get(node).isEmpty())) {
+                guru.nidi.graphviz.model.MutableNode mutNode = Factory.mutNode(node.getId());
+                if (nodeAttributesMap.containsKey(node)) {
+                    AttributesBag attributesToSet = nodeAttributesMap.get(node);
+                    for (String attrName : attributesToSet.keySet()) {
+                        mutNode.add(attrName, attributesToSet.get(attrName));
+                    }
+                }
+                ret.add(mutNode);
+            }
+        }
         return ret;
     }
 
