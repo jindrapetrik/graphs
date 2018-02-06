@@ -67,9 +67,14 @@ public class Graphs {
 
     static Operation op = null;
     private static String currentFileName = "in";
-    private static final String SUFFIX = ".gv";
+    private static final String EXTENSION = ".gv";
+    private static final String FILES_PATH = "graphs";
 
     private static JEditorPane textArea;
+
+    private static String makeFileName(String name) {
+        return FILES_PATH + "/" + name + EXTENSION;
+    }
 
     static StepHandler handlerDoStep = new StepHandler() {
         @Override
@@ -109,7 +114,7 @@ public class Graphs {
     private static void loadCurrent() {
         File f = new File("current.txt");
         if (f.exists()) {
-            BufferedReader br = null;
+            BufferedReader br;
             try {
                 br = new BufferedReader(new FileReader(f));
                 currentFileName = br.readLine();
@@ -122,7 +127,7 @@ public class Graphs {
 
     private static void saveCurrent() {
         try {
-            PrintWriter pw = new PrintWriter(new File(currentFileName + SUFFIX));
+            PrintWriter pw = new PrintWriter(new File(makeFileName(currentFileName)));
             pw.print(textArea.getText());
             pw.close();
         } catch (Exception ex) {
@@ -167,7 +172,7 @@ public class Graphs {
             }
         };
 
-        String text = new String(Files.readAllBytes(Paths.get(currentFileName + SUFFIX)), StandardCharsets.UTF_8);
+        String text = new String(Files.readAllBytes(Paths.get(makeFileName(currentFileName))), StandardCharsets.UTF_8);
         img = textToImage(text);
 
         int WIN_HEIGHT = 800;
@@ -286,15 +291,15 @@ public class Graphs {
 
         JPanel selectScriptPanel = new JPanel(new FlowLayout());
         final String NOVY = "<new>";
-        String files[] = new File(".").list(new FilenameFilter() {
+        String files[] = new File(FILES_PATH).list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.endsWith(".gv");
+                return name.endsWith(EXTENSION);
             }
         });
         String files2[] = new String[files.length + 1];
         for (int i = 0; i < files.length; i++) {
-            files2[i] = files[i].substring(0, files[i].length() - SUFFIX.length());
+            files2[i] = files[i].substring(0, files[i].length() - EXTENSION.length());
         }
         files2[files2.length - 1] = NOVY;
         files = files2;
@@ -329,7 +334,7 @@ public class Graphs {
 
                     String text;
                     try {
-                        text = new String(Files.readAllBytes(Paths.get(newName + SUFFIX)), StandardCharsets.UTF_8);
+                        text = new String(Files.readAllBytes(Paths.get(makeFileName(newName))), StandardCharsets.UTF_8);
                         textArea.setText(text);
                         img = textToImage(text);
                         currentFileName = newName;
@@ -348,7 +353,7 @@ public class Graphs {
                 if (newName == null || newName.isEmpty()) {
                     return;
                 }
-                new File(currentFileName + SUFFIX).renameTo(new File(newName + SUFFIX));
+                new File(makeFileName(currentFileName)).renameTo(new File(makeFileName(newName)));
                 scriptCombo.removeItem(NOVY);
                 scriptCombo.removeItem(currentFileName);
                 scriptCombo.addItem(newName);
