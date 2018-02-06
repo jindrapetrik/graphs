@@ -22,7 +22,7 @@ public class BasicMutableNode implements MutableNode {
 
     @Override
     public String toString() {
-        return id;
+        return "\"" + id + "\"";
     }
 
     public void addNext(Node node) {
@@ -81,6 +81,11 @@ public class BasicMutableNode implements MutableNode {
     @Override
     public void removeNext(Node node) {
         nextNodes.remove(node);
+    }
+
+    @Override
+    public int compareTo(Node o) {
+        return getId().compareTo(o.getId());
     }
 
 }

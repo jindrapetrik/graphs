@@ -22,30 +22,12 @@ public class TestOperation extends AbstractOperation {
     }
 
     @Override
-    protected void executeOnMutableGraph(Map<String, Node> nodes) {
+    protected void executeOnMutableGraph(Map<String, Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap) {
         Node endifNode = new BasicMutableNode("endif-if");
         Node ifNode = new BasicMutableNode("if");
         Node after = new BasicMutableNode("after");
         Node ontrue = new BasicMutableNode("ontrue");
 
-        System.err.println(graphToString(g));
-        a.addEdge(new Edge(endifNode, after));
-        System.err.println(graphToString(g));
-        a.removeEdge(new Edge(ifNode, after));
-        /*System.err.println(graphToString(g));
-        a.removeEdge(new Edge(ontrue, after));
-        System.err.println(graphToString(g));
-        a.addEdge(new Edge(ifNode, endifNode));
-        System.err.println(graphToString(g));
-        a.addEdge(new Edge(ontrue, endifNode));
-         */
-        //addding edge endif-if->after
-/*removing edge if->after
-removing edge ontrue->after
-addding edge if->endif-if
-addding edge ontrue->endif-if*/
- /**/
-        System.err.println(graphToString(g));
     }
 
 }

@@ -3,6 +3,7 @@ package graphs;
 import graphs.unstructured.BasicMutableNode;
 import graphs.unstructured.Edge;
 import graphs.unstructured.Node;
+import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.model.MutableNode;
@@ -27,12 +28,15 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractOperation implements Operation {
 
-    MutableGraph g;
-    protected GraphVizFacade a;
+    MutableGraph currentGraph;
+    protected GraphVizFacade facade;
     private String source;
+    private String currentText;
 
     public AbstractOperation(String source) {
         this.source = source;
+        this.currentText = source;
+        facade = new GraphVizFacade();
     }
 
     protected String nodesToString(String join, Collection<Node> nodes) {
@@ -43,7 +47,7 @@ public abstract class AbstractOperation implements Operation {
         return String.join(join, strs);
     }
 
-    protected abstract void executeOnMutableGraph(Map<String, Node> nodes);
+    protected abstract void executeOnMutableGraph(Map<String, Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap);
     protected StepHandler stepHandler;
 
     @Override
@@ -53,26 +57,30 @@ public abstract class AbstractOperation implements Operation {
 
     protected void step(MutableGraph g) {
         if (this.stepHandler != null) {
-            stepHandler.step(graphToString(g));
+            stepHandler.step(facade.graphToString(g));
         }
     }
 
     @Override
     public String execute() {
-        MutableGraph g;
+        MutableGraph parsedGraph;
         try {
-            g = Parser.read(source);
-            a = new GraphVizFacade(g);
+            parsedGraph = Parser.read(source);
         } catch (IOException ex) {
             return null;
         }
-        this.g = g;
-        executeOnMutableGraph(a.getAllNodes());
-        return graphToString(g);
+        this.currentGraph = parsedGraph;
+        Map<Node, AttributesBag> nodeAttributesMap = new HashMap<>();
+        Map<Edge, AttributesBag> edgeAttributesMap = new HashMap<>();
+        Map<String, Node> nodes = facade.graphToNodes(currentGraph, nodeAttributesMap, edgeAttributesMap);
+
+        executeOnMutableGraph(nodes, nodeAttributesMap, edgeAttributesMap);
+        return facade.graphToString(currentGraph);
     }
 
-    protected String graphToString(MutableGraph g) {
-        return new Serializer(g).serialize();
+    protected void regenerateGraph(Set<Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap) {
+        GraphVizFacade f = new GraphVizFacade();
+        currentGraph = f.generateGraph(nodes, nodeAttributesMap, edgeAttributesMap);
     }
 
     protected MutableNode getMutableNode(MutableGraph g, Node sourceNode) {
@@ -102,52 +110,34 @@ public abstract class AbstractOperation implements Operation {
         });
         return nodes;
     }*/
-    protected void markEdge(MutableGraph g, Edge fromTo, String color) {
-        markEdge(g, fromTo.from, fromTo.to, color);
+    protected void markEdge(Map<Edge, AttributesBag> edgeAttributesMap, Edge edge, String color) {
+        if (!edgeAttributesMap.containsKey(edge)) {
+            edgeAttributesMap.put(edge, new AttributesBag());
+        }
+        edgeAttributesMap.get(edge).put("color", color);
     }
 
-    protected void markEdge(MutableGraph g, Node from, Node to, String color) {
-        MutableNode node = getMutableNode(g, from);
-        node.links().forEach(new Consumer<Link>() {
-            @Override
-            public void accept(Link t) {
-                if (((MutableNodePoint) t.to()).node().label().toString().equals(to.getId())) {
-                    t.attrs().add("color", color);
-                }
-            }
-        });
+    protected void markEdge(Map<Edge, AttributesBag> edgeAttributesMap, Node from, Node to, String color) {
+        markEdge(edgeAttributesMap, new Edge(from, to), color);
     }
 
-    protected void markNode(MutableGraph g, Node nodeName, String color) {
-        g.nodes().forEach(new Consumer<MutableNode>() {
-            @Override
-            public void accept(MutableNode t) {
-                if (t.label().toString().equals(nodeName.getId())) {
-                    t.attrs().add("color", color);
-                }
-            }
-        });
+    protected void markNode(Map<Node, AttributesBag> nodeAttributesMap, Node nodeName, String color) {
+        if (!nodeAttributesMap.containsKey(nodeName)) {
+            nodeAttributesMap.put(nodeName, new AttributesBag());
+        }
+        nodeAttributesMap.get(nodeName).put("color", color);
     }
 
-    protected void hilightNoNode(MutableGraph g) {
-        g.nodes().forEach(new Consumer<MutableNode>() {
-            @Override
-            public void accept(MutableNode t) {
-                t.attrs().add("color", "black");
+    protected void hilightNoNode(Set<Node> allNodes, Map<Node, AttributesBag> nodeAttributesMap) {
+        for (Node n : allNodes) {
+            if (nodeAttributesMap.containsKey(n)) {
+                nodeAttributesMap.get(n).remove("color");
             }
-        });
+        }
     }
 
-    protected void hilightOneNode(MutableGraph g, Node nodeName) {
-        g.nodes().forEach(new Consumer<MutableNode>() {
-            @Override
-            public void accept(MutableNode t) {
-                if (t.label().toString().equals(nodeName.getId())) {
-                    t.attrs().add("color", "red");
-                } else {
-                    t.attrs().add("color", "black");
-                }
-            }
-        });
+    protected void hilightOneNode(Set<Node> allNodes, Map<Node, AttributesBag> nodeAttributesMap, Node nodeName) {
+        hilightNoNode(allNodes, nodeAttributesMap);
+        markNode(nodeAttributesMap, nodeName, "red");
     }
 }

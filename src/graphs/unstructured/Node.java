@@ -6,7 +6,7 @@ import java.util.List;
  *
  * @author Jindra
  */
-public interface Node {
+public interface Node extends Comparable<Node> {
 
     public List<Node> getNext();
 

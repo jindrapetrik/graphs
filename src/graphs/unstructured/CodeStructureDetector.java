@@ -210,20 +210,8 @@ public class CodeStructureDetector {
                             decisionListNodes.add(endIfNode);
                             prevDecisionLists.add(shorterDecisionList);
                             decistionLists.put(new Edge(endIfNode, BOD), shorterDecisionList);
-                            /*for (Node n : endIfPrevNodes) {
-                                decistionLists.put(new Edge(n, endIfNode), decistionLists.remove(new Edge(n, BOD)));
-                            }*/
                             fireUpdateDecisionLists(decistionLists);
 
-                            fireStep();
-                            fireStep();
-                            fireStep();
-                            fireStep();
-                            fireStep();
-                            fireStep();
-                            fireStep();
-                            fireStep();
-                            fireStep();
                             fireStep();
                             //endIfNode.addNext(BOD);                            
                             continue loopcheck;
@@ -351,6 +339,11 @@ public class CodeStructureDetector {
 
     private MutableNode injectEndIf(Node decisionNode, List<Node> prevNodes, Node afterNode) {
         List<MutableNode> prevMutables = new ArrayList<>();
+        if (!(afterNode instanceof MutableNode)) {
+            return null;
+        }
+        MutableNode afterNodeMutable = (MutableNode) afterNode;
+
         for (Node prev : prevNodes) {
             if (prev instanceof MutableNode) {
                 prevMutables.add((MutableNode) prev);
@@ -362,6 +355,7 @@ public class CodeStructureDetector {
         endIfNode.addNext(afterNode);
         for (MutableNode prev : prevMutables) {
             prev.removeNext(afterNode);
+            afterNodeMutable.removePrev(prev);
         }
         for (MutableNode prev : prevMutables) {
             endIfNode.addPrev(prev);

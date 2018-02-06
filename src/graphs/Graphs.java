@@ -70,6 +70,8 @@ public class Graphs {
     private static final String EXTENSION = ".gv";
     private static final String FILES_PATH = "graphs";
 
+    private static SwingWorker worker;
+
     private static JEditorPane textArea;
 
     private static String makeFileName(String name) {
@@ -94,10 +96,15 @@ public class Graphs {
         }
     };
 
+    private static String regenerateText(String text) {
+        GraphVizFacade f = new GraphVizFacade();
+        return f.regenerateGraphString(text);
+    }
+
     private static BufferedImage textToImage(String text) throws IOException {
         File outGv = new File("out.gv");
         PrintWriter pw = new PrintWriter(outGv);
-        pw.println(text);
+        pw.println(regenerateText(text));
         pw.close();
 
         runCommand("\"c:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe\" -Tpng -Nfontname=times-bold -Nfontsize=12 -o out.png out.gv");
@@ -192,18 +199,25 @@ public class Graphs {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final String runText = textArea.getText();
-                SwingWorker worker = new SwingWorker<Void, Void>() {
+                if (worker != null) {
+                    worker.cancel(true);
+                }
+                worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        setOperation(new DetectCodeStructureOperation(runText));
-                        op.setStepHandler(handlerDoStep);
-                        String newText = op.execute();
                         try {
-                            img = textToImage(newText);
-                        } catch (IOException ex) {
-                            //ignore
+                            setOperation(new DetectCodeStructureOperation(runText));
+                            op.setStepHandler(handlerDoStep);
+                            String newText = op.execute();
+                            try {
+                                img = textToImage(newText);
+                            } catch (IOException ex) {
+                                //ignore
+                            }
+                            imagePanel.repaint();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
-                        imagePanel.repaint();
                         return null;
                     }
                 };
@@ -217,18 +231,25 @@ public class Graphs {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final String runText = textArea.getText();
-                SwingWorker worker = new SwingWorker<Void, Void>() {
+                if (worker != null) {
+                    worker.cancel(true);
+                }
+                worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        setOperation(new DetectCodeStructureOperation(runText));
-                        String newText = op.execute();
-                        System.err.println(newText);
                         try {
-                            img = textToImage(newText);
-                        } catch (IOException ex) {
-                            //ignore
+                            setOperation(new DetectCodeStructureOperation(runText));
+                            String newText = op.execute();
+                            System.err.println(newText);
+                            try {
+                                img = textToImage(newText);
+                            } catch (IOException ex) {
+                                //ignore
+                            }
+                            imagePanel.repaint();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
-                        imagePanel.repaint();
                         return null;
                     }
                 };
@@ -255,17 +276,24 @@ public class Graphs {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final String runText = textArea.getText();
-                SwingWorker worker = new SwingWorker<Void, Void>() {
+                if (worker != null) {
+                    worker.cancel(true);
+                }
+                worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        setOperation(new TestOperation(runText));
-                        String newText = op.execute();
                         try {
-                            img = textToImage(newText);
-                        } catch (IOException ex) {
-                            //ignore
+                            setOperation(new TestOperation(runText));
+                            String newText = op.execute();
+                            try {
+                                img = textToImage(newText);
+                            } catch (IOException ex) {
+                                //ignore
+                            }
+                            imagePanel.repaint();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
-                        imagePanel.repaint();
                         return null;
                     }
                 };
