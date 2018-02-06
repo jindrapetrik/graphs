@@ -1,6 +1,5 @@
 package graphs.unstructured;
 
-import com.sun.org.apache.xml.internal.dtm.Axis;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -237,11 +236,12 @@ public class CodeStructureDetector {
                             }
 
                             fireNoNodeSelected();
-                            Node endIfNode = injectEndIf(decisionNode, endIfPrevNodes, BOD);
+                            MutableEndIfNode endIfNode = injectEndIf(decisionNode, endIfPrevNodes, BOD);
                             alreadyProcessed.add(endIfNode);
                             decisionListNodes.add(endIfNode);
                             prevDecisionLists.add(shorterDecisionList);
                             decistionLists.put(new Edge(endIfNode, BOD), shorterDecisionList);
+                            fireEndIfNodeAdded(endIfNode);
                             fireUpdateDecisionLists(decistionLists);
                             fireStep();
                             continue loopcheck;
@@ -299,11 +299,12 @@ public class CodeStructureDetector {
 
                                         List<Node> shorterDecisionList = new ArrayList<>(decisionListK);
                                         shorterDecisionList.remove(shorterDecisionList.size() - 1);
-                                        Node endIfNode = injectEndIf(decisionNode, endIfPrevNodes, BOD);
+                                        MutableEndIfNode endIfNode = injectEndIf(decisionNode, endIfPrevNodes, BOD);
                                         alreadyProcessed.add(endIfNode);
                                         decisionListNodes.add(endIfNode);
                                         prevDecisionLists.add(shorterDecisionList);
                                         decistionLists.put(new Edge(endIfNode, BOD), shorterDecisionList);
+                                        fireEndIfNodeAdded(endIfNode);
                                         //----
                                         fireUpdateDecisionLists(decistionLists);
                                         fireStep();
@@ -421,7 +422,7 @@ public class CodeStructureDetector {
         } while (!todoList.isEmpty());
     }
 
-    private MutableNode injectEndIf(Node decisionNode, List<Node> prevNodes, Node afterNode) {
+    private MutableEndIfNode injectEndIf(Node decisionNode, List<Node> prevNodes, Node afterNode) {
         List<MutableNode> prevMutables = new ArrayList<>();
         if (!(afterNode instanceof MutableNode)) {
             return null;
@@ -449,7 +450,6 @@ public class CodeStructureDetector {
         for (MutableNode prev : prevMutables) {
             decistionLists.put(new Edge(prev, endIfNode), decistionLists.get(new Edge(prev, afterNode)));
         }
-        fireEndIfNodeAdded(endIfNode);
 
         return endIfNode;
     }
