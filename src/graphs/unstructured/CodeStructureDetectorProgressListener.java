@@ -11,6 +11,8 @@ public interface CodeStructureDetectorProgressListener {
 
     public void step();
 
+    public void multiNodeJoined(MultiNode node);
+
     public void endIfAdded(EndIfNode node);
 
     public void edgeMarked(Edge edge, EdgeType edgeType);

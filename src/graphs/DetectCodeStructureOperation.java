@@ -9,24 +9,15 @@ import graphs.unstructured.Edge;
 import graphs.unstructured.EdgeType;
 import graphs.unstructured.Node;
 import graphs.unstructured.CodeStructureDetector;
-import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.MutableGraph;
-import guru.nidi.graphviz.model.MutableNodePoint;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Consumer;
 import graphs.unstructured.CodeStructureDetectorProgressListener;
 import graphs.unstructured.EndIfNode;
-import guru.nidi.graphviz.model.Factory;
-import guru.nidi.graphviz.model.Graph;
-import guru.nidi.graphviz.model.Serializer;
+import graphs.unstructured.MultiNode;
 
 /**
  *
@@ -105,6 +96,14 @@ public class DetectCodeStructureOperation extends AbstractOperation {
 
             private void regenerate() {
                 regenerateGraph(new HashSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
+            }
+
+            @Override
+            public void multiNodeJoined(MultiNode node) {
+                for (Node subNode : node.getAllSubNodes()) {
+                    nodes.remove(subNode.getId());
+                }
+                nodes.put(node.getId(), node);
             }
         });
         //regenerateGraph(new TreeSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap);

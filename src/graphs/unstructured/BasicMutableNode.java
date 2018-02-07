@@ -88,4 +88,14 @@ public class BasicMutableNode implements MutableNode {
         return getId().compareTo(o.getId());
     }
 
+    @Override
+    public void setPrev(int index, Node node) {
+        prevNodes.set(index, node);
+    }
+
+    @Override
+    public void setNext(int index, Node node) {
+        nextNodes.set(index, node);
+    }
+
 }

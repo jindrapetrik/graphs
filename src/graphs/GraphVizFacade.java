@@ -45,6 +45,7 @@ public class GraphVizFacade {
 
         Map<String, Node> nodes = graphToNodes(g, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
         String ret = graphToString(generateGraph(new HashSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
+        System.out.println(ret);
         return ret;
 
     }

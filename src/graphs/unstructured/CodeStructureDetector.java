@@ -33,17 +33,106 @@ public class CodeStructureDetector {
 
     private Set<Edge> ignoredEdges = new HashSet<>();
 
-    public void detect(Node head, List<Node> loopContinues, List<Edge> gotoEdges) {
-        Set<Node> heads = new HashSet<>();
-        heads.add(head);
-        detect(heads, loopContinues, gotoEdges);
+    private Collection<Node> createMultiNodes(Collection<Node> heads) {
+        Collection<Node> ret = new ArrayList<>();
+        for (Node head : heads) {
+            ret.add(createMultiNodes(head, new HashSet<>()));
+        }
+        return ret;
     }
 
-    public void detect(Collection<Node> heads, List<Node> loopContinues, List<Edge> gotoEdges) {
-        todoList.addAll(heads);
+    private Node createMultiNodes(Node node, Set<Node> visited) {
+        if (visited.contains(node)) {
+            return node;
+        }
+        final Node originalNode = node;
+        Node result;
+
+        Node currentNode = originalNode;
+        List<Node> subNodesList = new ArrayList<>();
+        subNodesList.add(currentNode);
+        visited.add(currentNode);
+
+        while (currentNode.getNext().size() == 1 && currentNode.getNext().get(0).getPrev().size() == 1 && !visited.contains(currentNode.getNext().get(0))) {
+            currentNode = currentNode.getNext().get(0);
+            visited.add(currentNode);
+            subNodesList.add(currentNode);
+        }
+
+        if (subNodesList.size() > 1) {
+            Node lastSubNode = subNodesList.get(subNodesList.size() - 1);
+            Node firstSubNode = subNodesList.get(0);
+
+            List<String> subIds = new ArrayList<>();
+            for (Node sub : subNodesList) {
+                subIds.add(sub.getId());
+            }
+            String multiId = String.join("\\l", subIds) + "\\l";
+            System.out.println("added multinode " + multiId);
+            //TODO: ifif příklad
+            MutableMultiNode multiNode = new BasicMutableMultiNode(multiId);
+            for (Node sub : subNodesList) {
+                multiNode.addSubNode(sub);
+            }
+            //přerušit vazby lastSubNode->after, přidat vazbu multiNode->after
+            for (int i = 0; i < lastSubNode.getNext().size(); i++) {
+                Node next = lastSubNode.getNext().get(i);
+                multiNode.addNext(next);
+                if (lastSubNode instanceof MutableNode) {  //it must be - TODO - make detector use only mutable
+                    MutableNode lastSubNodeMutable = (MutableNode) lastSubNode;
+                    lastSubNodeMutable.removeNext(next);
+                    i--; //removing from iterated nexts, must decrement to not skip anything
+                }
+                if (next instanceof MutableNode) { //it must be - TODO - make detector use only mutable
+                    MutableNode nextMutable = (MutableNode) next;
+                    nextMutable.removePrev(lastSubNode);
+                    nextMutable.addPrev(multiNode);
+                }
+            }
+            //přerušit vazby before->firstNode, přidat vazbu before->multiNode
+            for (int i = 0; i < firstSubNode.getPrev().size(); i++) {
+                Node prev = firstSubNode.getPrev().get(i);
+                multiNode.addPrev(prev);
+                if (firstSubNode instanceof MutableNode) { //it must be - TODO - make detector use only mutable
+                    MutableNode firstSubNodeMutable = (MutableNode) firstSubNode;
+                    firstSubNodeMutable.removePrev(prev);
+                    i--; //removing from iterated prevs, must decrement to not skip anything
+                }
+                if (prev instanceof MutableNode) { //it must be - TODO - make detector use only mutable
+                    MutableNode prevMutable = (MutableNode) prev;
+                    prevMutable.removeNext(firstSubNode);
+                    prevMutable.addNext(multiNode);
+                }
+            }
+            fireMultiNodeJoined(multiNode);
+            fireStep();
+            result = multiNode;
+        } else {
+            result = originalNode;
+        }
+
+        fireStep();
+        for (Node next : result.getNext()) {
+            createMultiNodes(next, visited);
+        }
+
+        return result;
+    }
+
+    public Node detect(Node head, List<Node> loopContinues, List<Edge> gotoEdges) {
+        Set<Node> heads = new HashSet<>();
+        heads.add(head);
+        Collection<Node> multiHeads = detect(heads, loopContinues, gotoEdges);
+        return multiHeads.toArray(new Node[1])[0];
+    }
+
+    public Collection<Node> detect(Collection<Node> heads, List<Node> loopContinues, List<Edge> gotoEdges) {
+        Collection<Node> multiHeads = createMultiNodes(heads);
+        todoList.addAll(multiHeads);
         walk();
         loopContinues.addAll(this.loopContinues);
         gotoEdges.addAll(this.gotoEdges);
+        return multiHeads;
     }
 
     private boolean walk() {
@@ -513,6 +602,12 @@ public class CodeStructureDetector {
     private void fireNoNodeSelected() {
         for (CodeStructureDetectorProgressListener l : listeners) {
             l.noNodeSelected();
+        }
+    }
+
+    private void fireMultiNodeJoined(MultiNode node) {
+        for (CodeStructureDetectorProgressListener l : listeners) {
+            l.multiNodeJoined(node);
         }
     }
 }
