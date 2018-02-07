@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -43,14 +43,16 @@ public class GraphVizFacade {
         Map<Edge, AttributesBag> edgeAttributesMap = new HashMap<>();
         Map<Edge, String> edgeCompassesMap = new HashMap<>();
 
-        Map<String, Node> nodes = graphToNodes(g, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
-        String ret = graphToString(generateGraph(new HashSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
-        System.out.println(ret);
+        Set<Node> nodes = graphToNodes(g, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
+        String ret = graphToString(generateGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
+        //System.out.println(ret);
         return ret;
 
     }
 
     public MutableGraph graphFromString(String text) {
+        //System.out.println("parsing:");
+        //System.out.println(text);
         try {
             return Parser.read(text);
         } catch (IOException ex) {
@@ -58,26 +60,62 @@ public class GraphVizFacade {
         }
     }
 
+    private void populateEdges(Node currentNode, Set<Node> visited, Set<Edge> orderedEdges) {
+        if (visited.contains(currentNode)) {
+            return;
+        }
+        visited.add(currentNode);
+        for (Node next : currentNode.getNext()) {
+            Edge e = new Edge(currentNode, next);
+            //System.out.println("generateGraph adding " + e);
+            orderedEdges.add(e);
+            populateEdges(next, visited, orderedEdges);
+        }
+    }
+
     public MutableGraph generateGraph(Set<Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
-        Set<Node> orderedNodes = new TreeSet<>(new Comparator<Node>() {
+        Set<Node> orderedNodes = nodes;/*new TreeSet<>(new Comparator<Node>() {
             @Override
             public int compare(Node o1, Node o2) {
                 return o1.getId().compareTo(o2.getId());
             }
         });
-        orderedNodes.addAll(nodes);
+        orderedNodes.addAll(nodes);*/;
         MutableGraph ret = Factory.mutGraph("mygraph").setDirected(true).setLabel("mygraph");
-        Set<Edge> orderedEdges = new TreeSet<>();
+        Set<Edge> orderedEdges = new LinkedHashSet<>();//HashSet<>();//new TreeSet<>();
+
+        //System.out.println("-----------------");
+        Node startNode = orderedNodes.iterator().next();
+        Set<Node> orderedNodes2 = new LinkedHashSet<>();
+        populateEdges(startNode, orderedNodes2, orderedEdges);
+        /*
         for (Node node : orderedNodes) {
-            for (Node prev : node.getPrev()) {
-                orderedEdges.add(new Edge(prev, node));
-            }
             for (Node next : node.getNext()) {
                 orderedEdges.add(new Edge(node, next));
             }
-        }
+            for (Node prev : node.getPrev()) {
+                orderedEdges.add(new Edge(prev, node));
+            }        
+        }*/
         Map<String, guru.nidi.graphviz.model.MutableNode> graphNodes = new HashMap<>();
-        Set<Node> edgeNodes = new HashSet<>();
+
+        for (Node node : orderedNodes2) {
+            //orderedEdges.contains(node) ||
+            //if ((nodeAttributesMap.containsKey(node) && !nodeAttributesMap.get(node).isEmpty())) 
+            if (true) {
+                guru.nidi.graphviz.model.MutableNode mutNode = Factory.mutNode(node.getId());
+                if (nodeAttributesMap.containsKey(node)) {
+                    AttributesBag attributesToSet = nodeAttributesMap.get(node);
+                    for (String attrName : attributesToSet.keySet()) {
+                        mutNode.add(attrName, attributesToSet.get(attrName));
+                    }
+                }
+                //System.out.println("generateGraph adding " + node.getId());
+                ret.add(mutNode);
+                graphNodes.put(node.getId(), mutNode);
+            }
+        }
+        Set<Node> edgeNodes = new LinkedHashSet<>();
         for (Edge edge : orderedEdges) {
             if (!graphNodes.containsKey(edge.from.getId())) {
                 graphNodes.put(edge.from.getId(), Factory.mutNode(edge.from.getId()));
@@ -125,7 +163,7 @@ public class GraphVizFacade {
             edgeNodes.add(edge.from);
             edgeNodes.add(edge.to);
         }
-        for (Node node : orderedNodes) {
+        /*for (Node node : orderedNodes) {
             if (!edgeNodes.contains(node) || (nodeAttributesMap.containsKey(node) && !nodeAttributesMap.get(node).isEmpty())) {
                 guru.nidi.graphviz.model.MutableNode mutNode = Factory.mutNode(node.getId());
                 if (nodeAttributesMap.containsKey(node)) {
@@ -134,14 +172,18 @@ public class GraphVizFacade {
                         mutNode.add(attrName, attributesToSet.get(attrName));
                     }
                 }
+                System.out.println("generateGraph adding " + node.getId());
                 ret.add(mutNode);
             }
-        }
+        }*/
         return ret;
     }
 
     public String graphToString(MutableGraph g) {
-        return new Serializer(g).serialize();
+        String ret = new Serializer(g).serialize();
+        //System.out.println("toString called:");
+        //System.out.println(ret);
+        return ret;
     }
 
     private Compass strToCompass(String c) {
@@ -198,15 +240,20 @@ public class GraphVizFacade {
         return "";
     }
 
-    public Map<String, Node> graphToNodes(MutableGraph g, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
-        Map<String, Node> ret = new HashMap<>();
+    public Set<Node> graphToNodes(MutableGraph g, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
+        Set<Node> orderedNodeSet = new LinkedHashSet<>();
+        Map<String, Node> nameToNodeMap = new HashMap<>();
         g.nodes().forEach(new Consumer<MutableNode>() {
             @Override
             public void accept(MutableNode node) {
-                if (!ret.containsKey(node.label().toString())) {
-                    ret.put(node.label().toString(), new BasicMutableNode(node.label().toString()));
+
+                if (!nameToNodeMap.containsKey(node.label().toString())) {
+                    nameToNodeMap.put(node.label().toString(), new BasicMutableNode(node.label().toString()));
                 }
-                Node retNode = ret.get(node.label().toString());
+                Node retNode = nameToNodeMap.get(node.label().toString());
+                orderedNodeSet.add(retNode);
+                //System.out.println("- adding " + retNode);
+
                 Iterator<Map.Entry<String, Object>> nodeAttrIterator = node.attrs().iterator();
                 AttributesBag nodeAttributes = new AttributesBag();
                 while (nodeAttrIterator.hasNext()) {
@@ -215,11 +262,11 @@ public class GraphVizFacade {
                 }
                 nodeAttributesMap.put(retNode, nodeAttributes);
 
-                String id = node.label().toString();
-                if (!ret.containsKey(id)) {
+                /*String id = node.label().toString();
+                if (!nameToNodeMap.containsKey(id)) {
                     Node n = new BasicMutableNode(id);
-                    ret.put(id, n);
-                }
+                    orderedNodeSet.add(n);
+                }*/
                 node.links().forEach(new Consumer<Link>() {
                     @Override
                     public void accept(Link link) {
@@ -231,17 +278,23 @@ public class GraphVizFacade {
                         String toId = toNodePoint.node().label().toString();
                         String edgeCompass = fromCompass + ":" + toCompass;
 
-                        if (!ret.containsKey(fromId)) {
-                            ret.put(fromId, new BasicMutableNode(fromId));
+                        if (!nameToNodeMap.containsKey(fromId)) {
+                            Node n = new BasicMutableNode(fromId);
+                            orderedNodeSet.add(n);
+                            nameToNodeMap.put(fromId, n);
                         }
-                        if (!ret.containsKey(toId)) {
-                            ret.put(toId, new BasicMutableNode(toId));
+                        if (!nameToNodeMap.containsKey(toId)) {
+                            Node n = new BasicMutableNode(toId);
+                            orderedNodeSet.add(n);
+                            nameToNodeMap.put(toId, n);
                         }
-                        graphs.unstructured.MutableNode fromNode = (graphs.unstructured.MutableNode) ret.get(fromId);
-                        graphs.unstructured.MutableNode toNode = (graphs.unstructured.MutableNode) ret.get(toId);
+                        graphs.unstructured.MutableNode fromNode = (graphs.unstructured.MutableNode) nameToNodeMap.get(fromId);
+                        graphs.unstructured.MutableNode toNode = (graphs.unstructured.MutableNode) nameToNodeMap.get(toId);
                         fromNode.addNext(toNode);
                         toNode.addPrev(fromNode);
                         Edge edge = new Edge(fromNode, toNode);
+                        //System.out.println("graphToNodes - adding edge " + edge);
+
                         if (!edgeCompass.equals(":")) {
                             edgeCompassesMap.put(edge, edgeCompass);
                         }
@@ -259,6 +312,14 @@ public class GraphVizFacade {
             }
         });
 
-        return ret;
+        Set<Node> orderedNodeSet2 = new LinkedHashSet<>();
+        //System.out.println("Graph to nodes:");
+        Node firstNode = orderedNodeSet.iterator().next();
+        //System.out.println("first node:" + firstNode);
+        populateEdges(firstNode, orderedNodeSet2, new LinkedHashSet<>());
+        //System.out.println("/Graph of nodes");
+        //System.out.println("orderedNodeSet2.size=" + orderedNodeSet2.size());
+
+        return orderedNodeSet2;
     }
 }

@@ -98,4 +98,14 @@ public class BasicMutableNode implements MutableNode {
         nextNodes.set(index, node);
     }
 
+    @Override
+    public void addNext(int index, Node node) {
+        nextNodes.add(index, node);
+    }
+
+    @Override
+    public void addPrev(int index, Node node) {
+        prevNodes.add(index, node);
+    }
+
 }

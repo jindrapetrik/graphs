@@ -15,7 +15,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +47,7 @@ public abstract class AbstractOperation implements Operation {
         return String.join(join, strs);
     }
 
-    protected abstract void executeOnMutableGraph(Map<String, Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap);
+    protected abstract void executeOnMutableGraph(Set<Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap);
     protected StepHandler stepHandler;
 
     @Override
@@ -74,10 +73,10 @@ public abstract class AbstractOperation implements Operation {
         Map<Node, AttributesBag> nodeAttributesMap = new HashMap<>();
         Map<Edge, AttributesBag> edgeAttributesMap = new HashMap<>();
         Map<Edge, String> edgeCompassesMap = new HashMap<>();
-        Map<String, Node> nodes = facade.graphToNodes(currentGraph, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
+        Set<Node> nodes = facade.graphToNodes(currentGraph, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
 
         executeOnMutableGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
-        return facade.graphToString(facade.generateGraph(new TreeSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
+        return facade.graphToString(facade.generateGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
     }
 
     protected void regenerateGraph(Set<Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
@@ -112,15 +111,19 @@ public abstract class AbstractOperation implements Operation {
         });
         return nodes;
     }*/
-    protected void markEdge(Map<Edge, AttributesBag> edgeAttributesMap, Edge edge, String color) {
+    protected void markEdge(Map<Edge, AttributesBag> edgeAttributesMap, Edge edge, String color, String label) {
         if (!edgeAttributesMap.containsKey(edge)) {
             edgeAttributesMap.put(edge, new AttributesBag());
         }
         edgeAttributesMap.get(edge).put("color", color);
+        if (label != null) {
+            edgeAttributesMap.get(edge).put("label", label);
+            edgeAttributesMap.get(edge).put("fontcolor", color);
+        }
     }
 
-    protected void markEdge(Map<Edge, AttributesBag> edgeAttributesMap, Node from, Node to, String color) {
-        markEdge(edgeAttributesMap, new Edge(from, to), color);
+    protected void markEdge(Map<Edge, AttributesBag> edgeAttributesMap, Node from, Node to, String color, String label) {
+        markEdge(edgeAttributesMap, new Edge(from, to), color, label);
     }
 
     protected void markNode(Map<Node, AttributesBag> nodeAttributesMap, Node nodeName, String color) {

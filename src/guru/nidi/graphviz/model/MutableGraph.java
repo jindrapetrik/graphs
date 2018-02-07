@@ -20,6 +20,7 @@ import guru.nidi.graphviz.attribute.*;
 import java.util.*;
 
 public class MutableGraph implements Linkable, MutableLinkSource<MutableGraph>, LinkTarget {
+
     protected boolean strict;
     protected boolean directed;
     protected boolean cluster;
@@ -39,8 +40,8 @@ public class MutableGraph implements Linkable, MutableLinkSource<MutableGraph>, 
     }
 
     protected MutableGraph(boolean strict, boolean directed, boolean cluster, Label label,
-                           LinkedHashSet<MutableNode> nodes, LinkedHashSet<MutableGraph> subgraphs, List<Link> links,
-                           Attributes generalAttrs, Attributes nodeAttrs, Attributes linkAttrs, Attributes graphAttrs) {
+            LinkedHashSet<MutableNode> nodes, LinkedHashSet<MutableGraph> subgraphs, List<Link> links,
+            Attributes generalAttrs, Attributes nodeAttrs, Attributes linkAttrs, Attributes graphAttrs) {
         this.strict = strict;
         this.directed = directed;
         this.cluster = cluster;
@@ -125,7 +126,7 @@ public class MutableGraph implements Linkable, MutableLinkSource<MutableGraph>, 
     }
 
     public Collection<MutableNode> nodes() {
-        final HashSet<MutableNode> ns = new HashSet<>();
+        final Set<MutableNode> ns = new LinkedHashSet<>(); //JPEXS - linkedhashset
         for (final MutableNode node : nodes) {
             collectNodes(node, ns);
         }
@@ -255,6 +256,7 @@ public class MutableGraph implements Linkable, MutableLinkSource<MutableGraph>, 
     }
 
     private static class LabelComparator implements Comparator<MutableNode> {
+
         public int compare(MutableNode o1, MutableNode o2) {
             return o1.label.value.compareTo(o2.label.value);
         }

@@ -5,12 +5,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import jdk.nashorn.internal.ir.IfNode;
 
 /**
  *
@@ -24,6 +23,7 @@ public class CodeStructureDetector {
     private List<List<Node>> rememberedDecisionLists = new ArrayList<>();
     private List<Node> waiting = new ArrayList<>();
     private List<Node> loopContinues = new ArrayList<>();
+    private List<Edge> backEdges = new ArrayList<>();
     private List<Edge> gotoEdges = new ArrayList<>();
     private EndIfFactory endIfFactory = new BasicEndIfFactory();
 
@@ -31,12 +31,12 @@ public class CodeStructureDetector {
         this.endIfFactory = endIfFactory;
     }
 
-    private Set<Edge> ignoredEdges = new HashSet<>();
+    private Set<Edge> ignoredEdges = new LinkedHashSet<>();
 
     private Collection<Node> createMultiNodes(Collection<Node> heads) {
         Collection<Node> ret = new ArrayList<>();
         for (Node head : heads) {
-            ret.add(createMultiNodes(head, new HashSet<>()));
+            ret.add(createMultiNodes(head, new LinkedHashSet<>()));
         }
         return ret;
     }
@@ -85,8 +85,11 @@ public class CodeStructureDetector {
                 }
                 if (next instanceof MutableNode) { //it must be - TODO - make detector use only mutable
                     MutableNode nextMutable = (MutableNode) next;
-                    nextMutable.removePrev(lastSubNode);
-                    nextMutable.addPrev(multiNode);
+                    for (int j = 0; j < next.getPrev().size(); j++) {
+                        if (next.getPrev().get(j) == lastSubNode) {
+                            nextMutable.setPrev(j, multiNode);
+                        }
+                    }
                 }
             }
             //přerušit vazby before->firstNode, přidat vazbu before->multiNode
@@ -100,8 +103,11 @@ public class CodeStructureDetector {
                 }
                 if (prev instanceof MutableNode) { //it must be - TODO - make detector use only mutable
                     MutableNode prevMutable = (MutableNode) prev;
-                    prevMutable.removeNext(firstSubNode);
-                    prevMutable.addNext(multiNode);
+                    for (int j = 0; j < prev.getNext().size(); j++) {
+                        if (prev.getNext().get(j) == firstSubNode) {
+                            prevMutable.setNext(j, multiNode);
+                        }
+                    }
                 }
             }
             fireMultiNodeJoined(multiNode);
@@ -120,7 +126,7 @@ public class CodeStructureDetector {
     }
 
     public Node detect(Node head, List<Node> loopContinues, List<Edge> gotoEdges) {
-        Set<Node> heads = new HashSet<>();
+        Set<Node> heads = new LinkedHashSet<>();
         heads.add(head);
         Collection<Node> multiHeads = detect(heads, loopContinues, gotoEdges);
         return multiHeads.toArray(new Node[1])[0];
@@ -141,10 +147,10 @@ public class CodeStructureDetector {
         fireNoNodeSelected();
         for (int i = 0; i < waiting.size(); i++) {
             Node cek = waiting.get(i);
-            Set<Node> visited = new HashSet<>();
-            Set<Node> insideLoopNodes = new HashSet<>();
-            Set<Edge> loopExitEdges = new HashSet<>();
-            Set<Edge> loopContinueEdges = new HashSet<>();
+            Set<Node> visited = new LinkedHashSet<>();
+            Set<Node> insideLoopNodes = new LinkedHashSet<>();
+            Set<Edge> loopExitEdges = new LinkedHashSet<>();
+            Set<Edge> loopContinueEdges = new LinkedHashSet<>();
 
             if (leadsTo(cek, cek, insideLoopNodes, loopExitEdges, loopContinueEdges, visited)) { //it waits for self => loop
 
@@ -153,11 +159,12 @@ public class CodeStructureDetector {
                     fireEdgeMarked(edge, EdgeType.BACK);
                 }
 
-                Set<Node> currentCekajici = new HashSet<>();
+                Set<Node> currentCekajici = new LinkedHashSet<>();
                 currentCekajici.addAll(waiting);
                 currentCekajici.remove(continueNode);
                 loopContinues.add(continueNode);
-                Set<Edge> cekajiciVstupniEdges = new HashSet<>();
+                backEdges.addAll(loopContinueEdges);
+                Set<Edge> cekajiciVstupniEdges = new LinkedHashSet<>();
                 for (Node c : currentCekajici) {
                     for (Node pc : getPrevNodes(c)) {
                         cekajiciVstupniEdges.add(new Edge(pc, c));
@@ -211,7 +218,7 @@ public class CodeStructureDetector {
             }
         }
         boolean ret = false;
-        Set<Edge> currentNoLeadNodes = new HashSet<>();
+        Set<Edge> currentNoLeadNodes = new LinkedHashSet<>();
         for (Node next : getNextNodes(nodeSearchIn)) {
             if (leadsTo(next, nodeSearchWhich, insideLoopNodes, currentNoLeadNodes, foundEdges, visited)) {
                 insideLoopNodes.add(next);
@@ -324,10 +331,11 @@ public class CodeStructureDetector {
                             for (int index : sameIndices) {
                                 prevDecisionLists.remove(index);
                                 Node prev = decisionListNodes.remove(index);
-                                endIfPrevNodes.add(prev);
+                                endIfPrevNodes.add(prev); //indices are in reverse order, make this list too
                             }
 
                             fireNoNodeSelected();
+                            System.out.println("injecting if 1");
                             MutableEndIfNode endIfNode = injectEndIf(decisionNode, endIfPrevNodes, BOD);
                             alreadyProcessed.add(endIfNode);
                             decisionListNodes.add(endIfNode);
@@ -383,14 +391,18 @@ public class CodeStructureDetector {
 
                                         //Trick: remove higher index first. If we removed the lower first, higher indices would change.
                                         prevDecisionLists.remove(higherIndex);
-                                        endIfPrevNodes.add(decisionListNodes.remove(higherIndex));
+                                        Node prevNode2 = decisionListNodes.remove(higherIndex);
                                         prevDecisionLists.remove(lowerIndex);
-                                        endIfPrevNodes.add(decisionListNodes.remove(lowerIndex));
+                                        Node prevNode1 = decisionListNodes.remove(lowerIndex);
+                                        endIfPrevNodes.add(prevNode1);
+                                        endIfPrevNodes.add(prevNode2);
 
                                         fireNoNodeSelected();
 
                                         List<Node> shorterDecisionList = new ArrayList<>(decisionListK);
                                         shorterDecisionList.remove(shorterDecisionList.size() - 1);
+                                        System.out.println("injecting if 2");
+
                                         MutableEndIfNode endIfNode = injectEndIf(decisionNode, endIfPrevNodes, BOD);
                                         alreadyProcessed.add(endIfNode);
                                         decisionListNodes.add(endIfNode);
@@ -400,7 +412,7 @@ public class CodeStructureDetector {
                                         //----
                                         fireUpdateDecisionLists(decistionLists);
                                         fireStep();
-                                        removeExitPointFromPrevDlists(longerPrev, exitNode, new HashSet<>());
+                                        removeExitPointFromPrevDlists(longerPrev, exitNode, new LinkedHashSet<>());
                                         fireUpdateDecisionLists(decistionLists);
                                         fireStep();
                                         continue loopcheck;
@@ -449,8 +461,10 @@ public class CodeStructureDetector {
                 for (int i = 0; i < prevDecisionLists.size(); i++) {
                     List<Node> decisionList = prevDecisionLists.get(i);
                     Node exitNode = decisionList.get(prefix.size() + 1);
-                    removeExitPointFromPrevDlists(BOD, exitNode, new HashSet<>());
+                    removeExitPointFromPrevDlists(BOD, exitNode, new LinkedHashSet<>());
                 }
+
+                System.out.println("injecting if 3");
 
                 MutableEndIfNode endIfNode = injectEndIf(decisionNode, decisionListNodes, BOD);
 
@@ -528,6 +542,7 @@ public class CodeStructureDetector {
     }
 
     private MutableEndIfNode injectEndIf(Node decisionNode, List<Node> prevNodes, Node afterNode) {
+        System.out.println("generated endif " + decisionNode);
         List<MutableNode> prevMutables = new ArrayList<>();
         if (!(afterNode instanceof MutableNode)) {
             return null;
@@ -541,16 +556,47 @@ public class CodeStructureDetector {
                 return null;
             }
         }
+        //order by position in original afterNode prev so when they are added to endif, they have same order
+        Collections.sort(prevMutables, new Comparator<MutableNode>() {
+            @Override
+            public int compare(MutableNode o1, MutableNode o2) {
+                int index1 = afterNode.getPrev().indexOf(o1);
+                int index2 = afterNode.getPrev().indexOf(o2);
+                return index1 - index2;
+            }
+        });
+
+        int afterNodePrevIndex = Integer.MAX_VALUE;
+        for (Node prev : prevMutables) {
+            int index = afterNode.getPrev().indexOf(prev);
+            if (index < afterNodePrevIndex) {
+                afterNodePrevIndex = index;
+            }
+        }
+
         MutableEndIfNode endIfNode = endIfFactory.makeEndIfNode(decisionNode);
+
+        System.out.println("afterNode prev size=" + afterNode.getPrev().size());
+
+        //odstranit vazbu z prev->after
+        for (int i = 0; i < prevMutables.size(); i++) {
+            MutableNode prevMutable = prevMutables.get(i);
+            prevMutable.removeNext(afterNode);
+        }
+        for (MutableNode prevMutable : prevMutables) {
+            afterNodeMutable.removePrev(prevMutable);
+        }
+
+        //nastavit vazbu prev->endif 
+        for (int i = 0; i < prevMutables.size(); i++) {
+            MutableNode prevMutable = prevMutables.get(i);
+            prevMutable.addNext(endIfNode);
+            endIfNode.addPrev(prevMutable);
+        }
+        //nastavit vazbu endif->after
         endIfNode.addNext(afterNode);
-        for (MutableNode prev : prevMutables) {
-            prev.removeNext(afterNode);
-            afterNodeMutable.removePrev(prev);
-        }
-        for (MutableNode prev : prevMutables) {
-            endIfNode.addPrev(prev);
-            prev.addNext(endIfNode);
-        }
+        System.out.println("afterNodePrevIndex=" + afterNodePrevIndex);
+        afterNodeMutable.addPrev(afterNodePrevIndex, endIfNode); //dat to na spravny index
 
         for (MutableNode prev : prevMutables) {
             decistionLists.put(new Edge(prev, endIfNode), decistionLists.get(new Edge(prev, afterNode)));
