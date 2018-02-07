@@ -99,6 +99,9 @@ public class CodeStructureDetector {
                         decistionLists.put(edge, loopDecisionList);
                     }
                 }
+                if (currentCekajici.isEmpty()) {
+                    return true;
+                }
                 todoList.addAll(currentCekajici);
                 walk();
                 return true;
@@ -141,7 +144,7 @@ public class CodeStructureDetector {
         }
         processedNodes.add(node);
         for (Node prev : node.getPrev()) {
-            if (node.equals(prev)) {
+            if (exitPoint.equals(prev)) {
                 lastOne = true;
                 break;
             }
@@ -280,7 +283,7 @@ public class CodeStructureDetector {
                                         prevDecisionLists.set(j, Collections.unmodifiableList(decisionListJKratsi));
                                         decistionLists.put(new Edge(decisionListNodes.get(j), BOD), decisionListJKratsi);
                                         Node decisionNode = decisionListK.get(decisionListK.size() - 1);
-                                        Node outSideNode = decisionListJ.get(decisionListJ.size() - 1);
+                                        Node exitNode = decisionListJ.get(decisionListJ.size() - 1);
 
                                         //----
                                         List<Node> endIfPrevNodes = new ArrayList<>();
@@ -308,7 +311,7 @@ public class CodeStructureDetector {
                                         //----
                                         fireUpdateDecisionLists(decistionLists);
                                         fireStep();
-                                        removeExitPointFromPrevDlists(longerPrev, outSideNode, new HashSet<>());
+                                        removeExitPointFromPrevDlists(longerPrev, exitNode, new HashSet<>());
                                         fireUpdateDecisionLists(decistionLists);
                                         fireStep();
                                         continue loopcheck;
@@ -318,7 +321,6 @@ public class CodeStructureDetector {
                         }
                     }
                 }
-
                 break;
             } //loopcheck
 
@@ -351,9 +353,23 @@ public class CodeStructureDetector {
                     prefix.add(nextPismeno);
                     pocetVPrefixu++;
                 }
+                Node decisionNode = null;
                 if (!prefix.isEmpty()) {
-                    prefix.remove(prefix.size() - 1);
+                    decisionNode = prefix.remove(prefix.size() - 1);
                 }
+                for (int i = 0; i < prevDecisionLists.size(); i++) {
+                    List<Node> decisionList = prevDecisionLists.get(i);
+                    Node exitNode = decisionList.get(prefix.size() + 1);
+                    removeExitPointFromPrevDlists(BOD, exitNode, new HashSet<>());
+                }
+
+                MutableEndIfNode endIfNode = injectEndIf(decisionNode, decisionListNodes, BOD);
+
+                alreadyProcessed.add(endIfNode);
+                //decisionListNodes.add(endIfNode);
+                //prevDecisionLists.add(prefix);
+                decistionLists.put(new Edge(endIfNode, BOD), prefix);
+                fireEndIfNodeAdded(endIfNode);
                 nextDecisionList = prefix;
             }
         }

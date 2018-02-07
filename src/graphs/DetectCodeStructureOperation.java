@@ -54,6 +54,16 @@ public class DetectCodeStructureOperation extends AbstractOperation {
                 switch (edgeType) {
                     case BACK:
                         color = "darkgreen";
+                        if (!edgeCompassesMap.containsKey(edge)) {
+                            edgeCompassesMap.put(edge, ":");
+                        }
+                        String compass = edgeCompassesMap.get(edge);
+                        String compasses[] = compass.split(":");
+                        String newcompass = ":se";
+                        if (compasses.length > 0) {
+                            newcompass = compasses[0] + ":se";
+                        }
+                        edgeCompassesMap.put(edge, newcompass);
                         break;
                     case GOTO:
                         color = "red";
