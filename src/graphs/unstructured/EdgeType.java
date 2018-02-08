@@ -7,5 +7,6 @@ package graphs.unstructured;
 public enum EdgeType {
     NORMAL,
     BACK,
-    GOTO
+    GOTO,
+    OUTSIDEIF
 }

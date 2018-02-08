@@ -50,6 +50,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
             public void edgeMarked(Edge edge, EdgeType edgeType) {
                 String color = "black";
                 String label = "";
+                boolean alreadyHasColor = edgeAttributesMap.containsKey(edge) && edgeAttributesMap.get(edge).containsKey("color");
                 switch (edgeType) {
                     case BACK:
                         color = "darkorchid1";
@@ -68,6 +69,14 @@ public class DetectCodeStructureOperation extends AbstractOperation {
                     case GOTO:
                         color = "brown";
                         label = "goto";
+                        break;
+                    case OUTSIDEIF:
+                        System.out.println("exitEdge " + edge);
+                        if (alreadyHasColor) {
+                            return;
+                        }
+                        color = "red";
+                        label = "outside";
                         break;
                 }
                 DetectCodeStructureOperation.this.markEdge(edgeAttributesMap, edge, color, label);

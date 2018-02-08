@@ -25,6 +25,7 @@ public class CodeStructureDetector {
     private List<Node> loopContinues = new ArrayList<>();
     private List<Edge> backEdges = new ArrayList<>();
     private List<Edge> gotoEdges = new ArrayList<>();
+    private List<Edge> exitIfEdges = new ArrayList<>();
     private EndIfFactory endIfFactory = new BasicEndIfFactory();
 
     public void setEndIfFactory(EndIfFactory endIfFactory) {
@@ -68,7 +69,7 @@ public class CodeStructureDetector {
                 subIds.add(sub.getId());
             }
             String multiId = String.join("\\l", subIds) + "\\l";
-            System.out.println("added multinode " + multiId);
+            //System.out.println("added multinode " + multiId);
             //TODO: ifif příklad
             MutableMultiNode multiNode = new BasicMutableMultiNode(multiId);
             for (Node sub : subNodesList) {
@@ -233,39 +234,54 @@ public class CodeStructureDetector {
         return ret;
     }
 
-    private void removeExitPointFromPrevDlists(Node node, Node exitPoint, Set<Node> processedNodes) {
+    private boolean removeExitPointFromPrevDlists(Node prevNode, Node node, Node exitPoint, Set<Node> processedNodes) {
         boolean lastOne = false;
         if (processedNodes.contains(node)) {
-            return;
+            return false;
         }
         processedNodes.add(node);
-        for (Node prev : node.getPrev()) {
-            if (exitPoint.equals(prev)) {
-                lastOne = true;
-                break;
+        if (exitPoint.equals(prevNode)) {
+            int insideIfBranchIndex = prevNode.getNext().indexOf(node);
+            for (int branchIndex = 0; branchIndex < exitPoint.getNext().size(); branchIndex++) {
+                if (branchIndex != insideIfBranchIndex) {
+                    Edge exitEdge = new Edge(exitPoint, exitPoint.getNext().get(branchIndex));
+                    exitIfEdges.add(exitEdge);
+                    //System.out.println("exit edge:" + exitEdge);
+                    fireEdgeMarked(exitEdge, EdgeType.OUTSIDEIF);
+                }
+            }
+
+            return true;
+        }
+        /*
+        Edge exitEdge = new Edge(exitNode, exitNode.getNext().get(exitBranch));
+
+                                        exitIfEdges.add(exitEdge);
+                                        fireEdgeMarked(exitEdge, EdgeType.OUTSIDEIF);
+
+         */
+        Edge edge = new Edge(prevNode, node);
+        DecisionList decisionList = decistionLists.get(edge);
+        if (decisionList != null) {
+            if (!decisionList.isEmpty() && decisionList.get(decisionList.size() - 1).getIfNode().equals(exitPoint)) {
+                DecisionList truncDecisionList = new DecisionList();
+                truncDecisionList.addAll(decisionList);
+                truncDecisionList.remove(truncDecisionList.size() - 1);
+                decistionLists.put(edge, truncDecisionList);
             }
         }
 
-        for (Node prev : node.getPrev()) {
-            Edge edge = new Edge(prev, node);
-            DecisionList decisionList = decistionLists.get(edge);
-            if (decisionList != null) {
-                if (!decisionList.isEmpty() && decisionList.get(decisionList.size() - 1).getIfNode().equals(exitPoint)) {
-                    DecisionList truncDecisionList = new DecisionList();
-                    truncDecisionList.addAll(decisionList);
-                    truncDecisionList.remove(truncDecisionList.size() - 1);
-                    decistionLists.put(edge, truncDecisionList);
-                }
-            }
-        }
         if (!lastOne) {
-            for (Node prev : node.getPrev()) {
+            for (Node prev : prevNode.getPrev()) {
                 if (loopContinues.contains(prev)) {
                     continue;
                 }
-                removeExitPointFromPrevDlists(prev, exitPoint, processedNodes);
+                if (removeExitPointFromPrevDlists(prev, prevNode, exitPoint, processedNodes)) {
+                    return true;
+                }
             }
         }
+        return false;
     }
 
     private DecisionList calculateDecisionListFromPrevNodes(Node BOD, List<Node> prevNodes) {
@@ -333,7 +349,6 @@ public class CodeStructureDetector {
                                 int branchNum = decision.getBranchNum();
                                 prevDecisionLists.remove(index);
                                 Node prev = decisionListNodes.remove(index);
-                                System.out.println("branchNum=" + branchNum);
                                 if (branchNum == 0) {
                                     endBranchNodes.add(0, prev);
                                 } else {
@@ -342,7 +357,7 @@ public class CodeStructureDetector {
                             }
 
                             fireNoNodeSelected();
-                            System.out.println("injecting if 1");
+                            //injecting if 1
                             MutableEndIfNode endIfNode = injectEndIf(decisionNode, endBranchNodes, BOD);
                             alreadyProcessed.add(endIfNode);
                             decisionListNodes.add(endIfNode);
@@ -390,7 +405,9 @@ public class CodeStructureDetector {
                                         Decision decisionJ = decisionListJ.get(decisionListJKratsi.size() - 1);
 
                                         Node decisionNode = decisionK.getIfNode();
-                                        Node exitNode = decisionJ.getIfNode();
+
+                                        Decision exitDecision = decisionListJ.get(decisionListJ.size() - 1);
+                                        Node exitNode = exitDecision.getIfNode();
 
                                         //----
                                         List<Node> endBranchNodes = new ArrayList<>();
@@ -414,13 +431,7 @@ public class CodeStructureDetector {
 
                                         DecisionList shorterDecisionList = new DecisionList(decisionListK);
                                         shorterDecisionList.remove(shorterDecisionList.size() - 1);
-                                        System.out.println("injecting if 2");
-                                        /*for (Node bn : endBranchNodes) {
-                                            System.out.println("- " + bn);
-                                        }
-                                        System.out.println("decisionJ=" + decisionJ);
-                                        System.out.println("decisionK=" + decisionK);
-                                         */
+                                        //injecting if 2
                                         MutableEndIfNode endIfNode = injectEndIf(decisionNode, endBranchNodes, BOD);
                                         alreadyProcessed.add(endIfNode);
                                         decisionListNodes.add(endIfNode);
@@ -430,7 +441,9 @@ public class CodeStructureDetector {
                                         //----
                                         fireUpdateDecisionLists(decistionLists);
                                         fireStep();
-                                        removeExitPointFromPrevDlists(longerPrev, exitNode, new LinkedHashSet<>());
+
+                                        removeExitPointFromPrevDlists(longerPrev, endIfNode, exitNode, new LinkedHashSet<>());
+
                                         fireUpdateDecisionLists(decistionLists);
                                         fireStep();
                                         continue loopcheck;
@@ -478,13 +491,14 @@ public class CodeStructureDetector {
                         gotoEdges.add(gotoEdge);
                         fireEdgeMarked(gotoEdge, EdgeType.GOTO);
                     }
-                    if (decisionList.size() > prefix.size() + 1) {
-                        Node exitNode = decisionList.get(prefix.size() + 1).getIfNode();
-                        removeExitPointFromPrevDlists(BOD, exitNode, new LinkedHashSet<>());
+                    if (decisionList.size() > prefix.size()) {
+                        Decision exitDecision = decisionList.get(prefix.size() - 1 + 1);
+                        Node exitNode = exitDecision.getIfNode();
+                        removeExitPointFromPrevDlists(decisionListNodes.get(i), BOD, exitNode, new LinkedHashSet<>());
                     }
                 }
 
-                System.out.println("just merge of unstructured branches");
+                //just merge of unstructured branches
                 for (Node prev : decisionListNodes) {
                     decistionLists.put(new Edge(prev, BOD), prefix);
                 }
@@ -558,7 +572,7 @@ public class CodeStructureDetector {
     }
 
     private MutableEndIfNode injectEndIf(Node decisionNode, List<Node> endBranchNodes, Node afterNode) {
-        System.out.println("generated endif " + decisionNode);
+        //System.out.println("generated endif " + decisionNode);
         List<MutableNode> endBranchMutables = new ArrayList<>();
         if (!(afterNode instanceof MutableNode)) {
             return null;
@@ -583,8 +597,7 @@ public class CodeStructureDetector {
 
         MutableEndIfNode endIfNode = endIfFactory.makeEndIfNode(decisionNode);
 
-        System.out.println("afterNode prev size=" + afterNode.getPrev().size());
-
+        //System.out.println("afterNode prev size=" + afterNode.getPrev().size());
         //odstranit vazbu z prev->after
         for (int i = 0; i < endBranchMutables.size(); i++) {
             MutableNode prevMutable = endBranchMutables.get(i);
@@ -602,7 +615,7 @@ public class CodeStructureDetector {
         }
         //nastavit vazbu endif->after
         endIfNode.addNext(afterNode);
-        System.out.println("afterNodePrevIndex=" + afterNodePrevIndex);
+        //System.out.println("afterNodePrevIndex=" + afterNodePrevIndex);
         afterNodeMutable.addPrev(afterNodePrevIndex, endIfNode); //dat to na spravny index
 
         for (MutableNode prev : endBranchMutables) {
