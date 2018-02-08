@@ -1,8 +1,8 @@
 digraph if {
-start->if;
+start:s->if;
 if->ontrue->after;
 if->onfalse->after
 
 
-after-> end;
+after-> end:n;
 }

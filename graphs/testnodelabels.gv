@@ -1,0 +1,5 @@
+/*b*/
+digraph while {
+start->a->b->c;
+b[label="becko"]
+}

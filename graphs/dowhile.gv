@@ -9,7 +9,9 @@ ontrue->do;
 while->endif;
 onfalse->endif;
 do->body;
-body->while;
+body->a->c;
+body->b->c;
+c->while
 
 while->do;
 

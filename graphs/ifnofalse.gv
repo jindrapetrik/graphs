@@ -1,7 +1,8 @@
 digraph if {
-start->if;
-if->ontrue->after;
-if->after
+if[myfirst="1"]
+if->ontrue [taillabel="yes"];
+ontrue->after;
+if->after [taillabel="no"];
 
 
 after-> end;

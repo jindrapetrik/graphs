@@ -1,9 +1,10 @@
 /*a*/
 digraph while {
-start->if;
-if->ontrue->after;
-if->onfalse->after
+start:s->a:n;
 
-
-after-> end;
+a:s->b:n;
+b:s->c:n;
+c:s->d:n;
+c:s->a:n;
+d:s->end:n;
 }
