@@ -2,7 +2,7 @@ package graphs;
 
 import graphs.unstructured.BasicMutableNode;
 import graphs.unstructured.Edge;
-import graphs.unstructured.Node;
+import graphs.unstructured.nodes.Node;
 import java.util.Map;
 import java.util.Set;
 

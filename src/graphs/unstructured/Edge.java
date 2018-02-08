@@ -1,5 +1,7 @@
 package graphs.unstructured;
 
+import graphs.unstructured.nodes.Node;
+
 /**
  *
  * @author JPEXS

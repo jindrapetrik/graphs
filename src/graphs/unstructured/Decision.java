@@ -1,5 +1,6 @@
 package graphs.unstructured;
 
+import graphs.unstructured.nodes.Node;
 import java.util.Objects;
 
 /**

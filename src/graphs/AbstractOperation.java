@@ -1,7 +1,7 @@
 package graphs;
 
 import graphs.unstructured.Edge;
-import graphs.unstructured.Node;
+import graphs.unstructured.nodes.Node;
 import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.model.MutableNode;
 import guru.nidi.graphviz.parse.Parser;

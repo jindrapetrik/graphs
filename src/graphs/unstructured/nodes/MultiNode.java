@@ -1,4 +1,4 @@
-package graphs.unstructured;
+package graphs.unstructured.nodes;
 
 import java.util.List;
 

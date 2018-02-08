@@ -1,5 +1,8 @@
 package graphs.unstructured;
 
+import graphs.unstructured.nodes.MultiNode;
+import graphs.unstructured.nodes.EndIfNode;
+import graphs.unstructured.nodes.Node;
 import java.util.Map;
 
 /**

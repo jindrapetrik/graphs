@@ -1,5 +1,11 @@
 package graphs.unstructured;
 
+import graphs.unstructured.nodes.MultiNode;
+import graphs.unstructured.nodes.EndIfNode;
+import graphs.unstructured.nodes.Node;
+import graphs.unstructured.nodes.MutableMultiNode;
+import graphs.unstructured.nodes.MutableNode;
+import graphs.unstructured.nodes.MutableEndIfNode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;

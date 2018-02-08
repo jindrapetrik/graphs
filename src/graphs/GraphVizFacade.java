@@ -2,7 +2,7 @@ package graphs;
 
 import graphs.unstructured.BasicMutableNode;
 import graphs.unstructured.Edge;
-import graphs.unstructured.Node;
+import graphs.unstructured.nodes.Node;
 import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Link;
@@ -276,8 +276,8 @@ public class GraphVizFacade {
                             orderedNodeSet.add(n);
                             nameToNodeMap.put(toId, n);
                         }
-                        graphs.unstructured.MutableNode fromNode = (graphs.unstructured.MutableNode) nameToNodeMap.get(fromId);
-                        graphs.unstructured.MutableNode toNode = (graphs.unstructured.MutableNode) nameToNodeMap.get(toId);
+                        graphs.unstructured.nodes.MutableNode fromNode = (graphs.unstructured.nodes.MutableNode) nameToNodeMap.get(fromId);
+                        graphs.unstructured.nodes.MutableNode toNode = (graphs.unstructured.nodes.MutableNode) nameToNodeMap.get(toId);
                         fromNode.addNext(toNode);
                         toNode.addPrev(fromNode);
                         Edge edge = new Edge(fromNode, toNode);

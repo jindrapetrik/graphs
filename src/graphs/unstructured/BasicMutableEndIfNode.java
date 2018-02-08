@@ -1,5 +1,8 @@
 package graphs.unstructured;
 
+import graphs.unstructured.nodes.Node;
+import graphs.unstructured.nodes.MutableEndIfNode;
+
 /**
  *
  * @author JPEXS

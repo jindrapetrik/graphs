@@ -1,5 +1,7 @@
 package graphs.unstructured;
 
+import graphs.unstructured.nodes.Node;
+import graphs.unstructured.nodes.MutableMultiNode;
 import java.util.ArrayList;
 import java.util.List;
 
