@@ -142,6 +142,8 @@ public class CodeStructureDetector {
         walk();
         loopContinues.addAll(this.loopContinues);
         gotoEdges.addAll(this.gotoEdges);
+        backEdges.addAll(this.backEdges);
+        exitIfEdges.addAll(this.exitIfEdges);
         return multiHeads;
     }
 
