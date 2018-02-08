@@ -19,7 +19,7 @@ public interface CodeStructureDetectorProgressListener {
 
     public void nodeSelected(Node node);
 
-    public void updateDecisionLists(Map<Edge, List<Node>> decistionLists);
+    public void updateDecisionLists(Map<Edge, DecisionList> decistionLists);
 
     public void noNodeSelected();
 }

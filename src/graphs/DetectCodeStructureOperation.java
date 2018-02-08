@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import graphs.unstructured.CodeStructureDetectorProgressListener;
+import graphs.unstructured.DecisionList;
 import graphs.unstructured.EndIfNode;
 import graphs.unstructured.MultiNode;
 import java.util.LinkedHashSet;
@@ -80,7 +81,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
             }
 
             @Override
-            public void updateDecisionLists(Map<Edge, List<Node>> decistionLists) {
+            public void updateDecisionLists(Map<Edge, DecisionList> decistionLists) {
                 DetectCodeStructureOperation.this.updateDecisionLists(currentGraph, decistionLists, edgeAttributesMap);
                 regenerate();
             }
@@ -235,13 +236,14 @@ public class DetectCodeStructureOperation extends AbstractOperation {
         }
     }
 
-    private void updateDecisionLists(MutableGraph g, Map<Edge, List<Node>> decistionLists, Map<Edge, AttributesBag> edgeAttributesMap) {
+    private void updateDecisionLists(MutableGraph g, Map<Edge, DecisionList> decistionLists, Map<Edge, AttributesBag> edgeAttributesMap) {
         for (Edge edge : decistionLists.keySet()) {
             if (!edgeAttributesMap.containsKey(edge)) {
                 edgeAttributesMap.put(edge, new AttributesBag());
             }
-            //edgeAttributesMap.get(edge).put("label", decistionLists.get(edge).isEmpty() ? "(empty)" : nodesToString(".", decistionLists.get(edge)));
-            //edgeAttributesMap.get(edge).put("fontcolor", "red");
+//            edgeAttributesMap.get(edge).put("label", decistionLists.get(edge).isEmpty() ? "(empty)" : decistionLists.get(edge).toString());
+//nodesToString(".", decistionLists.get(edge)));
+//            edgeAttributesMap.get(edge).put("fontcolor", "red");
         }
     }
 }
