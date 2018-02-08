@@ -1,10 +1,8 @@
 package graphs.unstructured;
 
-import java.util.List;
-
 /**
  *
- * @author Jindra
+ * @author JPEXS
  */
 public class BasicEndIfFactory implements EndIfFactory {
 

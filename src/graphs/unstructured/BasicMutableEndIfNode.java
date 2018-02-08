@@ -1,7 +1,5 @@
 package graphs.unstructured;
 
-import java.util.List;
-
 /**
  *
  * @author JPEXS

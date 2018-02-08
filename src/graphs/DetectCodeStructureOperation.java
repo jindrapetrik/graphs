@@ -1,24 +1,23 @@
 package graphs;
 
-import graphs.unstructured.Edge;
-import graphs.unstructured.EdgeType;
-import graphs.unstructured.Node;
 import graphs.unstructured.CodeStructureDetector;
-import guru.nidi.graphviz.model.MutableGraph;
-import java.util.ArrayList;
-
-import java.util.List;
-import java.util.Map;
 import graphs.unstructured.CodeStructureDetectorProgressListener;
 import graphs.unstructured.DecisionList;
+import graphs.unstructured.Edge;
+import graphs.unstructured.EdgeType;
 import graphs.unstructured.EndIfNode;
 import graphs.unstructured.MultiNode;
+import graphs.unstructured.Node;
+import guru.nidi.graphviz.model.MutableGraph;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  *
- * @author Jindra
+ * @author JPEXS
  */
 public class DetectCodeStructureOperation extends AbstractOperation {
 

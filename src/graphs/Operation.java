@@ -2,7 +2,7 @@ package graphs;
 
 /**
  *
- * @author Jindra
+ * @author JPEXS
  */
 public interface Operation {
 

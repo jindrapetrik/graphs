@@ -10,7 +10,7 @@ import java.util.Collection;
 
 /**
  *
- * @author Jindra
+ * @author JPEXS
  */
 public class DecisionList extends ArrayList<Decision> {
 

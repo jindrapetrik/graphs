@@ -8,13 +8,12 @@ package graphs;
 import graphs.unstructured.BasicMutableNode;
 import graphs.unstructured.Edge;
 import graphs.unstructured.Node;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  *
- * @author Jindra
+ * @author JPEXS
  */
 public class TestOperation extends AbstractOperation {
 

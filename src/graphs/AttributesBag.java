@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 /**
  *
- * @author Jindra
+ * @author JPEXS
  */
 public class AttributesBag extends HashMap<String, Object> {
 }

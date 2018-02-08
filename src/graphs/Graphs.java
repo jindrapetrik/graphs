@@ -5,16 +5,6 @@
  */
 package graphs;
 
-import com.sun.prism.paint.Gradient;
-import guru.nidi.graphviz.model.Graph;
-import guru.nidi.graphviz.model.Serializer;
-import static guru.nidi.graphviz.attribute.Records.*;
-import static guru.nidi.graphviz.model.Compass.*;
-import guru.nidi.graphviz.model.Link;
-import guru.nidi.graphviz.model.MutableGraph;
-import guru.nidi.graphviz.model.MutableNode;
-import guru.nidi.graphviz.model.MutableNodePoint;
-import guru.nidi.graphviz.parse.Parser;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -23,7 +13,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -31,7 +20,6 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -40,7 +28,6 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -52,13 +39,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 
 /**
  *
- * @author Jindra
+ * @author JPEXS
  */
 public class Graphs {
 

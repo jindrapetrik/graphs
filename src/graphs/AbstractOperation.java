@@ -1,25 +1,17 @@
 package graphs;
 
-import graphs.unstructured.BasicMutableNode;
 import graphs.unstructured.Edge;
 import graphs.unstructured.Node;
-import guru.nidi.graphviz.model.Factory;
-import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.model.MutableNode;
-import guru.nidi.graphviz.model.MutableNodePoint;
-import guru.nidi.graphviz.model.Serializer;
 import guru.nidi.graphviz.parse.Parser;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
-import java.util.TreeSet;
 import java.util.function.Consumer;
 
 /**
@@ -100,17 +92,6 @@ public abstract class AbstractOperation implements Operation {
         return ret.get(0);
     }
 
-    /*protected List<Node> getAllNodes(MutableGraph g, String sourceNode) {
-        List<Node> nodes = new ArrayList<>();
-
-        g.nodes().forEach(new Consumer<MutableNode>() {
-            @Override
-            public void accept(MutableNode node) {
-                nodes.add(node.label().toString());
-            }
-        });
-        return nodes;
-    }*/
     protected void markEdge(Map<Edge, AttributesBag> edgeAttributesMap, Edge edge, String color, String label) {
         if (!edgeAttributesMap.containsKey(edge)) {
             edgeAttributesMap.put(edge, new AttributesBag());

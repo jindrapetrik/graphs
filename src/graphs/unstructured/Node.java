@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  *
- * @author Jindra
+ * @author JPEXS
  */
 public interface Node extends Comparable<Node> {
 

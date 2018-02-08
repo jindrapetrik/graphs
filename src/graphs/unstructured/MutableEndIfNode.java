@@ -7,7 +7,7 @@ package graphs.unstructured;
 
 /**
  *
- * @author Jindra
+ * @author JPEXS
  */
 public interface MutableEndIfNode extends EndIfNode, MutableNode {
 
