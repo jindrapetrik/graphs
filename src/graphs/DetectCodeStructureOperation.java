@@ -58,7 +58,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
                         }
                         String compass = edgeCompassesMap.get(edge);
                         String compasses[] = compass.split(":");
-                        String newcompass = ":ne";
+                        String newcompass = "se:ne";
                         if (compasses.length > 0) {
                             newcompass = compasses[0] + ":ne";
                         }
