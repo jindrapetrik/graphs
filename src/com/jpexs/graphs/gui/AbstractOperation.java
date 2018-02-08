@@ -1,4 +1,4 @@
-package com.jpexs.graphs;
+package com.jpexs.graphs.gui;
 
 import com.jpexs.graphs.structure.Edge;
 import com.jpexs.graphs.structure.nodes.Node;

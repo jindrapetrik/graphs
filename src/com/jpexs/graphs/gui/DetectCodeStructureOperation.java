@@ -1,4 +1,4 @@
-package com.jpexs.graphs;
+package com.jpexs.graphs.gui;
 
 import com.jpexs.graphs.structure.CodeStructureDetector;
 import com.jpexs.graphs.structure.CodeStructureDetectorProgressListener;
