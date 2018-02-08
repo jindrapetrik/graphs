@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package graphs;
 
 import graphs.unstructured.Edge;
@@ -71,7 +66,6 @@ public class DetectCodeStructureOperation extends AbstractOperation {
                         label = "goto";
                         break;
                     case OUTSIDEIF:
-                        System.out.println("exitEdge " + edge);
                         if (alreadyHasColor) {
                             return;
                         }
@@ -129,8 +123,6 @@ public class DetectCodeStructureOperation extends AbstractOperation {
                 if (!onTrueAttr.containsKey("color")) {
                     onTrueAttr.put("color", "darkgreen");
                 }
-                //onTrueAttr.put("taillabel", "+");
-                //onFalseAttr.put("taillabel", "-");
                 if (!onFalseAttr.containsKey("color")) {
                     onFalseAttr.put("color", "red");
                 }
@@ -147,7 +139,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
                 if (!edgeAttributesMap.containsKey(onFalseEdge)) {
                     edgeAttributesMap.put(onFalseEdge, new AttributesBag());
                 }
-                markTrueFalseOrder(startNode, new LinkedHashSet<Node>(), edgeAttributesMap);
+                markTrueFalseOrder(startNode, new LinkedHashSet<>(), edgeAttributesMap);
                 regenerate();
             }
 
@@ -158,7 +150,8 @@ public class DetectCodeStructureOperation extends AbstractOperation {
             @Override
             public void multiNodeJoined(MultiNode node) {
                 List<String> labels = new ArrayList<>();
-                String shape = null;
+                String shape;
+                /*=null;*/
                 for (Node subNode : node.getAllSubNodes()) {
                     if (subNode.getId().equals("start")) {
                         startNode = node;
@@ -191,7 +184,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
                     nattr.put("label", String.join("\\l", labels));
                     nodeAttributesMap.put(node, nattr);
                 }
-                if (shape != null && !shape.isEmpty()) {
+                if (/*shape != null &&*/!shape.isEmpty()) {
                     nattr.put("shape", shape);
                     nodeAttributesMap.put(node, nattr);
                 }
@@ -207,10 +200,9 @@ public class DetectCodeStructureOperation extends AbstractOperation {
                 markTrueFalseOrder(startNode, new LinkedHashSet<>(), edgeAttributesMap);
             }
         });
-        //regenerateGraph(new TreeSet<>(nodes.values()), nodeAttributesMap, edgeAttributesMap);
 
         markTrueFalseOrder(startNode, new LinkedHashSet<>(), edgeAttributesMap);
-        det.detect(startNode, new ArrayList<>(), new ArrayList<>());
+        det.detect(startNode, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
     private void markTrueFalseOrder(Node n, Set<Node> visited, Map<Edge, AttributesBag> edgeAttributesMap) {
@@ -245,13 +237,15 @@ public class DetectCodeStructureOperation extends AbstractOperation {
     }
 
     private void updateDecisionLists(MutableGraph g, Map<Edge, DecisionList> decistionLists, Map<Edge, AttributesBag> edgeAttributesMap) {
+        boolean displayDecisionLists = false;
         for (Edge edge : decistionLists.keySet()) {
             if (!edgeAttributesMap.containsKey(edge)) {
                 edgeAttributesMap.put(edge, new AttributesBag());
             }
-//            edgeAttributesMap.get(edge).put("label", decistionLists.get(edge).isEmpty() ? "(empty)" : decistionLists.get(edge).toString());
-//nodesToString(".", decistionLists.get(edge)));
-//            edgeAttributesMap.get(edge).put("fontcolor", "red");
+            if (displayDecisionLists) {
+                edgeAttributesMap.get(edge).put("label", decistionLists.get(edge).isEmpty() ? "(empty)" : decistionLists.get(edge).toString());
+                edgeAttributesMap.get(edge).put("fontcolor", "red");
+            }
         }
     }
 }
