@@ -1,12 +1,18 @@
 package com.jpexs.graphs.gui;
 
+import com.jpexs.graphs.structure.CodeStructureChangerProgressListener;
 import com.jpexs.graphs.structure.CodeStructureDetector;
 import com.jpexs.graphs.structure.CodeStructureDetectorProgressListener;
 import com.jpexs.graphs.structure.DecisionList;
 import com.jpexs.graphs.structure.Edge;
 import com.jpexs.graphs.structure.EdgeType;
+import com.jpexs.graphs.structure.EndIfNodeInjector;
+import com.jpexs.graphs.structure.MultiNodeJoiner;
 import com.jpexs.graphs.structure.nodes.EndIfNode;
 import com.jpexs.graphs.structure.nodes.MultiNode;
+import com.jpexs.graphs.structure.nodes.MutableEndIfNode;
+import com.jpexs.graphs.structure.nodes.MutableMultiNode;
+import com.jpexs.graphs.structure.nodes.MutableNode;
 import com.jpexs.graphs.structure.nodes.Node;
 import guru.nidi.graphviz.model.MutableGraph;
 import java.util.ArrayList;
@@ -26,13 +32,19 @@ public class DetectCodeStructureOperation extends AbstractOperation {
     }
 
     @Override
-    public void executeOnMutableGraph(Set<Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
-        CodeStructureDetector det = new CodeStructureDetector();
-        Node startNode = nodes.iterator().next();
-        final Node fStartNode = startNode;
-        det.addListener(new CodeStructureDetectorProgressListener() {
+    public void executeOnMutableGraph(Set<MutableNode> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
+        CodeStructureDetector<MutableNode> det = new CodeStructureDetector<>();
+        MutableNode startNode = nodes.iterator().next();
+        final MutableNode fStartNode = startNode;
+        final EndIfNodeInjector<MutableNode> endIfInjector = new EndIfNodeInjector<>();
+        CodeStructureChangerProgressListener<MutableNode> listener = new CodeStructureChangerProgressListener<MutableNode>() {
 
-            private Node startNode = fStartNode;
+            private MutableNode startNode = fStartNode;
+
+            @Override
+            public MutableNode endIfDetected(MutableNode decisionNode, List<MutableNode> endBranchNodes, MutableNode afterNode) {
+                return endIfInjector.injectEndIf(decisionNode, endBranchNodes, afterNode);
+            }
 
             @Override
             public void step() {
@@ -77,13 +89,13 @@ public class DetectCodeStructureOperation extends AbstractOperation {
             }
 
             @Override
-            public void nodeSelected(Node node) {
+            public void nodeSelected(MutableNode node) {
                 DetectCodeStructureOperation.this.hilightOneNode(nodes, nodeAttributesMap, node);
                 regenerate();
             }
 
             @Override
-            public void updateDecisionLists(Map<Edge, DecisionList> decistionLists) {
+            public void updateDecisionLists(Map<Edge, DecisionList<MutableNode>> decistionLists) {
                 DetectCodeStructureOperation.this.updateDecisionLists(currentGraph, decistionLists, edgeAttributesMap);
                 regenerate();
             }
@@ -95,7 +107,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
             }
 
             @Override
-            public void endIfAdded(EndIfNode endIfNode) {
+            public void endIfAdded(MutableEndIfNode endIfNode) {
                 nodes.add(endIfNode);
                 for (Node prev : endIfNode.getPrev()) {
                     edgeCompassesMap.put(new Edge(prev, endIfNode), "s:");
@@ -147,7 +159,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
             }
 
             @Override
-            public void multiNodeJoined(MultiNode node) {
+            public void multiNodeJoined(MutableMultiNode node) {
                 List<String> labels = new ArrayList<>();
                 String shape;
                 /*=null;*/
@@ -189,7 +201,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
                 }
                 if (node == startNode) {
                     //make startNode first again
-                    List<Node> oldCopy = new ArrayList<>(nodes);
+                    List<com.jpexs.graphs.structure.nodes.MutableNode> oldCopy = new ArrayList<>(nodes);
                     nodes.clear();
                     nodes.add(startNode);
                     nodes.addAll(oldCopy);
@@ -198,9 +210,14 @@ public class DetectCodeStructureOperation extends AbstractOperation {
                 }
                 markTrueFalseOrder(startNode, new LinkedHashSet<>(), edgeAttributesMap);
             }
-        });
+        };
+        endIfInjector.addListener(listener);
+        det.addListener(listener);
+        MultiNodeJoiner<MutableNode> multiNodeJoiner = new MultiNodeJoiner<>();
+        multiNodeJoiner.addListener(listener);
 
         markTrueFalseOrder(startNode, new LinkedHashSet<>(), edgeAttributesMap);
+        startNode = multiNodeJoiner.createMultiNodes(startNode);
         det.detect(startNode, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
@@ -235,7 +252,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
         }
     }
 
-    private void updateDecisionLists(MutableGraph g, Map<Edge, DecisionList> decistionLists, Map<Edge, AttributesBag> edgeAttributesMap) {
+    private void updateDecisionLists(MutableGraph g, Map<Edge, DecisionList<MutableNode>> decistionLists, Map<Edge, AttributesBag> edgeAttributesMap) {
         boolean displayDecisionLists = false;
         for (Edge edge : decistionLists.keySet()) {
             if (!edgeAttributesMap.containsKey(edge)) {

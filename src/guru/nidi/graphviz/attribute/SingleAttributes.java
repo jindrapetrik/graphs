@@ -19,6 +19,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 
 public class SingleAttributes<T> implements Attributes {
+
     protected final String key;
     protected final T value;
 
@@ -41,7 +42,10 @@ public class SingleAttributes<T> implements Attributes {
             final Class<?> type = (Class<?>) superclass.getActualTypeArguments()[0];
             final Constructor<? extends SingleAttributes> cons = getClass().getDeclaredConstructor(String.class, type);
             cons.setAccessible(true);
-            return (E) cons.newInstance(key, value);
+
+            @SuppressWarnings("unchecked")
+            E ret = (E) cons.newInstance(key, value);
+            return ret;
         } catch (ReflectiveOperationException e) {
             throw new AssertionError(e);
         }

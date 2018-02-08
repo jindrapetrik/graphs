@@ -7,12 +7,12 @@ import java.util.Objects;
  *
  * @author JPEXS
  */
-public class Decision {
+public class Decision<T extends Node> {
 
-    private Node ifNode;
+    private T ifNode;
     private int branchNum;
 
-    public Decision(Node ifNode, int branchNum) {
+    public Decision(T ifNode, int branchNum) {
         this.ifNode = ifNode;
         this.branchNum = branchNum;
     }
@@ -21,7 +21,7 @@ public class Decision {
         return branchNum;
     }
 
-    public Node getIfNode() {
+    public T getIfNode() {
         return ifNode;
     }
 

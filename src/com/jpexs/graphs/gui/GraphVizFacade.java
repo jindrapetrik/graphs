@@ -31,7 +31,7 @@ public class GraphVizFacade {
         Map<Edge, AttributesBag> edgeAttributesMap = new HashMap<>();
         Map<Edge, String> edgeCompassesMap = new HashMap<>();
 
-        Set<Node> nodes = graphToNodes(g, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
+        Set<com.jpexs.graphs.structure.nodes.MutableNode> nodes = graphToNodes(g, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
         String ret = graphToString(generateGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
         //System.out.println(ret);
         return ret;
@@ -48,21 +48,21 @@ public class GraphVizFacade {
         }
     }
 
-    private void populateEdges(Node currentNode, Set<Node> visited, Set<Edge> orderedEdges) {
+    private void populateEdges(com.jpexs.graphs.structure.nodes.MutableNode currentNode, Set<com.jpexs.graphs.structure.nodes.MutableNode> visited, Set<Edge> orderedEdges) {
         if (visited.contains(currentNode)) {
             return;
         }
         visited.add(currentNode);
-        for (Node next : currentNode.getNext()) {
+        for (com.jpexs.graphs.structure.nodes.Node next : currentNode.getNext()) {
             Edge e = new Edge(currentNode, next);
             //System.out.println("generateGraph adding " + e);
             orderedEdges.add(e);
-            populateEdges(next, visited, orderedEdges);
+            populateEdges((com.jpexs.graphs.structure.nodes.MutableNode) next, visited, orderedEdges);
         }
     }
 
-    public MutableGraph generateGraph(Set<Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
-        Set<Node> orderedNodes = nodes;/*new TreeSet<>(new Comparator<Node>() {
+    public MutableGraph generateGraph(Set<com.jpexs.graphs.structure.nodes.MutableNode> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
+        Set<com.jpexs.graphs.structure.nodes.MutableNode> orderedNodes = nodes;/*new TreeSet<>(new Comparator<Node>() {
             @Override
             public int compare(Node o1, Node o2) {
                 return o1.getId().compareTo(o2.getId());
@@ -73,8 +73,8 @@ public class GraphVizFacade {
         Set<Edge> orderedEdges = new LinkedHashSet<>();//HashSet<>();//new TreeSet<>();
 
         //System.out.println("-----------------");
-        Node startNode = orderedNodes.iterator().next();
-        Set<Node> orderedNodes2 = new LinkedHashSet<>();
+        com.jpexs.graphs.structure.nodes.MutableNode startNode = orderedNodes.iterator().next();
+        Set<com.jpexs.graphs.structure.nodes.MutableNode> orderedNodes2 = new LinkedHashSet<>();
         populateEdges(startNode, orderedNodes2, orderedEdges);
         /*
         for (Node node : orderedNodes) {
@@ -228,9 +228,9 @@ public class GraphVizFacade {
         return "";
     }
 
-    public Set<Node> graphToNodes(MutableGraph g, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
-        Set<Node> orderedNodeSet = new LinkedHashSet<>();
-        Map<String, Node> nameToNodeMap = new HashMap<>();
+    public Set<com.jpexs.graphs.structure.nodes.MutableNode> graphToNodes(MutableGraph g, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
+        Set<com.jpexs.graphs.structure.nodes.MutableNode> orderedNodeSet = new LinkedHashSet<>();
+        Map<String, com.jpexs.graphs.structure.nodes.MutableNode> nameToNodeMap = new HashMap<>();
         g.nodes().forEach(new Consumer<MutableNode>() {
             @Override
             public void accept(MutableNode node) {
@@ -238,7 +238,7 @@ public class GraphVizFacade {
                 if (!nameToNodeMap.containsKey(node.label().toString())) {
                     nameToNodeMap.put(node.label().toString(), new BasicMutableNode(node.label().toString()));
                 }
-                Node retNode = nameToNodeMap.get(node.label().toString());
+                com.jpexs.graphs.structure.nodes.MutableNode retNode = nameToNodeMap.get(node.label().toString());
                 orderedNodeSet.add(retNode);
                 //System.out.println("- adding " + retNode);
 
@@ -267,12 +267,12 @@ public class GraphVizFacade {
                         String edgeCompass = fromCompass + ":" + toCompass;
 
                         if (!nameToNodeMap.containsKey(fromId)) {
-                            Node n = new BasicMutableNode(fromId);
+                            com.jpexs.graphs.structure.nodes.MutableNode n = new BasicMutableNode(fromId);
                             orderedNodeSet.add(n);
                             nameToNodeMap.put(fromId, n);
                         }
                         if (!nameToNodeMap.containsKey(toId)) {
-                            Node n = new BasicMutableNode(toId);
+                            com.jpexs.graphs.structure.nodes.MutableNode n = new BasicMutableNode(toId);
                             orderedNodeSet.add(n);
                             nameToNodeMap.put(toId, n);
                         }
@@ -300,9 +300,9 @@ public class GraphVizFacade {
             }
         });
 
-        Set<Node> orderedNodeSet2 = new LinkedHashSet<>();
+        Set<com.jpexs.graphs.structure.nodes.MutableNode> orderedNodeSet2 = new LinkedHashSet<>();
         //System.out.println("Graph to nodes:");
-        Node firstNode = orderedNodeSet.iterator().next();
+        com.jpexs.graphs.structure.nodes.MutableNode firstNode = orderedNodeSet.iterator().next();
         //System.out.println("first node:" + firstNode);
         populateEdges(firstNode, orderedNodeSet2, new LinkedHashSet<>());
         //System.out.println("/Graph of nodes");

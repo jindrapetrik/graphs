@@ -1,5 +1,7 @@
 package com.jpexs.graphs.structure.nodes;
 
+import java.util.List;
+
 /**
  *
  * @author JPEXS

@@ -2,6 +2,7 @@ package com.jpexs.graphs.gui;
 
 import com.jpexs.graphs.structure.BasicMutableNode;
 import com.jpexs.graphs.structure.Edge;
+import com.jpexs.graphs.structure.nodes.MutableNode;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +18,7 @@ public class TestOperation extends AbstractOperation {
     }
 
     @Override
-    protected void executeOnMutableGraph(Set<Node> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
+    protected void executeOnMutableGraph(Set<MutableNode> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge, AttributesBag> edgeAttributesMap, Map<Edge, String> edgeCompassesMap) {
         Node endifNode = new BasicMutableNode("endif-if");
         Node ifNode = new BasicMutableNode("if");
         Node after = new BasicMutableNode("after");

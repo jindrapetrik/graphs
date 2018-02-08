@@ -1,5 +1,6 @@
 package com.jpexs.graphs.structure;
 
+import com.jpexs.graphs.structure.nodes.Node;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -7,25 +8,24 @@ import java.util.Collection;
  *
  * @author JPEXS
  */
-public class DecisionList extends ArrayList<Decision> {
+public class DecisionList<T extends Node> extends ArrayList<Decision<T>> {
 
     public DecisionList() {
     }
 
-    public DecisionList(Collection<? extends Decision> c) {
+    public DecisionList(Collection<? extends Decision<T>> c) {
         super(c);
     }
 
-    public static DecisionList unmodifiableList(DecisionList dl) {
-        ///todo
-        return dl;
+    public DecisionList<T> lockForChanges() {
+        return this;
     }
 
     /*@Override
     public boolean equals(Object o) {
         throw new RuntimeException("called equals"); //FIXME
     }*/
-    public boolean ifNodesEquals(DecisionList other) {
+    public boolean ifNodesEquals(DecisionList<T> other) {
         if (other.size() != size()) {
             return false;
         }
