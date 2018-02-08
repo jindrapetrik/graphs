@@ -1,13 +1,13 @@
-package graphs;
+package com.jpexs.graphs;
 
-import graphs.unstructured.CodeStructureDetector;
-import graphs.unstructured.CodeStructureDetectorProgressListener;
-import graphs.unstructured.DecisionList;
-import graphs.unstructured.Edge;
-import graphs.unstructured.EdgeType;
-import graphs.unstructured.nodes.EndIfNode;
-import graphs.unstructured.nodes.MultiNode;
-import graphs.unstructured.nodes.Node;
+import com.jpexs.graphs.structure.CodeStructureDetector;
+import com.jpexs.graphs.structure.CodeStructureDetectorProgressListener;
+import com.jpexs.graphs.structure.DecisionList;
+import com.jpexs.graphs.structure.Edge;
+import com.jpexs.graphs.structure.EdgeType;
+import com.jpexs.graphs.structure.nodes.EndIfNode;
+import com.jpexs.graphs.structure.nodes.MultiNode;
+import com.jpexs.graphs.structure.nodes.Node;
 import guru.nidi.graphviz.model.MutableGraph;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;

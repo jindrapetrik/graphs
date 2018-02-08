@@ -1,4 +1,4 @@
-package graphs;
+package com.jpexs.graphs;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

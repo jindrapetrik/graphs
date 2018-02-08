@@ -1,8 +1,8 @@
-package graphs;
+package com.jpexs.graphs;
 
-import graphs.unstructured.BasicMutableNode;
-import graphs.unstructured.Edge;
-import graphs.unstructured.nodes.Node;
+import com.jpexs.graphs.structure.BasicMutableNode;
+import com.jpexs.graphs.structure.Edge;
+import com.jpexs.graphs.structure.nodes.Node;
 import java.util.Map;
 import java.util.Set;
 

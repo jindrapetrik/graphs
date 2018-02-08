@@ -1,6 +1,6 @@
-package graphs.unstructured;
+package com.jpexs.graphs.structure;
 
-import graphs.unstructured.nodes.Node;
+import com.jpexs.graphs.structure.nodes.Node;
 import java.util.Objects;
 
 /**

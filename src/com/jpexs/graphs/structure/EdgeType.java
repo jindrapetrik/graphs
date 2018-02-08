@@ -1,4 +1,4 @@
-package graphs.unstructured;
+package com.jpexs.graphs.structure;
 
 /**
  *

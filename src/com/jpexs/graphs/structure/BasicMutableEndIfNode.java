@@ -1,7 +1,7 @@
-package graphs.unstructured;
+package com.jpexs.graphs.structure;
 
-import graphs.unstructured.nodes.Node;
-import graphs.unstructured.nodes.MutableEndIfNode;
+import com.jpexs.graphs.structure.nodes.Node;
+import com.jpexs.graphs.structure.nodes.MutableEndIfNode;
 
 /**
  *

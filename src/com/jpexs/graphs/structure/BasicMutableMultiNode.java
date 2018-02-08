@@ -1,7 +1,7 @@
-package graphs.unstructured;
+package com.jpexs.graphs.structure;
 
-import graphs.unstructured.nodes.Node;
-import graphs.unstructured.nodes.MutableMultiNode;
+import com.jpexs.graphs.structure.nodes.Node;
+import com.jpexs.graphs.structure.nodes.MutableMultiNode;
 import java.util.ArrayList;
 import java.util.List;
 

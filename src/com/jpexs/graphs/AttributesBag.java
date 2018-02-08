@@ -1,4 +1,4 @@
-package graphs;
+package com.jpexs.graphs;
 
 import java.util.HashMap;
 

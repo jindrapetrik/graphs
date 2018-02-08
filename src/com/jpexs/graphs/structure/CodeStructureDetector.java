@@ -1,11 +1,11 @@
-package graphs.unstructured;
+package com.jpexs.graphs.structure;
 
-import graphs.unstructured.nodes.MultiNode;
-import graphs.unstructured.nodes.EndIfNode;
-import graphs.unstructured.nodes.Node;
-import graphs.unstructured.nodes.MutableMultiNode;
-import graphs.unstructured.nodes.MutableNode;
-import graphs.unstructured.nodes.MutableEndIfNode;
+import com.jpexs.graphs.structure.nodes.MultiNode;
+import com.jpexs.graphs.structure.nodes.EndIfNode;
+import com.jpexs.graphs.structure.nodes.Node;
+import com.jpexs.graphs.structure.nodes.MutableMultiNode;
+import com.jpexs.graphs.structure.nodes.MutableNode;
+import com.jpexs.graphs.structure.nodes.MutableEndIfNode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;

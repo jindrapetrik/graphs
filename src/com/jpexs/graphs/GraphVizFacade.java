@@ -1,8 +1,8 @@
-package graphs;
+package com.jpexs.graphs;
 
-import graphs.unstructured.BasicMutableNode;
-import graphs.unstructured.Edge;
-import graphs.unstructured.nodes.Node;
+import com.jpexs.graphs.structure.BasicMutableNode;
+import com.jpexs.graphs.structure.Edge;
+import com.jpexs.graphs.structure.nodes.Node;
 import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Link;
@@ -276,8 +276,8 @@ public class GraphVizFacade {
                             orderedNodeSet.add(n);
                             nameToNodeMap.put(toId, n);
                         }
-                        graphs.unstructured.nodes.MutableNode fromNode = (graphs.unstructured.nodes.MutableNode) nameToNodeMap.get(fromId);
-                        graphs.unstructured.nodes.MutableNode toNode = (graphs.unstructured.nodes.MutableNode) nameToNodeMap.get(toId);
+                        com.jpexs.graphs.structure.nodes.MutableNode fromNode = (com.jpexs.graphs.structure.nodes.MutableNode) nameToNodeMap.get(fromId);
+                        com.jpexs.graphs.structure.nodes.MutableNode toNode = (com.jpexs.graphs.structure.nodes.MutableNode) nameToNodeMap.get(toId);
                         fromNode.addNext(toNode);
                         toNode.addPrev(fromNode);
                         Edge edge = new Edge(fromNode, toNode);
