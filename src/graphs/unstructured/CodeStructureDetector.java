@@ -387,7 +387,7 @@ public class CodeStructureDetector {
                                         prevDecisionLists.set(j, DecisionList.unmodifiableList(decisionListJKratsi));
                                         decistionLists.put(new Edge(decisionListNodes.get(j), BOD), decisionListJKratsi);
                                         Decision decisionK = decisionListK.get(decisionListK.size() - 1);
-                                        Decision decisionJ = decisionListJ.get(decisionListJ.size() - 1);
+                                        Decision decisionJ = decisionListJ.get(decisionListJKratsi.size() - 1);
 
                                         Node decisionNode = decisionK.getIfNode();
                                         Node exitNode = decisionJ.getIfNode();
@@ -415,7 +415,12 @@ public class CodeStructureDetector {
                                         DecisionList shorterDecisionList = new DecisionList(decisionListK);
                                         shorterDecisionList.remove(shorterDecisionList.size() - 1);
                                         System.out.println("injecting if 2");
-
+                                        /*for (Node bn : endBranchNodes) {
+                                            System.out.println("- " + bn);
+                                        }
+                                        System.out.println("decisionJ=" + decisionJ);
+                                        System.out.println("decisionK=" + decisionK);
+                                         */
                                         MutableEndIfNode endIfNode = injectEndIf(decisionNode, endBranchNodes, BOD);
                                         alreadyProcessed.add(endIfNode);
                                         decisionListNodes.add(endIfNode);
