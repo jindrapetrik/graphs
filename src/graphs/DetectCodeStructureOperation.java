@@ -220,8 +220,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
             }
         }
         visited.add(n);
-        if (n.getNext().size() > 1) {
-
+        if (n.getNext().size() == 2) { //more than 2 = some of them are gotos
             for (int i = 0; i < n.getNext().size(); i++) {
                 Node next = n.getNext().get(i);
                 Edge edge = new Edge(n, next);
