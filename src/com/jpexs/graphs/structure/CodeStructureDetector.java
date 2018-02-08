@@ -20,7 +20,7 @@ import java.util.TreeSet;
  *
  * @author JPEXS
  */
-public class CodeStructureDetector {
+public class CodeStructureDetector<T extends Node> {
 
     private List<Node> todoList = new ArrayList<>();
     private List<Node> alreadyProcessed = new ArrayList<>();
@@ -39,9 +39,9 @@ public class CodeStructureDetector {
 
     private Set<Edge> ignoredEdges = new LinkedHashSet<>();
 
-    private Collection<Node> createMultiNodes(Collection<Node> heads) {
+    private Collection<Node> createMultiNodes(Collection<T> heads) {
         Collection<Node> ret = new ArrayList<>();
-        for (Node head : heads) {
+        for (T head : heads) {
             ret.add(createMultiNodes(head, new LinkedHashSet<>()));
         }
         return ret;
@@ -129,14 +129,14 @@ public class CodeStructureDetector {
         return result;
     }
 
-    public Node detect(Node head, List<Node> loopContinues, List<Edge> gotoEdges, List<Edge> backEdges, List<Edge> exitIfEdges) {
-        Set<Node> heads = new LinkedHashSet<>();
+    public Node detect(T head, List<Node> loopContinues, List<Edge> gotoEdges, List<Edge> backEdges, List<Edge> exitIfEdges) {
+        Set<T> heads = new LinkedHashSet<>();
         heads.add(head);
         Collection<Node> multiHeads = detect(heads, loopContinues, gotoEdges, backEdges, exitIfEdges);
         return multiHeads.toArray(new Node[1])[0];
     }
 
-    public Collection<Node> detect(Collection<Node> heads, List<Node> loopContinues, List<Edge> gotoEdges, List<Edge> backEdges, List<Edge> exitIfEdges) {
+    public Collection<Node> detect(Collection<T> heads, List<Node> loopContinues, List<Edge> gotoEdges, List<Edge> backEdges, List<Edge> exitIfEdges) {
         Collection<Node> multiHeads = createMultiNodes(heads);
         todoList.addAll(multiHeads);
         walk();
