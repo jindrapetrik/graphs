@@ -1,15 +1,32 @@
+/*
+ * Copyright (C) 2018 JPEXS, All rights reserved.
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library.
+ */
 package com.jpexs.graphs.gui;
 
-import com.jpexs.graphs.structure.factories.operations.CodeStructureChangerProgressListener;
-import com.jpexs.graphs.structure.factories.operations.CodeStructureDetector;
-import com.jpexs.graphs.structure.factories.operations.CodeStructureDetectorProgressListener;
 import com.jpexs.graphs.structure.DecisionList;
 import com.jpexs.graphs.structure.Edge;
+import com.jpexs.graphs.structure.factories.operations.CodeStructureChangerProgressListener;
+import com.jpexs.graphs.structure.factories.operations.CodeStructureDetector;
 import com.jpexs.graphs.structure.factories.operations.DetectedEdgeType;
 import com.jpexs.graphs.structure.factories.operations.EndIfNodeInjector;
 import com.jpexs.graphs.structure.factories.operations.MultiNodeJoiner;
+import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
+import com.jpexs.graphs.structure.nodes.EditableMultiNode;
+import com.jpexs.graphs.structure.nodes.EditableNode;
 import com.jpexs.graphs.structure.nodes.EndIfNode;
-import com.jpexs.graphs.structure.nodes.MultiNode;
 import com.jpexs.graphs.structure.nodes.Node;
 import guru.nidi.graphviz.model.MutableGraph;
 import java.util.ArrayList;
@@ -17,9 +34,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import com.jpexs.graphs.structure.nodes.EditableNode;
-import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
-import com.jpexs.graphs.structure.nodes.EditableMultiNode;
 
 /**
  *
