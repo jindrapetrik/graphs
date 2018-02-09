@@ -1,50 +1,50 @@
 package com.jpexs.graphs.structure;
 
 import com.jpexs.graphs.structure.nodes.MultiNode;
-import com.jpexs.graphs.structure.nodes.MutableMultiNode;
-import com.jpexs.graphs.structure.nodes.MutableNode;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import com.jpexs.graphs.structure.nodes.EditableNode;
+import com.jpexs.graphs.structure.nodes.EditableMultiNode;
 
 /**
  *
  * @author JPEXS
  */
-public class MultiNodeJoiner<T extends MutableNode> {
+public class MultiNodeJoiner<T extends EditableNode> {
 
-    public MutableNode createMultiNodes(T head) {
+    public EditableNode createMultiNodes(T head) {
         Collection<T> heads = new ArrayList<>();
         heads.add(head);
-        Collection<MutableNode> multiHeads = createMultiNodes(heads);
-        return multiHeads.toArray(new MutableNode[1])[0];
+        Collection<EditableNode> multiHeads = createMultiNodes(heads);
+        return multiHeads.toArray(new EditableNode[1])[0];
     }
 
-    public Collection<MutableNode> createMultiNodes(Collection<T> heads) {
-        Collection<MutableNode> ret = new ArrayList<>();
-        for (MutableNode head : heads) {
+    public Collection<EditableNode> createMultiNodes(Collection<T> heads) {
+        Collection<EditableNode> ret = new ArrayList<>();
+        for (EditableNode head : heads) {
             ret.add(createMultiNodes(head, new LinkedHashSet<>()));
         }
         return ret;
     }
 
-    private MutableNode createMultiNodes(MutableNode node, Set<MutableNode> visited) {
+    private EditableNode createMultiNodes(EditableNode node, Set<EditableNode> visited) {
         if (visited.contains(node)) {
             return node;
         }
-        final MutableNode originalNode = node;
-        MutableNode result;
+        final EditableNode originalNode = node;
+        EditableNode result;
 
-        MutableNode currentNode = originalNode;
+        EditableNode currentNode = originalNode;
         List<Node> subNodesList = new ArrayList<>();
         subNodesList.add(currentNode);
         visited.add(currentNode);
 
         while (currentNode.getNext().size() == 1 && currentNode.getNext().get(0).getPrev().size() == 1 && !visited.contains(currentNode.getNext().get(0))) {
-            currentNode = (MutableNode) currentNode.getNext().get(0);
+            currentNode = (EditableNode) currentNode.getNext().get(0);
             visited.add(currentNode);
             subNodesList.add(currentNode);
         }
@@ -58,7 +58,7 @@ public class MultiNodeJoiner<T extends MutableNode> {
                 subIds.add(sub.getId());
             }
             String multiId = String.join("\\l", subIds) + "\\l";
-            MutableMultiNode multiNode = new BasicMutableMultiNode(multiId);
+            EditableMultiNode multiNode = new BasicMutableMultiNode(multiId);
             for (Node sub : subNodesList) {
                 multiNode.addSubNode(sub);
             }
@@ -66,13 +66,13 @@ public class MultiNodeJoiner<T extends MutableNode> {
             for (int i = 0; i < lastSubNode.getNext().size(); i++) {
                 Node next = lastSubNode.getNext().get(i);
                 multiNode.addNext(next);
-                if (lastSubNode instanceof MutableNode) {  //it must be - TODO - make detector use only mutable
-                    MutableNode lastSubNodeMutable = (MutableNode) lastSubNode;
+                if (lastSubNode instanceof EditableNode) {  //it must be - TODO - make detector use only mutable
+                    EditableNode lastSubNodeMutable = (EditableNode) lastSubNode;
                     lastSubNodeMutable.removeNext(next);
                     i--; //removing from iterated nexts, must decrement to not skip anything
                 }
-                if (next instanceof MutableNode) { //it must be - TODO - make detector use only mutable
-                    MutableNode nextMutable = (MutableNode) next;
+                if (next instanceof EditableNode) { //it must be - TODO - make detector use only mutable
+                    EditableNode nextMutable = (EditableNode) next;
                     for (int j = 0; j < next.getPrev().size(); j++) {
                         if (next.getPrev().get(j) == lastSubNode) {
                             nextMutable.setPrev(j, multiNode);
@@ -84,13 +84,13 @@ public class MultiNodeJoiner<T extends MutableNode> {
             for (int i = 0; i < firstSubNode.getPrev().size(); i++) {
                 Node prev = firstSubNode.getPrev().get(i);
                 multiNode.addPrev(prev);
-                if (firstSubNode instanceof MutableNode) { //it must be - TODO - make detector use only mutable
-                    MutableNode firstSubNodeMutable = (MutableNode) firstSubNode;
+                if (firstSubNode instanceof EditableNode) { //it must be - TODO - make detector use only mutable
+                    EditableNode firstSubNodeMutable = (EditableNode) firstSubNode;
                     firstSubNodeMutable.removePrev(prev);
                     i--; //removing from iterated prevs, must decrement to not skip anything
                 }
-                if (prev instanceof MutableNode) { //it must be - TODO - make detector use only mutable
-                    MutableNode prevMutable = (MutableNode) prev;
+                if (prev instanceof EditableNode) { //it must be - TODO - make detector use only mutable
+                    EditableNode prevMutable = (EditableNode) prev;
                     for (int j = 0; j < prev.getNext().size(); j++) {
                         if (prev.getNext().get(j) == firstSubNode) {
                             prevMutable.setNext(j, multiNode);
@@ -107,7 +107,7 @@ public class MultiNodeJoiner<T extends MutableNode> {
 
         fireStep();
         for (Node next : result.getNext()) {
-            createMultiNodes((MutableNode) next, visited);
+            createMultiNodes((EditableNode) next, visited);
         }
 
         return result;
@@ -123,7 +123,7 @@ public class MultiNodeJoiner<T extends MutableNode> {
         listeners.remove(l);
     }
 
-    private void fireMultiNodeJoined(MutableMultiNode node) {
+    private void fireMultiNodeJoined(EditableMultiNode node) {
         for (MultiNodeJoinerProgressListener l : listeners) {
             l.multiNodeJoined(node);
         }

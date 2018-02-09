@@ -1,6 +1,6 @@
 package com.jpexs.graphs.structure;
 
-import com.jpexs.graphs.structure.nodes.MutableEndIfNode;
+import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
 
 /**
  *
@@ -8,5 +8,5 @@ import com.jpexs.graphs.structure.nodes.MutableEndIfNode;
  */
 public interface EnfIfNodeInjectorProgressListener {
 
-    public void endIfAdded(MutableEndIfNode endIfNode);
+    public void endIfAdded(EditableEndIfNode endIfNode);
 }

@@ -1,13 +1,13 @@
 package com.jpexs.graphs.structure;
 
 import com.jpexs.graphs.structure.nodes.Node;
-import com.jpexs.graphs.structure.nodes.MutableEndIfNode;
+import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
 
 /**
  *
  * @author JPEXS
  */
-public class BasicMutableEndIfNode extends BasicMutableNode implements MutableEndIfNode {
+public class BasicMutableEndIfNode extends BasicMutableNode implements EditableEndIfNode {
 
     private Node ifNode;
     public static String ID_PREFIX = "endif-";

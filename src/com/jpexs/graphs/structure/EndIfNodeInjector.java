@@ -5,17 +5,17 @@
  */
 package com.jpexs.graphs.structure;
 
-import com.jpexs.graphs.structure.nodes.MutableEndIfNode;
-import com.jpexs.graphs.structure.nodes.MutableNode;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.ArrayList;
 import java.util.List;
+import com.jpexs.graphs.structure.nodes.EditableNode;
+import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
 
 /**
  *
  * @author JPEXS
  */
-public class EndIfNodeInjector<T extends MutableNode> {
+public class EndIfNodeInjector<T extends EditableNode> {
 
     private EndIfFactory endIfFactory = new BasicEndIfFactory();
 
@@ -23,7 +23,7 @@ public class EndIfNodeInjector<T extends MutableNode> {
         this.endIfFactory = endIfFactory;
     }
 
-    public MutableEndIfNode injectEndIf(T decisionNode, List<T> endBranchNodes, T afterNode) {
+    public EditableEndIfNode injectEndIf(T decisionNode, List<T> endBranchNodes, T afterNode) {
         int afterNodePrevIndex = Integer.MAX_VALUE;
         for (Node prev : endBranchNodes) {
             int index = afterNode.getPrev().indexOf(prev);
@@ -32,20 +32,20 @@ public class EndIfNodeInjector<T extends MutableNode> {
             }
         }
 
-        MutableEndIfNode endIfNode = endIfFactory.makeEndIfNode(decisionNode);
+        EditableEndIfNode endIfNode = endIfFactory.makeEndIfNode(decisionNode);
 
         //remove connection prev->after
         for (int i = 0; i < endBranchNodes.size(); i++) {
-            MutableNode prev = endBranchNodes.get(i);
+            EditableNode prev = endBranchNodes.get(i);
             prev.removeNext(afterNode);
         }
-        for (MutableNode prev : endBranchNodes) {
+        for (EditableNode prev : endBranchNodes) {
             afterNode.removePrev(prev);
         }
 
         //add connection prev->endif 
         for (int i = 0; i < endBranchNodes.size(); i++) {
-            MutableNode prev = endBranchNodes.get(i);
+            EditableNode prev = endBranchNodes.get(i);
             prev.addNext(endIfNode);
             endIfNode.addPrev(prev);
         }
@@ -67,7 +67,7 @@ public class EndIfNodeInjector<T extends MutableNode> {
         listeners.remove(l);
     }
 
-    private void fireEndIfAdded(MutableEndIfNode node) {
+    private void fireEndIfAdded(EditableEndIfNode node) {
         for (EnfIfNodeInjectorProgressListener l : listeners) {
             l.endIfAdded(node);
         }

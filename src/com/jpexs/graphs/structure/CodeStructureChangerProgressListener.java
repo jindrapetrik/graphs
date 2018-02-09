@@ -1,11 +1,11 @@
 package com.jpexs.graphs.structure;
 
-import com.jpexs.graphs.structure.nodes.MutableNode;
+import com.jpexs.graphs.structure.nodes.EditableNode;
 
 /**
  *
  * @author Jindra
  */
-public interface CodeStructureChangerProgressListener<T extends MutableNode> extends CodeStructureDetectorProgressListener<T>, MultiNodeJoinerProgressListener<T>, EnfIfNodeInjectorProgressListener {
+public interface CodeStructureChangerProgressListener<T extends EditableNode> extends CodeStructureDetectorProgressListener<T>, MultiNodeJoinerProgressListener<T>, EnfIfNodeInjectorProgressListener {
 
 }

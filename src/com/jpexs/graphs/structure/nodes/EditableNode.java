@@ -6,7 +6,7 @@ import java.util.List;
  *
  * @author JPEXS
  */
-public interface MutableNode extends Node {
+public interface EditableNode extends Node {
 
     public void addNext(Node node);
 

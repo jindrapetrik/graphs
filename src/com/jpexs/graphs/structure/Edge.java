@@ -6,12 +6,12 @@ import com.jpexs.graphs.structure.nodes.Node;
  *
  * @author JPEXS
  */
-public class Edge implements Comparable<Edge> {
+public class Edge<N extends Node> implements Comparable<Edge<N>> {
 
-    public Node from;
-    public Node to;
+    public N from;
+    public N to;
 
-    public Edge(Node from, Node to) {
+    public Edge(N from, N to) {
         this.from = from;
         this.to = to;
     }
@@ -48,7 +48,7 @@ public class Edge implements Comparable<Edge> {
     }
 
     @Override
-    public int compareTo(Edge o) {
+    public int compareTo(Edge<N> o) {
         int ret = from.compareTo(o.from);
         if (ret != 0) {
             return ret;

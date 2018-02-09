@@ -2,8 +2,6 @@ package com.jpexs.graphs.structure;
 
 import com.jpexs.graphs.structure.nodes.EndIfNode;
 import com.jpexs.graphs.structure.nodes.Node;
-import com.jpexs.graphs.structure.nodes.MutableNode;
-import com.jpexs.graphs.structure.nodes.MutableEndIfNode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -13,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import com.jpexs.graphs.structure.nodes.EditableNode;
+import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
 
 /**
  *
@@ -22,29 +22,29 @@ public class CodeStructureDetector<T extends Node> {
 
     private List<T> todoList = new ArrayList<>();
     private List<Node> alreadyProcessed = new ArrayList<>();
-    private Map<Edge, DecisionList<T>> decistionLists = new HashMap<>();
+    private Map<Edge<T>, DecisionList<T>> decistionLists = new HashMap<>();
     private List<DecisionList<T>> rememberedDecisionLists = new ArrayList<>();
     private List<T> waiting = new ArrayList<>();
     private List<Node> loopContinues = new ArrayList<>();
-    private List<Edge> backEdges = new ArrayList<>();
-    private List<Edge> gotoEdges = new ArrayList<>();
-    private List<Edge> exitIfEdges = new ArrayList<>();
+    private List<Edge<T>> backEdges = new ArrayList<>();
+    private List<Edge<T>> gotoEdges = new ArrayList<>();
+    private List<Edge<T>> exitIfEdges = new ArrayList<>();
     private EndIfFactory endIfFactory = new BasicEndIfFactory();
 
     public void setEndIfFactory(EndIfFactory endIfFactory) {
         this.endIfFactory = endIfFactory;
     }
 
-    private Set<Edge> ignoredEdges = new LinkedHashSet<>();
+    private Set<Edge<T>> ignoredEdges = new LinkedHashSet<>();
 
-    public Node detect(T head, List<Node> loopContinues, List<Edge> gotoEdges, List<Edge> backEdges, List<Edge> exitIfEdges) {
+    public Node detect(T head, List<Node> loopContinues, List<Edge<T>> gotoEdges, List<Edge<T>> backEdges, List<Edge<T>> exitIfEdges) {
         Set<T> heads = new LinkedHashSet<>();
         heads.add(head);
         Collection<T> multiHeads = detect(heads, loopContinues, gotoEdges, backEdges, exitIfEdges);
         return multiHeads.toArray(new Node[1])[0];
     }
 
-    public Collection<T> detect(Collection<T> heads, List<Node> loopContinues, List<Edge> gotoEdges, List<Edge> backEdges, List<Edge> exitIfEdges) {
+    public Collection<T> detect(Collection<T> heads, List<Node> loopContinues, List<Edge<T>> gotoEdges, List<Edge<T>> backEdges, List<Edge<T>> exitIfEdges) {
         //Collection<Node> multiHeads = createMultiNodes(heads);
         todoList.addAll(heads);
         walk();
@@ -63,13 +63,13 @@ public class CodeStructureDetector<T extends Node> {
             T cek = waiting.get(i);
             Set<Node> visited = new LinkedHashSet<>();
             Set<Node> insideLoopNodes = new LinkedHashSet<>();
-            Set<Edge> loopExitEdges = new LinkedHashSet<>();
-            Set<Edge> loopContinueEdges = new LinkedHashSet<>();
+            Set<Edge<T>> loopExitEdges = new LinkedHashSet<>();
+            Set<Edge<T>> loopContinueEdges = new LinkedHashSet<>();
 
             if (leadsTo(cek, cek, insideLoopNodes, loopExitEdges, loopContinueEdges, visited)) { //it waits for self => loop
 
                 T continueNode = cek;
-                for (Edge edge : loopContinueEdges) {
+                for (Edge<T> edge : loopContinueEdges) {
                     fireEdgeMarked(edge, EdgeType.BACK);
                 }
 
@@ -78,17 +78,17 @@ public class CodeStructureDetector<T extends Node> {
                 currentWaiting.remove(continueNode);
                 loopContinues.add(continueNode);
                 backEdges.addAll(loopContinueEdges);
-                Set<Edge> cekajiciVstupniEdges = new LinkedHashSet<>();
+                Set<Edge<T>> cekajiciVstupniEdges = new LinkedHashSet<>();
                 for (T c : currentWaiting) {
                     for (T pc : getPrevNodes(c)) {
-                        cekajiciVstupniEdges.add(new Edge(pc, c));
+                        cekajiciVstupniEdges.add(new Edge<>(pc, c));
                     }
                 }
                 ignoredEdges.addAll(loopContinueEdges);
 
                 for (T next : getNextNodes(continueNode)) {
                     if (!insideLoopNodes.contains(next)) {
-                        cekajiciVstupniEdges.add(new Edge(continueNode, next));
+                        cekajiciVstupniEdges.add(new Edge<>(continueNode, next));
                         currentWaiting.add(next);
                     }
                 }
@@ -103,7 +103,7 @@ public class CodeStructureDetector<T extends Node> {
 
                 DecisionList<T> loopDecisionList = calculateDecisionListFromPrevNodes(continueNode, getPrevNodes(continueNode) /*bez ignored*/).lockForChanges();
 
-                for (Edge edge : cekajiciVstupniEdges) {
+                for (Edge<T> edge : cekajiciVstupniEdges) {
                     if (alreadyProcessed.contains(edge.from) && !decistionLists.containsKey(edge)) {
                         //doplnit DL
                         decistionLists.put(edge, loopDecisionList);
@@ -120,25 +120,27 @@ public class CodeStructureDetector<T extends Node> {
         return false;
     }
 
-    private boolean leadsTo(T nodeSearchIn, T nodeSearchWhich, Set<Node> insideLoopNodes, Set<Edge> noLeadEdges, Set<Edge> foundEdges, Set<Node> visited) {
+    private boolean leadsTo(T nodeSearchIn, T nodeSearchWhich, Set<Node> insideLoopNodes, Set<Edge<T>> noLeadEdges, Set<Edge<T>> foundEdges, Set<Node> visited) {
         if (visited.contains(nodeSearchIn)) {
             return insideLoopNodes.contains(nodeSearchIn);
         }
         visited.add(nodeSearchIn);
         for (Node next : getNextNodes(nodeSearchIn)) {
+            @SuppressWarnings("unchecked")
+            T nextT = (T) next;
             if (next.equals(nodeSearchWhich)) {
-                foundEdges.add(new Edge(nodeSearchIn, next));
+                foundEdges.add(new Edge<>(nodeSearchIn, nextT));
                 return true;
             }
         }
         boolean ret = false;
-        Set<Edge> currentNoLeadNodes = new LinkedHashSet<>();
+        Set<Edge<T>> currentNoLeadNodes = new LinkedHashSet<>();
         for (T next : getNextNodes(nodeSearchIn)) {
             if (leadsTo(next, nodeSearchWhich, insideLoopNodes, currentNoLeadNodes, foundEdges, visited)) {
                 insideLoopNodes.add(next);
                 ret = true;
             } else {
-                currentNoLeadNodes.add(new Edge(nodeSearchIn, next));
+                currentNoLeadNodes.add(new Edge<>(nodeSearchIn, next));
             }
         }
         if (ret == true) {
@@ -147,7 +149,7 @@ public class CodeStructureDetector<T extends Node> {
         return ret;
     }
 
-    private boolean removeExitPointFromPrevDlists(Node prevNode, Node node, Node exitPoint, Set<Node> processedNodes) {
+    private boolean removeExitPointFromPrevDlists(T prevNode, T node, T exitPoint, Set<T> processedNodes) {
         boolean lastOne = false;
         if (processedNodes.contains(node)) {
             return false;
@@ -157,7 +159,10 @@ public class CodeStructureDetector<T extends Node> {
             int insideIfBranchIndex = prevNode.getNext().indexOf(node);
             for (int branchIndex = 0; branchIndex < exitPoint.getNext().size(); branchIndex++) {
                 if (branchIndex != insideIfBranchIndex) {
-                    Edge exitEdge = new Edge(exitPoint, exitPoint.getNext().get(branchIndex));
+                    @SuppressWarnings("unchecked")
+                    T branchNodeT = (T) exitPoint.getNext().get(branchIndex);
+
+                    Edge<T> exitEdge = new Edge<>(exitPoint, branchNodeT);
                     exitIfEdges.add(exitEdge);
                     fireEdgeMarked(exitEdge, EdgeType.OUTSIDEIF);
                 }
@@ -165,7 +170,7 @@ public class CodeStructureDetector<T extends Node> {
 
             return true;
         }
-        Edge edge = new Edge(prevNode, node);
+        Edge<T> edge = new Edge<>(prevNode, node);
         DecisionList<T> decisionList = decistionLists.get(edge);
         if (decisionList != null) {
             if (!decisionList.isEmpty() && decisionList.get(decisionList.size() - 1).getIfNode().equals(exitPoint)) {
@@ -181,7 +186,9 @@ public class CodeStructureDetector<T extends Node> {
                 if (loopContinues.contains(prev)) {
                     continue;
                 }
-                if (removeExitPointFromPrevDlists(prev, prevNode, exitPoint, processedNodes)) {
+                @SuppressWarnings("unchecked")
+                T prevT = (T) prev;
+                if (removeExitPointFromPrevDlists(prevT, prevNode, exitPoint, processedNodes)) {
                     return true;
                 }
             }
@@ -194,7 +201,7 @@ public class CodeStructureDetector<T extends Node> {
         List<DecisionList<T>> prevDecisionLists = new ArrayList<>();
         List<T> decisionListNodes = new ArrayList<>(prevNodes);
         for (T prevNode : prevNodes) {
-            Edge edge = new Edge(prevNode, BOD);
+            Edge<T> edge = new Edge<>(prevNode, BOD);
             DecisionList<T> prevDL = decistionLists.get(edge);
             if (prevDL == null) {
                 System.err.println("WARNING - no decisionList for edge " + edge);
@@ -210,7 +217,7 @@ public class CodeStructureDetector<T extends Node> {
             //Remove decisionLists, which are remembered from last time as unstructured
             for (int i = prevDecisionLists.size() - 1; i >= 0; i--) {
                 if (rememberedDecisionLists.contains(prevDecisionLists.get(i))) {
-                    Edge gotoEdge = new Edge(prevNodes.get(i), BOD);
+                    Edge<T> gotoEdge = new Edge<>(prevNodes.get(i), BOD);
                     gotoEdges.add(gotoEdge);
                     fireEdgeMarked(gotoEdge, EdgeType.GOTO);
                     prevDecisionLists.remove(i);
@@ -267,7 +274,7 @@ public class CodeStructureDetector<T extends Node> {
                             alreadyProcessed.add(endIfNode);
                             decisionListNodes.add(endIfNode);
                             prevDecisionLists.add(shorterDecisionList);
-                            decistionLists.put(new Edge(endIfNode, BOD), shorterDecisionList);
+                            decistionLists.put(new Edge<>(endIfNode, BOD), shorterDecisionList);
                             //fireEndIfNodeAdded(endIfNode);
                             fireUpdateDecisionLists(decistionLists);
                             fireStep();
@@ -306,7 +313,7 @@ public class CodeStructureDetector<T extends Node> {
                                     if (decisionListJKratsi.ifNodesEquals(decisionListK)) {
                                         rememberedDecisionLists.add(decisionListJ);
                                         prevDecisionLists.set(j, decisionListJKratsi.lockForChanges());
-                                        decistionLists.put(new Edge(decisionListNodes.get(j), BOD), decisionListJKratsi);
+                                        decistionLists.put(new Edge<>(decisionListNodes.get(j), BOD), decisionListJKratsi);
                                         Decision<T> decisionK = decisionListK.get(decisionListK.size() - 1);
                                         Decision<T> decisionJ = decisionListJ.get(decisionListJKratsi.size() - 1);
 
@@ -342,7 +349,7 @@ public class CodeStructureDetector<T extends Node> {
                                         alreadyProcessed.add(endIfNode);
                                         decisionListNodes.add(endIfNode);
                                         prevDecisionLists.add(shorterDecisionList);
-                                        decistionLists.put(new Edge(endIfNode, BOD), shorterDecisionList);
+                                        decistionLists.put(new Edge<>(endIfNode, BOD), shorterDecisionList);
                                         //----
                                         fireUpdateDecisionLists(decistionLists);
                                         fireStep();
@@ -394,20 +401,22 @@ public class CodeStructureDetector<T extends Node> {
                     DecisionList<T> decisionList = prevDecisionLists.get(i);
                     if (decisionList.size() > prefix.size()) {
                         rememberedDecisionLists.add(decisionList);
-                        Edge gotoEdge = new Edge(decisionListNodes.get(i), BOD);
+                        Edge<T> gotoEdge = new Edge<>(decisionListNodes.get(i), BOD);
                         gotoEdges.add(gotoEdge);
                         fireEdgeMarked(gotoEdge, EdgeType.GOTO);
                     }
                     if (decisionList.size() > prefix.size()) {
                         Decision<T> exitDecision = decisionList.get(prefix.size() - 1 + 1);
-                        Node exitNode = exitDecision.getIfNode();
+                        T exitNode = exitDecision.getIfNode();
                         removeExitPointFromPrevDlists(decisionListNodes.get(i), BOD, exitNode, new LinkedHashSet<>());
                     }
                 }
 
                 //just merge of unstructured branches
                 for (Node prev : decisionListNodes) {
-                    decistionLists.put(new Edge(prev, BOD), prefix);
+                    @SuppressWarnings("unchecked")
+                    T prevT = (T) prev;
+                    decistionLists.put(new Edge<>(prevT, BOD), prefix);
                 }
                 fireStep();
                 nextDecisionList = prefix;
@@ -421,7 +430,7 @@ public class CodeStructureDetector<T extends Node> {
         for (Node prev : sourceNode.getPrev()) {
             @SuppressWarnings("unchecked")
             T prevT = (T) prev;
-            if (!ignoredEdges.contains(new Edge(prevT, sourceNode))) {
+            if (!ignoredEdges.contains(new Edge<>(prevT, sourceNode))) {
                 ret.add((T) prevT);
             }
         }
@@ -433,7 +442,7 @@ public class CodeStructureDetector<T extends Node> {
         for (Node next : sourceNode.getNext()) {
             @SuppressWarnings("unchecked")
             T nextT = (T) next;
-            if (!ignoredEdges.contains(new Edge(sourceNode, nextT))) {
+            if (!ignoredEdges.contains(new Edge<>(sourceNode, nextT))) {
                 ret.add((T) nextT);
             }
         }
@@ -467,7 +476,7 @@ public class CodeStructureDetector<T extends Node> {
 
                 for (int branch = 0; branch < nextNodes.size(); branch++) {
                     T next = nextNodes.get(branch);
-                    Edge edge = new Edge(currentPoint, next);
+                    Edge<T> edge = new Edge<>(currentPoint, next);
                     DecisionList<T> nextDecisionList = new DecisionList<>(mergedDecisionList);
                     if (nextNodes.size() > 1) {
                         nextDecisionList.add(new Decision<>(currentPoint, branch));
@@ -493,9 +502,9 @@ public class CodeStructureDetector<T extends Node> {
     }
 
     private T fireEndIfDetected(T decisionNode, List<T> endBranchNodes, T node) {
-        List<Edge> beforeEdges = new ArrayList<>();
+        List<Edge<T>> beforeEdges = new ArrayList<>();
         for (T prev : endBranchNodes) {
-            beforeEdges.add(new Edge(prev, node));
+            beforeEdges.add(new Edge<>(prev, node));
         }
         //T endIfNode = afterNode; //fireEndIfDetected(decisionNode, endBranchNodes, BOD);
 
@@ -505,20 +514,21 @@ public class CodeStructureDetector<T extends Node> {
 
         //restore decisionlists of branches
         for (int m = 0; m < node.getPrev().size(); m++) {
-            Node prev = node.getPrev().get(m);
-            decistionLists.put(new Edge(prev, node), decistionLists.get(beforeEdges.get(m)));
+            @SuppressWarnings("unchecked")
+            T prev = (T) node.getPrev().get(m);
+            decistionLists.put(new Edge<>(prev, node), decistionLists.get(beforeEdges.get(m)));
         }
         return node;
     }
 
     private void fireStep() {
-        for (CodeStructureDetectorProgressListener l : listeners) {
+        for (CodeStructureDetectorProgressListener<T> l : listeners) {
             l.step();
         }
     }
 
-    private void fireEdgeMarked(Edge edge, EdgeType edgeType) {
-        for (CodeStructureDetectorProgressListener l : listeners) {
+    private void fireEdgeMarked(Edge<T> edge, EdgeType edgeType) {
+        for (CodeStructureDetectorProgressListener<T> l : listeners) {
             l.edgeMarked(edge, edgeType);
         }
     }
@@ -529,7 +539,7 @@ public class CodeStructureDetector<T extends Node> {
         }
     }
 
-    private void fireUpdateDecisionLists(Map<Edge, DecisionList<T>> decistionLists) {
+    private void fireUpdateDecisionLists(Map<Edge<T>, DecisionList<T>> decistionLists) {
         for (CodeStructureDetectorProgressListener<T> l : listeners) {
             l.updateDecisionLists(decistionLists);
         }

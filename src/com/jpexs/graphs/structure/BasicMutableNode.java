@@ -1,16 +1,16 @@
 package com.jpexs.graphs.structure;
 
 import com.jpexs.graphs.structure.nodes.Node;
-import com.jpexs.graphs.structure.nodes.MutableNode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import com.jpexs.graphs.structure.nodes.EditableNode;
 
 /**
  *
  * @author JPEXS
  */
-public class BasicMutableNode implements MutableNode {
+public class BasicMutableNode implements EditableNode {
 
     private String id;
     private List<Node> nextNodes = new ArrayList<>();

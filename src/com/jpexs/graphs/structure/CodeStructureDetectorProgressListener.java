@@ -17,11 +17,11 @@ public interface CodeStructureDetectorProgressListener<T extends Node> {
     //public void endIfAdded(EndIfNode node);
     public T endIfDetected(T decisionNode, List<T> endBranchNodes, T afterNode);
 
-    public void edgeMarked(Edge edge, EdgeType edgeType);
+    public void edgeMarked(Edge<T> edge, EdgeType edgeType);
 
     public void nodeSelected(T node);
 
-    public void updateDecisionLists(Map<Edge, DecisionList<T>> decistionLists);
+    public void updateDecisionLists(Map<Edge<T>, DecisionList<T>> decistionLists);
 
     public void noNodeSelected();
 }
