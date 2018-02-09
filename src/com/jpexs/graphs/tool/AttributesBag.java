@@ -16,11 +16,11 @@
  */
 package com.jpexs.graphs.tool;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  *
  * @author JPEXS
  */
-public class AttributesBag extends HashMap<String, Object> {
+public class AttributesBag extends LinkedHashMap<String, Object> {
 }
