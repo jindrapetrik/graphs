@@ -25,19 +25,20 @@ import java.util.Map;
 /**
  *
  * @author JPEXS
+ * @param <N> Node type
  */
-public interface CodeStructureDetectorProgressListener<T extends Node> {
+public interface CodeStructureDetectorProgressListener<N extends Node> {
 
     public void step();
 
     //public void endIfAdded(EndIfNode node);
-    public T endIfDetected(T decisionNode, List<T> endBranchNodes, T afterNode);
+    public N endIfDetected(N decisionNode, List<N> endBranchNodes, N afterNode);
 
-    public void edgeMarked(Edge<T> edge, DetectedEdgeType edgeType);
+    public void edgeMarked(Edge<N> edge, DetectedEdgeType edgeType);
 
-    public void nodeSelected(T node);
+    public void nodeSelected(N node);
 
-    public void updateDecisionLists(Map<Edge<T>, DecisionList<T>> decistionLists);
+    public void updateDecisionLists(Map<Edge<N>, DecisionList<N>> decistionLists);
 
     public void noNodeSelected();
 }

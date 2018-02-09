@@ -62,7 +62,7 @@ public class GraphTool {
     static JPanel imagePanel;
     static BufferedImage img;
 
-    static Operation op = null;
+    static StringOperation op = null;
     private static String currentFileName = "in";
     private static final String EXTENSION = ".gv";
     private static final String FILES_PATH = "graphs";
@@ -112,7 +112,7 @@ public class GraphTool {
         return br;
     }
 
-    private static void setOperation(AbstractOperation op) {
+    private static void setOperation(AbstractGraphOperation op) {
         GraphTool.op = op;
     }
 
@@ -204,7 +204,7 @@ public class GraphTool {
                     @Override
                     protected Void doInBackground() throws Exception {
                         try {
-                            setOperation(new DetectCodeStructureOperation(runText));
+                            setOperation(new CodeStructureModifyOperation(runText));
                             op.setStepHandler(handlerDoStep);
                             String newText = op.execute();
                             try {
@@ -236,7 +236,7 @@ public class GraphTool {
                     @Override
                     protected Void doInBackground() throws Exception {
                         try {
-                            setOperation(new DetectCodeStructureOperation(runText));
+                            setOperation(new CodeStructureModifyOperation(runText));
                             String newText = op.execute();
                             try {
                                 img = textToImage(newText);

@@ -27,7 +27,7 @@ import com.jpexs.graphs.structure.nodes.EditableNode;
  *
  * @author JPEXS
  */
-public class TestOperation extends AbstractOperation {
+public class TestOperation extends AbstractGraphOperation {
 
     public TestOperation(String source) {
         super(source);

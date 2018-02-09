@@ -14,14 +14,15 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library.
  */
-package com.jpexs.graphs.structure.operations;
-
-import com.jpexs.graphs.structure.nodes.EditableNode;
+package com.jpexs.graphs.tool;
 
 /**
  *
  * @author JPEXS
  */
-public interface CodeStructureChangerProgressListener<T extends EditableNode> extends CodeStructureDetectorProgressListener<T>, MultiNodeJoinerProgressListener, EnfIfNodeInjectorProgressListener {
+public interface StringOperation {
 
+    public String execute();
+
+    public void setStepHandler(StepHandler stepHandler);
 }

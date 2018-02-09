@@ -35,14 +35,14 @@ import java.util.function.Consumer;
  *
  * @author JPEXS
  */
-public abstract class AbstractOperation implements Operation {
+public abstract class AbstractGraphOperation implements StringOperation {
 
     MutableGraph currentGraph;
     protected GraphVizFacade facade;
     private String source;
     private String currentText;
 
-    public AbstractOperation(String source) {
+    public AbstractGraphOperation(String source) {
         this.source = source;
         this.currentText = source;
         facade = new GraphVizFacade();

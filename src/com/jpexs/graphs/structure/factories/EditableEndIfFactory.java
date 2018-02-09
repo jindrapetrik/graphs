@@ -21,8 +21,9 @@ import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
 /**
  *
  * @author JPEXS
+ * @param <N> Graph node type
  */
-public interface EditableEndIfFactory<T> {
+public interface EditableEndIfFactory<N> {
 
-    public EditableEndIfNode makeEndIfNode(T decisionNode);
+    public EditableEndIfNode makeEndIfNode(N decisionNode);
 }

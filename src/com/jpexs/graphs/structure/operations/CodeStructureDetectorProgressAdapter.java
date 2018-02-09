@@ -23,26 +23,27 @@ import java.util.Map;
 
 /**
  *
- * @author Jindra
+ * @author JPEXS
+ * @param <N> Node type
  */
-public class CodeStructureDetectorProgressAdapter<T extends Node> implements CodeStructureDetectorProgressListener<T> {
+public class CodeStructureDetectorProgressAdapter<N extends Node> implements CodeStructureDetectorProgressListener<N> {
 
     @Override
     public void step() {
     }
 
     @Override
-    public T endIfDetected(T decisionNode, List<T> endBranchNodes, T afterNode) {
+    public N endIfDetected(N decisionNode, List<N> endBranchNodes, N afterNode) {
         return afterNode;
     }
 
     @Override
-    public void edgeMarked(Edge edge, DetectedEdgeType edgeType) {
+    public void edgeMarked(Edge<N> edge, DetectedEdgeType edgeType) {
 
     }
 
     @Override
-    public void nodeSelected(Node node) {
+    public void nodeSelected(N node) {
     }
 
     @Override

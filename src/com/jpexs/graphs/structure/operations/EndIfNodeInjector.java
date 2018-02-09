@@ -27,8 +27,9 @@ import com.jpexs.graphs.structure.factories.EditableEndIfFactory;
 /**
  *
  * @author JPEXS
+ * @param <N> Graph node type
  */
-public class EndIfNodeInjector<T extends EditableNode> {
+public class EndIfNodeInjector<N extends EditableNode> {
 
     private EditableEndIfFactory<EditableNode> endIfFactory = new BasicEditableEndIfFactory();
 
@@ -36,7 +37,7 @@ public class EndIfNodeInjector<T extends EditableNode> {
         this.endIfFactory = endIfFactory;
     }
 
-    public EditableEndIfNode injectEndIf(T decisionNode, List<T> endBranchNodes, T afterNode) {
+    public EditableEndIfNode injectEndIf(N decisionNode, List<N> endBranchNodes, N afterNode) {
         int afterNodePrevIndex = Integer.MAX_VALUE;
         for (Node prev : endBranchNodes) {
             int index = afterNode.getPrev().indexOf(prev);

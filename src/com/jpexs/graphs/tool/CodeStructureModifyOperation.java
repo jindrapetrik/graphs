@@ -18,16 +18,13 @@ package com.jpexs.graphs.tool;
 
 import com.jpexs.graphs.structure.DecisionList;
 import com.jpexs.graphs.structure.Edge;
-import com.jpexs.graphs.structure.operations.CodeStructureChangerProgressListener;
-import com.jpexs.graphs.structure.operations.CodeStructureDetector;
-import com.jpexs.graphs.structure.operations.DetectedEdgeType;
-import com.jpexs.graphs.structure.operations.EndIfNodeInjector;
-import com.jpexs.graphs.structure.operations.MultiNodeJoiner;
 import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
 import com.jpexs.graphs.structure.nodes.EditableMultiNode;
 import com.jpexs.graphs.structure.nodes.EditableNode;
-import com.jpexs.graphs.structure.nodes.EndIfNode;
 import com.jpexs.graphs.structure.nodes.Node;
+import com.jpexs.graphs.structure.operations.CodeStructureModifier;
+import com.jpexs.graphs.structure.operations.CodeStructureModifierProgressListener;
+import com.jpexs.graphs.structure.operations.DetectedEdgeType;
 import guru.nidi.graphviz.model.MutableGraph;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -39,30 +36,29 @@ import java.util.Set;
  *
  * @author JPEXS
  */
-public class DetectCodeStructureOperation extends AbstractOperation {
+public class CodeStructureModifyOperation extends AbstractGraphOperation {
 
-    public DetectCodeStructureOperation(String text) {
+    public CodeStructureModifyOperation(String text) {
         super(text);
     }
 
     @Override
     public void executeOnMutableGraph(Set<EditableNode> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
-        CodeStructureDetector<EditableNode> det = new CodeStructureDetector<>();
+        CodeStructureModifier mod = new CodeStructureModifier();
         EditableNode startNode = nodes.iterator().next();
         final EditableNode fStartNode = startNode;
-        final EndIfNodeInjector<EditableNode> endIfInjector = new EndIfNodeInjector<>();
-        CodeStructureChangerProgressListener<EditableNode> listener = new CodeStructureChangerProgressListener<EditableNode>() {
+        CodeStructureModifierProgressListener listener = new CodeStructureModifierProgressListener() {
 
             private EditableNode startNode = fStartNode;
 
             @Override
             public EditableNode endIfDetected(EditableNode decisionNode, List<EditableNode> endBranchNodes, EditableNode afterNode) {
-                return endIfInjector.injectEndIf(decisionNode, endBranchNodes, afterNode);
+                return afterNode;
             }
 
             @Override
             public void step() {
-                DetectCodeStructureOperation.this.step(currentGraph);
+                CodeStructureModifyOperation.this.step(currentGraph);
                 regenerate();
             }
 
@@ -98,25 +94,25 @@ public class DetectCodeStructureOperation extends AbstractOperation {
                         label = "outside";
                         break;
                 }
-                DetectCodeStructureOperation.this.markEdge(edgeAttributesMap, edge, color, label);
+                CodeStructureModifyOperation.this.markEdge(edgeAttributesMap, edge, color, label);
                 regenerate();
             }
 
             @Override
             public void nodeSelected(EditableNode node) {
-                DetectCodeStructureOperation.this.hilightOneNode(nodes, nodeAttributesMap, node);
+                CodeStructureModifyOperation.this.hilightOneNode(nodes, nodeAttributesMap, node);
                 regenerate();
             }
 
             @Override
             public void updateDecisionLists(Map<Edge<EditableNode>, DecisionList<EditableNode>> decistionLists) {
-                DetectCodeStructureOperation.this.updateDecisionLists(currentGraph, decistionLists, edgeAttributesMap);
+                CodeStructureModifyOperation.this.updateDecisionLists(currentGraph, decistionLists, edgeAttributesMap);
                 regenerate();
             }
 
             @Override
             public void noNodeSelected() {
-                DetectCodeStructureOperation.this.hilightNoNode(nodes, nodeAttributesMap);
+                CodeStructureModifyOperation.this.hilightNoNode(nodes, nodeAttributesMap);
                 regenerate();
             }
 
@@ -234,14 +230,9 @@ public class DetectCodeStructureOperation extends AbstractOperation {
                 markTrueFalseOrder(startNode, new LinkedHashSet<>(), edgeAttributesMap);
             }
         };
-        endIfInjector.addListener(listener);
-        det.addListener(listener);
-        MultiNodeJoiner<EditableNode> multiNodeJoiner = new MultiNodeJoiner<>();
-        multiNodeJoiner.addListener(listener);
-
+        mod.addListener(listener);
         markTrueFalseOrder(startNode, new LinkedHashSet<>(), edgeAttributesMap);
-        startNode = multiNodeJoiner.createMultiNodes(startNode);
-        det.detect(startNode, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        mod.execute(startNode, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
     private void markTrueFalseOrder(EditableNode n, Set<EditableNode> visited, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap) {
@@ -249,7 +240,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
             return;
         }
         String branchLabels[] = new String[]{"+", "-"};
-        if (n instanceof EndIfNode) {
+        if (n instanceof EditableEndIfNode) {
             for (int i = 0; i < n.getPrev().size(); i++) {
                 Node prev = n.getPrev().get(i);
                 @SuppressWarnings("unchecked")

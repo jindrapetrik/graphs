@@ -30,9 +30,8 @@ import java.util.Set;
 /**
  *
  * @author JPEXS
- * @param <N> Node type
  */
-public class MultiNodeJoiner<N extends EditableNode> {
+public class MultiNodeJoiner {
 
     private EditableMultinodeFactory multinodeFactory = new BasicEditableMultinodeFactory();
 
@@ -40,14 +39,14 @@ public class MultiNodeJoiner<N extends EditableNode> {
         this.multinodeFactory = multinodeFactory;
     }
 
-    public EditableNode createMultiNodes(N head) {
-        Collection<N> heads = new ArrayList<>();
+    public EditableNode createMultiNodes(EditableNode head) {
+        Collection<EditableNode> heads = new ArrayList<>();
         heads.add(head);
         Collection<EditableNode> multiHeads = createMultiNodes(heads);
-        return multiHeads.toArray(new EditableNode[1])[0];
+        return multiHeads.iterator().next();
     }
 
-    public Collection<EditableNode> createMultiNodes(Collection<N> heads) {
+    public Collection<EditableNode> createMultiNodes(Collection<? extends EditableNode> heads) {
         Collection<EditableNode> ret = new ArrayList<>();
         for (EditableNode head : heads) {
             ret.add(createMultiNodes(head, new LinkedHashSet<>()));
@@ -131,7 +130,9 @@ public class MultiNodeJoiner<N extends EditableNode> {
 
         fireStep();
         for (Node next : result.getNext()) {
-            createMultiNodes((EditableNode) next, visited);
+            @SuppressWarnings("unchecked")
+            EditableNode nextN = (EditableNode) next;
+            createMultiNodes(nextN, visited);
         }
 
         return result;
