@@ -1,6 +1,6 @@
 package com.jpexs.graphs.gui;
 
-import com.jpexs.graphs.structure.BasicMutableNode;
+import com.jpexs.graphs.structure.BasicEditableNode;
 import com.jpexs.graphs.structure.Edge;
 import com.jpexs.graphs.structure.nodes.EditableNode;
 import com.jpexs.graphs.structure.nodes.Node;
@@ -239,7 +239,7 @@ public class GraphVizFacade {
             public void accept(MutableNode node) {
 
                 if (!nameToNodeMap.containsKey(node.label().toString())) {
-                    nameToNodeMap.put(node.label().toString(), new BasicMutableNode(node.label().toString()));
+                    nameToNodeMap.put(node.label().toString(), new BasicEditableNode(node.label().toString()));
                 }
                 EditableNode retNode = nameToNodeMap.get(node.label().toString());
                 orderedNodeSet.add(retNode);
@@ -270,12 +270,12 @@ public class GraphVizFacade {
                         String edgeCompass = fromCompass + ":" + toCompass;
 
                         if (!nameToNodeMap.containsKey(fromId)) {
-                            EditableNode n = new BasicMutableNode(fromId);
+                            EditableNode n = new BasicEditableNode(fromId);
                             orderedNodeSet.add(n);
                             nameToNodeMap.put(fromId, n);
                         }
                         if (!nameToNodeMap.containsKey(toId)) {
-                            EditableNode n = new BasicMutableNode(toId);
+                            EditableNode n = new BasicEditableNode(toId);
                             orderedNodeSet.add(n);
                             nameToNodeMap.put(toId, n);
                         }

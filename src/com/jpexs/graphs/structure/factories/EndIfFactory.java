@@ -1,4 +1,4 @@
-package com.jpexs.graphs.structure;
+package com.jpexs.graphs.structure.factories;
 
 import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
 import com.jpexs.graphs.structure.nodes.Node;

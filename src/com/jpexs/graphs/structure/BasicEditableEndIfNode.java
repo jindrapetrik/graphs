@@ -7,12 +7,12 @@ import com.jpexs.graphs.structure.nodes.Node;
  *
  * @author JPEXS
  */
-public class BasicMutableEndIfNode extends BasicMutableNode implements EditableEndIfNode {
+public class BasicEditableEndIfNode extends BasicEditableNode implements EditableEndIfNode {
 
     private Node ifNode;
     public static String ID_PREFIX = "endif-";
 
-    public BasicMutableEndIfNode(Node ifNode) {
+    public BasicEditableEndIfNode(Node ifNode) {
         super(ID_PREFIX + ifNode.getId());
         this.ifNode = ifNode;
     }

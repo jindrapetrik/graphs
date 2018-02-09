@@ -10,13 +10,13 @@ import java.util.Objects;
  *
  * @author JPEXS
  */
-public class BasicMutableNode implements EditableNode {
+public class BasicEditableNode implements EditableNode {
 
     private String id;
     private List<Node> nextNodes = new ArrayList<>();
     private List<Node> prevNodes = new ArrayList<>();
 
-    public BasicMutableNode(String id) {
+    public BasicEditableNode(String id) {
         this.id = id;
     }
 
@@ -66,7 +66,7 @@ public class BasicMutableNode implements EditableNode {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final BasicMutableNode other = (BasicMutableNode) obj;
+        final BasicEditableNode other = (BasicEditableNode) obj;
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }

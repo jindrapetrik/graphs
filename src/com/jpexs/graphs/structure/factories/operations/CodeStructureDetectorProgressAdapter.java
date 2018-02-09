@@ -1,5 +1,6 @@
-package com.jpexs.graphs.structure;
+package com.jpexs.graphs.structure.factories.operations;
 
+import com.jpexs.graphs.structure.Edge;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,7 @@ public class CodeStructureDetectorProgressAdapter<T extends Node> implements Cod
     }
 
     @Override
-    public void edgeMarked(Edge edge, EdgeType edgeType) {
+    public void edgeMarked(Edge edge, DetectedEdgeType edgeType) {
 
     }
 

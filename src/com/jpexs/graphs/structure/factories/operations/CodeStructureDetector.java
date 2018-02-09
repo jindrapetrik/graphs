@@ -1,5 +1,10 @@
-package com.jpexs.graphs.structure;
+package com.jpexs.graphs.structure.factories.operations;
 
+import com.jpexs.graphs.structure.Decision;
+import com.jpexs.graphs.structure.DecisionList;
+import com.jpexs.graphs.structure.Edge;
+import com.jpexs.graphs.structure.factories.BasicEndIfFactory;
+import com.jpexs.graphs.structure.factories.EndIfFactory;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,7 +72,7 @@ public class CodeStructureDetector<T extends Node> {
 
                 T continueNode = cek;
                 for (Edge<T> edge : loopContinueEdges) {
-                    fireEdgeMarked(edge, EdgeType.BACK);
+                    fireEdgeMarked(edge, DetectedEdgeType.BACK);
                 }
 
                 Set<T> currentWaiting = new LinkedHashSet<>();
@@ -161,7 +166,7 @@ public class CodeStructureDetector<T extends Node> {
 
                     Edge<T> exitEdge = new Edge<>(exitPoint, branchNodeT);
                     exitIfEdges.add(exitEdge);
-                    fireEdgeMarked(exitEdge, EdgeType.OUTSIDEIF);
+                    fireEdgeMarked(exitEdge, DetectedEdgeType.OUTSIDEIF);
                 }
             }
 
@@ -216,7 +221,7 @@ public class CodeStructureDetector<T extends Node> {
                 if (rememberedDecisionLists.contains(prevDecisionLists.get(i))) {
                     Edge<T> gotoEdge = new Edge<>(prevNodes.get(i), BOD);
                     gotoEdges.add(gotoEdge);
-                    fireEdgeMarked(gotoEdge, EdgeType.GOTO);
+                    fireEdgeMarked(gotoEdge, DetectedEdgeType.GOTO);
                     prevDecisionLists.remove(i);
                 }
             }
@@ -400,7 +405,7 @@ public class CodeStructureDetector<T extends Node> {
                         rememberedDecisionLists.add(decisionList);
                         Edge<T> gotoEdge = new Edge<>(decisionListNodes.get(i), BOD);
                         gotoEdges.add(gotoEdge);
-                        fireEdgeMarked(gotoEdge, EdgeType.GOTO);
+                        fireEdgeMarked(gotoEdge, DetectedEdgeType.GOTO);
                     }
                     if (decisionList.size() > prefix.size()) {
                         Decision<T> exitDecision = decisionList.get(prefix.size() - 1 + 1);
@@ -524,7 +529,7 @@ public class CodeStructureDetector<T extends Node> {
         }
     }
 
-    private void fireEdgeMarked(Edge<T> edge, EdgeType edgeType) {
+    private void fireEdgeMarked(Edge<T> edge, DetectedEdgeType edgeType) {
         for (CodeStructureDetectorProgressListener<T> l : listeners) {
             l.edgeMarked(edge, edgeType);
         }

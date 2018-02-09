@@ -1,5 +1,6 @@
-package com.jpexs.graphs.structure;
+package com.jpexs.graphs.structure.factories.operations;
 
+import com.jpexs.graphs.structure.BasicEditableMultiNode;
 import com.jpexs.graphs.structure.nodes.EditableMultiNode;
 import com.jpexs.graphs.structure.nodes.EditableNode;
 import com.jpexs.graphs.structure.nodes.Node;
@@ -57,7 +58,7 @@ public class MultiNodeJoiner<T extends EditableNode> {
                 subIds.add(sub.getId());
             }
             String multiId = String.join("\\l", subIds) + "\\l";
-            EditableMultiNode multiNode = new BasicMutableMultiNode(multiId);
+            EditableMultiNode multiNode = new BasicEditableMultiNode(multiId);
             for (Node sub : subNodesList) {
                 multiNode.addSubNode(sub);
             }

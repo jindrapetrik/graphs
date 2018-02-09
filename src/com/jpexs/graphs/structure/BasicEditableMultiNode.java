@@ -9,11 +9,11 @@ import java.util.List;
  *
  * @author JPEXS
  */
-public class BasicMutableMultiNode extends BasicMutableNode implements EditableMultiNode {
+public class BasicEditableMultiNode extends BasicEditableNode implements EditableMultiNode {
 
     private List<Node> subNodes = new ArrayList<>();
 
-    public BasicMutableMultiNode(String id) {
+    public BasicEditableMultiNode(String id) {
         super(id);
     }
 

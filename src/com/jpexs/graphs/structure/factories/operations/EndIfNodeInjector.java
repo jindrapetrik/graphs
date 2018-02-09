@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jpexs.graphs.structure;
+package com.jpexs.graphs.structure.factories.operations;
 
+import com.jpexs.graphs.structure.factories.BasicEndIfFactory;
+import com.jpexs.graphs.structure.factories.EndIfFactory;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.ArrayList;
 import java.util.List;

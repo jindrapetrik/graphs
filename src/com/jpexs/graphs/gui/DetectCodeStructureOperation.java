@@ -1,13 +1,13 @@
 package com.jpexs.graphs.gui;
 
-import com.jpexs.graphs.structure.CodeStructureChangerProgressListener;
-import com.jpexs.graphs.structure.CodeStructureDetector;
-import com.jpexs.graphs.structure.CodeStructureDetectorProgressListener;
+import com.jpexs.graphs.structure.factories.operations.CodeStructureChangerProgressListener;
+import com.jpexs.graphs.structure.factories.operations.CodeStructureDetector;
+import com.jpexs.graphs.structure.factories.operations.CodeStructureDetectorProgressListener;
 import com.jpexs.graphs.structure.DecisionList;
 import com.jpexs.graphs.structure.Edge;
-import com.jpexs.graphs.structure.EdgeType;
-import com.jpexs.graphs.structure.EndIfNodeInjector;
-import com.jpexs.graphs.structure.MultiNodeJoiner;
+import com.jpexs.graphs.structure.factories.operations.DetectedEdgeType;
+import com.jpexs.graphs.structure.factories.operations.EndIfNodeInjector;
+import com.jpexs.graphs.structure.factories.operations.MultiNodeJoiner;
 import com.jpexs.graphs.structure.nodes.EndIfNode;
 import com.jpexs.graphs.structure.nodes.MultiNode;
 import com.jpexs.graphs.structure.nodes.Node;
@@ -53,7 +53,7 @@ public class DetectCodeStructureOperation extends AbstractOperation {
             }
 
             @Override
-            public void edgeMarked(Edge<EditableNode> edge, EdgeType edgeType) {
+            public void edgeMarked(Edge<EditableNode> edge, DetectedEdgeType edgeType) {
                 String color = "black";
                 String label = "";
                 boolean alreadyHasColor = edgeAttributesMap.containsKey(edge) && edgeAttributesMap.get(edge).containsKey("color");
