@@ -5,13 +5,13 @@
  */
 package com.jpexs.graphs.structure.factories.operations;
 
-import com.jpexs.graphs.structure.factories.BasicEndIfFactory;
-import com.jpexs.graphs.structure.factories.EndIfFactory;
+import com.jpexs.graphs.structure.factories.BasicEditableEndIfFactory;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.ArrayList;
 import java.util.List;
 import com.jpexs.graphs.structure.nodes.EditableNode;
 import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
+import com.jpexs.graphs.structure.factories.EditableEndIfFactory;
 
 /**
  *
@@ -19,9 +19,9 @@ import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
  */
 public class EndIfNodeInjector<T extends EditableNode> {
 
-    private EndIfFactory endIfFactory = new BasicEndIfFactory();
+    private EditableEndIfFactory<EditableNode> endIfFactory = new BasicEditableEndIfFactory();
 
-    public void setEndIfFactory(EndIfFactory endIfFactory) {
+    public void setEndIfFactory(EditableEndIfFactory endIfFactory) {
         this.endIfFactory = endIfFactory;
     }
 

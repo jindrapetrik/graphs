@@ -1,6 +1,8 @@
 package com.jpexs.graphs.structure.factories.operations;
 
 import com.jpexs.graphs.structure.BasicEditableMultiNode;
+import com.jpexs.graphs.structure.factories.BasicEditableMultinodeFactory;
+import com.jpexs.graphs.structure.factories.EditableMultinodeFactory;
 import com.jpexs.graphs.structure.nodes.EditableMultiNode;
 import com.jpexs.graphs.structure.nodes.EditableNode;
 import com.jpexs.graphs.structure.nodes.Node;
@@ -13,17 +15,24 @@ import java.util.Set;
 /**
  *
  * @author JPEXS
+ * @param <N> Node type
  */
-public class MultiNodeJoiner<T extends EditableNode> {
+public class MultiNodeJoiner<N extends EditableNode> {
 
-    public EditableNode createMultiNodes(T head) {
-        Collection<T> heads = new ArrayList<>();
+    private EditableMultinodeFactory multinodeFactory = new BasicEditableMultinodeFactory();
+
+    public void setMultinodeFactory(EditableMultinodeFactory multinodeFactory) {
+        this.multinodeFactory = multinodeFactory;
+    }
+
+    public EditableNode createMultiNodes(N head) {
+        Collection<N> heads = new ArrayList<>();
         heads.add(head);
         Collection<EditableNode> multiHeads = createMultiNodes(heads);
         return multiHeads.toArray(new EditableNode[1])[0];
     }
 
-    public Collection<EditableNode> createMultiNodes(Collection<T> heads) {
+    public Collection<EditableNode> createMultiNodes(Collection<N> heads) {
         Collection<EditableNode> ret = new ArrayList<>();
         for (EditableNode head : heads) {
             ret.add(createMultiNodes(head, new LinkedHashSet<>()));
@@ -58,7 +67,7 @@ public class MultiNodeJoiner<T extends EditableNode> {
                 subIds.add(sub.getId());
             }
             String multiId = String.join("\\l", subIds) + "\\l";
-            EditableMultiNode multiNode = new BasicEditableMultiNode(multiId);
+            EditableMultiNode multiNode = multinodeFactory.create(multiId);
             for (Node sub : subNodesList) {
                 multiNode.addSubNode(sub);
             }

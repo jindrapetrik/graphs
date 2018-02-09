@@ -3,8 +3,7 @@ package com.jpexs.graphs.structure.factories.operations;
 import com.jpexs.graphs.structure.Decision;
 import com.jpexs.graphs.structure.DecisionList;
 import com.jpexs.graphs.structure.Edge;
-import com.jpexs.graphs.structure.factories.BasicEndIfFactory;
-import com.jpexs.graphs.structure.factories.EndIfFactory;
+import com.jpexs.graphs.structure.factories.BasicEditableEndIfFactory;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import com.jpexs.graphs.structure.factories.EditableEndIfFactory;
 
 /**
  *
@@ -31,12 +31,6 @@ public class CodeStructureDetector<T extends Node> {
     private List<Edge<T>> backEdges = new ArrayList<>();
     private List<Edge<T>> gotoEdges = new ArrayList<>();
     private List<Edge<T>> exitIfEdges = new ArrayList<>();
-    private EndIfFactory endIfFactory = new BasicEndIfFactory();
-
-    public void setEndIfFactory(EndIfFactory endIfFactory) {
-        this.endIfFactory = endIfFactory;
-    }
-
     private Set<Edge<T>> ignoredEdges = new LinkedHashSet<>();
 
     public Node detect(T head, List<Node> loopContinues, List<Edge<T>> gotoEdges, List<Edge<T>> backEdges, List<Edge<T>> exitIfEdges) {
