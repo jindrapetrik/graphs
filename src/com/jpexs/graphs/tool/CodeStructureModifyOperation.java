@@ -66,6 +66,9 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
             public void edgeMarked(Edge<EditableNode> edge, DetectedEdgeType edgeType) {
                 String color = "black";
                 String label = "";
+                String compass;
+                String compasses[];
+                String newcompass;
                 boolean alreadyHasColor = edgeAttributesMap.containsKey(edge) && edgeAttributesMap.get(edge).containsKey("color");
                 switch (edgeType) {
                     case BACK:
@@ -73,9 +76,9 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                         if (!edgeCompassesMap.containsKey(edge)) {
                             edgeCompassesMap.put(edge, ":");
                         }
-                        String compass = edgeCompassesMap.get(edge);
-                        String compasses[] = compass.split(":");
-                        String newcompass = (edge.from.getNext().size() > 1 ? "se" : "") + ":ne";
+                        compass = edgeCompassesMap.get(edge);
+                        compasses = compass.split(":");
+                        newcompass = (edge.from.getNext().size() > 1 ? "se" : "") + ":ne";
                         if (compasses.length > 0) {
                             newcompass = compasses[0] + ":ne";
                         }
@@ -87,6 +90,11 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                         label = "goto";
                         break;
                     case OUTSIDEIF:
+                        int branchIndex = edge.from.getNext().indexOf(edge.to);
+                        int otherBranchIndex = branchIndex == 0 ? 1 : 0;
+                        Edge<EditableNode> otherEdge = new Edge<>(edge.from, (EditableNode) edge.from.getNext().get(otherBranchIndex));
+                        edgeCompassesMap.put(edge, (branchIndex == 0 ? "sw" : "se") + ":n");
+                        edgeCompassesMap.put(otherEdge, "s:n");
                         if (alreadyHasColor) {
                             return;
                         }
@@ -159,8 +167,8 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                 EditableNode onTrueFinish = (EditableNode) endIfNode.getPrev().get(0);
                 @SuppressWarnings("unchecked")
                 EditableNode onFalseFinish = (EditableNode) endIfNode.getPrev().get(1);
-                Edge onTrueFinishEdge = new Edge<>(onTrueFinish, endIfNode);
-                Edge onFalseFinishEdge = new Edge<>(onFalseFinish, endIfNode);
+                Edge<EditableNode> onTrueFinishEdge = new Edge<>(onTrueFinish, endIfNode);
+                Edge<EditableNode> onFalseFinishEdge = new Edge<>(onFalseFinish, endIfNode);
                 if (onTrueFinishEdge.equals(onTrueStartEdge)) {
                     edgeCompassesMap.put(onTrueFinishEdge, "sw:nw");
                 } else {
@@ -212,7 +220,7 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                     } else {
                         labels.add(subNode.getId());
                     }
-                    nodes.remove(subNode);
+                    nodes.remove((EditableNode) subNode);
                 }
                 shape = "box";
 
