@@ -18,11 +18,11 @@ package com.jpexs.graphs.tool;
 
 import com.jpexs.graphs.structure.DecisionList;
 import com.jpexs.graphs.structure.Edge;
-import com.jpexs.graphs.structure.factories.operations.CodeStructureChangerProgressListener;
-import com.jpexs.graphs.structure.factories.operations.CodeStructureDetector;
-import com.jpexs.graphs.structure.factories.operations.DetectedEdgeType;
-import com.jpexs.graphs.structure.factories.operations.EndIfNodeInjector;
-import com.jpexs.graphs.structure.factories.operations.MultiNodeJoiner;
+import com.jpexs.graphs.structure.operations.CodeStructureChangerProgressListener;
+import com.jpexs.graphs.structure.operations.CodeStructureDetector;
+import com.jpexs.graphs.structure.operations.DetectedEdgeType;
+import com.jpexs.graphs.structure.operations.EndIfNodeInjector;
+import com.jpexs.graphs.structure.operations.MultiNodeJoiner;
 import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
 import com.jpexs.graphs.structure.nodes.EditableMultiNode;
 import com.jpexs.graphs.structure.nodes.EditableNode;

@@ -14,15 +14,15 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library.
  */
-package com.jpexs.graphs.structure.factories.operations;
-
-import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
+package com.jpexs.graphs.structure.operations;
 
 /**
  *
  * @author JPEXS
  */
-public interface EnfIfNodeInjectorProgressListener {
-
-    public void endIfAdded(EditableEndIfNode endIfNode);
+public enum DetectedEdgeType {
+    NORMAL,
+    BACK,
+    GOTO,
+    OUTSIDEIF
 }
