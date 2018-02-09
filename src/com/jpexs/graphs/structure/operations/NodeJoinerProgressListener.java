@@ -14,12 +14,18 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library.
  */
-package com.jpexs.graphs.structure.nodes;
+package com.jpexs.graphs.structure.operations;
+
+import com.jpexs.graphs.structure.nodes.EditableJoinedNode;
 
 /**
  *
  * @author JPEXS
  */
-public interface EditableMultiNode extends MultiNode, EditableNode {
+public interface NodeJoinerProgressListener {
+
+    public void nodesJoined(EditableJoinedNode node);
+
+    public void step();
 
 }

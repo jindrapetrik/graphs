@@ -16,13 +16,13 @@
  */
 package com.jpexs.graphs.structure.factories;
 
-import com.jpexs.graphs.structure.nodes.EditableMultiNode;
+import com.jpexs.graphs.structure.nodes.EditableJoinedNode;
 
 /**
  *
  * @author JPEXS
  */
-public interface EditableMultinodeFactory {
+public interface EditableJoinedNodeFactory {
 
-    public EditableMultiNode create(String id);
+    public EditableJoinedNode create(String id);
 }

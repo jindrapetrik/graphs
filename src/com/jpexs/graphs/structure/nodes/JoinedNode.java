@@ -14,20 +14,23 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library.
  */
-package com.jpexs.graphs.structure.factories;
+package com.jpexs.graphs.structure.nodes;
 
-import com.jpexs.graphs.structure.BasicEditableMultiNode;
-import com.jpexs.graphs.structure.nodes.EditableMultiNode;
+import java.util.List;
 
 /**
  *
  * @author JPEXS
  */
-public class BasicEditableMultinodeFactory implements EditableMultinodeFactory {
+public interface JoinedNode extends Node {
 
-    @Override
-    public EditableMultiNode create(String id) {
-        return new BasicEditableMultiNode(id);
-    }
+    public void addSubNode(Node node);
 
+    public void removeSubNode(int index);
+
+    public int getSubNodeCount();
+
+    public Node getSubNode(int index);
+
+    public List<Node> getAllSubNodes();
 }

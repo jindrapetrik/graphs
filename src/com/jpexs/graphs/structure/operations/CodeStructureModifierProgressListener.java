@@ -22,6 +22,6 @@ import com.jpexs.graphs.structure.nodes.EditableNode;
  *
  * @author JPEXS
  */
-public interface CodeStructureModifierProgressListener extends CodeStructureDetectorProgressListener<EditableNode>, MultiNodeJoinerProgressListener, EnfIfNodeInjectorProgressListener {
+public interface CodeStructureModifierProgressListener extends CodeStructureDetectorProgressListener<EditableNode>, NodeJoinerProgressListener, EnfIfNodeInjectorProgressListener {
 
 }

@@ -19,7 +19,6 @@ package com.jpexs.graphs.tool;
 import com.jpexs.graphs.structure.DecisionList;
 import com.jpexs.graphs.structure.Edge;
 import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
-import com.jpexs.graphs.structure.nodes.EditableMultiNode;
 import com.jpexs.graphs.structure.nodes.EditableNode;
 import com.jpexs.graphs.structure.nodes.Node;
 import com.jpexs.graphs.structure.operations.CodeStructureModifier;
@@ -31,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.jpexs.graphs.structure.nodes.EditableJoinedNode;
 
 /**
  *
@@ -178,7 +178,7 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
             }
 
             @Override
-            public void multiNodeJoined(EditableMultiNode node) {
+            public void nodesJoined(EditableJoinedNode node) {
                 List<String> labels = new ArrayList<>();
                 String shape;
                 /*=null;*/

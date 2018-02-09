@@ -39,11 +39,11 @@ public class CodeStructureModifier {
     }
 
     public void execute(Collection<? extends EditableNode> heads, List<Node> loopContinues, List<Edge<EditableNode>> gotoEdges, List<Edge<EditableNode>> backEdges, List<Edge<EditableNode>> exitIfEdges) {
-        MultiNodeJoiner multinodeJoiner = new MultiNodeJoiner();
+        NodeJoiner nodeJoiner = new NodeJoiner();
         for (CodeStructureModifierProgressListener l : listeners) {
-            multinodeJoiner.addListener(l);
+            nodeJoiner.addListener(l);
         }
-        Collection<EditableNode> joinedHeads = multinodeJoiner.createMultiNodes(heads);
+        Collection<EditableNode> joinedHeads = nodeJoiner.joinNodes(heads);
         CodeStructureDetector<EditableNode> det = new CodeStructureDetector<>();
         final EndIfNodeInjector<EditableNode> endifInjector = new EndIfNodeInjector<>();
         for (CodeStructureModifierProgressListener l : listeners) {

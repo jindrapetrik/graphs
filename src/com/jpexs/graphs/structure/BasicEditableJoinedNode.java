@@ -16,20 +16,20 @@
  */
 package com.jpexs.graphs.structure;
 
-import com.jpexs.graphs.structure.nodes.EditableMultiNode;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.ArrayList;
 import java.util.List;
+import com.jpexs.graphs.structure.nodes.EditableJoinedNode;
 
 /**
  *
  * @author JPEXS
  */
-public class BasicEditableMultiNode extends BasicEditableNode implements EditableMultiNode {
+public class BasicEditableJoinedNode extends BasicEditableNode implements EditableJoinedNode {
 
     private List<Node> subNodes = new ArrayList<>();
 
-    public BasicEditableMultiNode(String id) {
+    public BasicEditableJoinedNode(String id) {
         super(id);
     }
 

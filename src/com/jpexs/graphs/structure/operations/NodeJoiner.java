@@ -16,9 +16,7 @@
  */
 package com.jpexs.graphs.structure.operations;
 
-import com.jpexs.graphs.structure.factories.BasicEditableMultinodeFactory;
-import com.jpexs.graphs.structure.factories.EditableMultinodeFactory;
-import com.jpexs.graphs.structure.nodes.EditableMultiNode;
+import com.jpexs.graphs.structure.factories.BasicEditableJoinedNodeFactory;
 import com.jpexs.graphs.structure.nodes.EditableNode;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.ArrayList;
@@ -26,35 +24,37 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import com.jpexs.graphs.structure.nodes.EditableJoinedNode;
+import com.jpexs.graphs.structure.factories.EditableJoinedNodeFactory;
 
 /**
  *
  * @author JPEXS
  */
-public class MultiNodeJoiner {
+public class NodeJoiner {
 
-    private EditableMultinodeFactory multinodeFactory = new BasicEditableMultinodeFactory();
+    private EditableJoinedNodeFactory joinedNodeFactory = new BasicEditableJoinedNodeFactory();
 
-    public void setMultinodeFactory(EditableMultinodeFactory multinodeFactory) {
-        this.multinodeFactory = multinodeFactory;
+    public void setJoinedNodeFactory(EditableJoinedNodeFactory joinedNodeFactory) {
+        this.joinedNodeFactory = joinedNodeFactory;
     }
 
-    public EditableNode createMultiNodes(EditableNode head) {
+    public EditableNode joinNodes(EditableNode head) {
         Collection<EditableNode> heads = new ArrayList<>();
         heads.add(head);
-        Collection<EditableNode> multiHeads = createMultiNodes(heads);
+        Collection<EditableNode> multiHeads = joinNodes(heads);
         return multiHeads.iterator().next();
     }
 
-    public Collection<EditableNode> createMultiNodes(Collection<? extends EditableNode> heads) {
+    public Collection<EditableNode> joinNodes(Collection<? extends EditableNode> heads) {
         Collection<EditableNode> ret = new ArrayList<>();
         for (EditableNode head : heads) {
-            ret.add(createMultiNodes(head, new LinkedHashSet<>()));
+            ret.add(joinNodes(head, new LinkedHashSet<>()));
         }
         return ret;
     }
 
-    private EditableNode createMultiNodes(EditableNode node, Set<EditableNode> visited) {
+    private EditableNode joinNodes(EditableNode node, Set<EditableNode> visited) {
         if (visited.contains(node)) {
             return node;
         }
@@ -80,15 +80,15 @@ public class MultiNodeJoiner {
             for (Node sub : subNodesList) {
                 subIds.add(sub.getId());
             }
-            String multiId = String.join("\\l", subIds) + "\\l";
-            EditableMultiNode multiNode = multinodeFactory.create(multiId);
+            String joinedId = String.join("\\l", subIds) + "\\l";
+            EditableJoinedNode joinedNode = joinedNodeFactory.create(joinedId);
             for (Node sub : subNodesList) {
-                multiNode.addSubNode(sub);
+                joinedNode.addSubNode(sub);
             }
-            //remove connection lastSubNode->after, add connection multiNode->after
+            //remove connection lastSubNode->after, add connection joinedNode->after
             for (int i = 0; i < lastSubNode.getNext().size(); i++) {
                 Node next = lastSubNode.getNext().get(i);
-                multiNode.addNext(next);
+                joinedNode.addNext(next);
                 if (lastSubNode instanceof EditableNode) {  //it must be - TODO - make detector use only mutable
                     EditableNode lastSubNodeMutable = (EditableNode) lastSubNode;
                     lastSubNodeMutable.removeNext(next);
@@ -98,15 +98,15 @@ public class MultiNodeJoiner {
                     EditableNode nextMutable = (EditableNode) next;
                     for (int j = 0; j < next.getPrev().size(); j++) {
                         if (next.getPrev().get(j) == lastSubNode) {
-                            nextMutable.setPrev(j, multiNode);
+                            nextMutable.setPrev(j, joinedNode);
                         }
                     }
                 }
             }
-            //remove connection before->firstNode, add connection before->multiNode
+            //remove connection before->firstNode, add connection before->joinedNode
             for (int i = 0; i < firstSubNode.getPrev().size(); i++) {
                 Node prev = firstSubNode.getPrev().get(i);
-                multiNode.addPrev(prev);
+                joinedNode.addPrev(prev);
                 if (firstSubNode instanceof EditableNode) { //it must be - TODO - make detector use only mutable
                     EditableNode firstSubNodeMutable = (EditableNode) firstSubNode;
                     firstSubNodeMutable.removePrev(prev);
@@ -116,14 +116,14 @@ public class MultiNodeJoiner {
                     EditableNode prevMutable = (EditableNode) prev;
                     for (int j = 0; j < prev.getNext().size(); j++) {
                         if (prev.getNext().get(j) == firstSubNode) {
-                            prevMutable.setNext(j, multiNode);
+                            prevMutable.setNext(j, joinedNode);
                         }
                     }
                 }
             }
-            fireMultiNodeJoined(multiNode);
+            fireNodesJoined(joinedNode);
             fireStep();
-            result = multiNode;
+            result = joinedNode;
         } else {
             result = originalNode;
         }
@@ -132,30 +132,30 @@ public class MultiNodeJoiner {
         for (Node next : result.getNext()) {
             @SuppressWarnings("unchecked")
             EditableNode nextN = (EditableNode) next;
-            createMultiNodes(nextN, visited);
+            joinNodes(nextN, visited);
         }
 
         return result;
     }
 
-    private List<MultiNodeJoinerProgressListener> listeners = new ArrayList<>();
+    private List<NodeJoinerProgressListener> listeners = new ArrayList<>();
 
-    public void addListener(MultiNodeJoinerProgressListener l) {
+    public void addListener(NodeJoinerProgressListener l) {
         listeners.add(l);
     }
 
-    public void removeListener(MultiNodeJoinerProgressListener l) {
+    public void removeListener(NodeJoinerProgressListener l) {
         listeners.remove(l);
     }
 
-    private void fireMultiNodeJoined(EditableMultiNode node) {
-        for (MultiNodeJoinerProgressListener l : listeners) {
-            l.multiNodeJoined(node);
+    private void fireNodesJoined(EditableJoinedNode node) {
+        for (NodeJoinerProgressListener l : listeners) {
+            l.nodesJoined(node);
         }
     }
 
     private void fireStep() {
-        for (MultiNodeJoinerProgressListener l : listeners) {
+        for (NodeJoinerProgressListener l : listeners) {
             l.step();
         }
     }
