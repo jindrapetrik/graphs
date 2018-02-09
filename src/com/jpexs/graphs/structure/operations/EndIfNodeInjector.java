@@ -47,23 +47,24 @@ public class EndIfNodeInjector<N extends EditableNode> {
         }
 
         EditableEndIfNode endIfNode = endIfFactory.makeEndIfNode(decisionNode);
-
-        //remove connection prev->after
         for (int i = 0; i < endBranchNodes.size(); i++) {
             EditableNode prev = endBranchNodes.get(i);
-            prev.removeNext(afterNode);
-        }
-        for (EditableNode prev : endBranchNodes) {
-            afterNode.removePrev(prev);
-        }
-
-        //add connection prev->endif 
-        for (int i = 0; i < endBranchNodes.size(); i++) {
-            EditableNode prev = endBranchNodes.get(i);
-            prev.addNext(endIfNode);
             endIfNode.addPrev(prev);
         }
-        //add connection endif->after
+
+        //replace connection prev->after with prev->endif
+        for (int i = 0; i < endBranchNodes.size(); i++) {
+            EditableNode endBranchNode = endBranchNodes.get(i);
+            endBranchNode.setNext(endBranchNode.getNext().indexOf(afterNode), endIfNode);
+        }
+
+        //remove branchNode->afterNode
+        for (int i = 0; i < endBranchNodes.size(); i++) {
+            EditableNode endBranchNode = endBranchNodes.get(i);
+            afterNode.removePrev(endBranchNode);
+        }
+
+        //add connection endif->afterNode
         endIfNode.addNext(afterNode);
         afterNode.addPrev(afterNodePrevIndex, endIfNode); //add to correct index
 

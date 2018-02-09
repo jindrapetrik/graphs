@@ -267,17 +267,35 @@ public class CodeStructureDetector<N extends Node> {
                             List<N> endBranchNodes = new ArrayList<>();
                             for (int index : sameIndices) {
                                 Decision<N> decision = prevDecisionLists.get(index).get(decisionListI.size() - 1);
+                                N ifNode = decision.getIfNode();
+                                System.out.println("-declist: " + prevDecisionLists.get(index));
+                                System.out.println("-decision: " + decision);
+                                System.out.println("-ifNode: " + ifNode);
                                 int branchNum = decision.getBranchNum();
+                                System.out.println("-branchNum: " + branchNum);
                                 prevDecisionLists.remove(index);
                                 N prev = decisionListNodes.remove(index);
                                 if (branchNum == 0) {
                                     endBranchNodes.add(0, prev);
                                 } else {
-                                    endBranchNodes.add(prev); //indices are in reverse order, make this list too
+                                    endBranchNodes.add(prev);
                                 }
+
+                                /*
+                                vydal se branchi 0
+                                
+                                jsou zde nejake prevnodes k afternode, kazda prevnode ma nejake cislo branche
+                                
+                                ta ktera ma cislo branche 0 by mela byt na pozici 0,
+                                ta ktera ma cislo branche 1 by mela byt na pozici 0,
+                                
+                                a prev 
+                                 */
                             }
 
                             fireNoNodeSelected();
+                            System.out.println("injecting if 1");
+                            System.out.println("decisionNode=" + decisionNode);
                             N endIfNode = fireEndIfDetected(decisionNode, endBranchNodes, BOD);
 
                             alreadyProcessed.add(endIfNode);
@@ -353,7 +371,8 @@ public class CodeStructureDetector<N extends Node> {
 
                                         DecisionList<N> shorterDecisionList = new DecisionList<>(decisionListK);
                                         shorterDecisionList.remove(shorterDecisionList.size() - 1);
-                                        //injecting if 2
+                                        System.out.println("injecting if 2");
+                                        System.out.println("decisionNode=" + decisionNode);
                                         N endIfNode = fireEndIfDetected(decisionNode, endBranchNodes, BOD);
                                         alreadyProcessed.add(endIfNode);
                                         decisionListNodes.add(endIfNode);

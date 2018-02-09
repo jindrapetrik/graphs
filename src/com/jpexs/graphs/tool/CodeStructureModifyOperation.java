@@ -90,7 +90,7 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                         if (alreadyHasColor) {
                             return;
                         }
-                        color = "red";
+                        color = "chocolate1";
                         label = "outside";
                         break;
                 }
@@ -136,18 +136,18 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                 EditableNode onTrue = (EditableNode) ifNodeNext.get(0);
                 @SuppressWarnings("unchecked")
                 EditableNode onFalse = (EditableNode) ifNodeNext.get(1);
-                Edge<EditableNode> onTrueEdge = new Edge<>(ifNode, onTrue);
-                Edge<EditableNode> onFalseEdge = new Edge<>(ifNode, onFalse);
-                edgeCompassesMap.put(onTrueEdge, "sw:n");
-                edgeCompassesMap.put(onFalseEdge, "se:n");
-                if (!edgeAttributesMap.containsKey(onTrueEdge)) {
-                    edgeAttributesMap.put(onTrueEdge, new AttributesBag());
+                Edge<EditableNode> onTrueStartEdge = new Edge<>(ifNode, onTrue);
+                Edge<EditableNode> onFalseStartEdge = new Edge<>(ifNode, onFalse);
+                edgeCompassesMap.put(onTrueStartEdge, "sw:n");
+                edgeCompassesMap.put(onFalseStartEdge, "se:n");
+                if (!edgeAttributesMap.containsKey(onTrueStartEdge)) {
+                    edgeAttributesMap.put(onTrueStartEdge, new AttributesBag());
                 }
-                if (!edgeAttributesMap.containsKey(onFalseEdge)) {
-                    edgeAttributesMap.put(onFalseEdge, new AttributesBag());
+                if (!edgeAttributesMap.containsKey(onFalseStartEdge)) {
+                    edgeAttributesMap.put(onFalseStartEdge, new AttributesBag());
                 }
-                AttributesBag onTrueAttr = edgeAttributesMap.get(onTrueEdge);
-                AttributesBag onFalseAttr = edgeAttributesMap.get(onFalseEdge);
+                AttributesBag onTrueAttr = edgeAttributesMap.get(onTrueStartEdge);
+                AttributesBag onFalseAttr = edgeAttributesMap.get(onFalseStartEdge);
                 if (!onTrueAttr.containsKey("color")) {
                     onTrueAttr.put("color", "darkgreen");
                 }
@@ -156,18 +156,26 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                 }
 
                 @SuppressWarnings("unchecked")
-                EditableNode onTrue2 = (EditableNode) endIfNode.getPrev().get(0);
+                EditableNode onTrueFinish = (EditableNode) endIfNode.getPrev().get(0);
                 @SuppressWarnings("unchecked")
-                EditableNode onFalse2 = (EditableNode) endIfNode.getPrev().get(1);
-                onTrueEdge = new Edge<>(onTrue2, endIfNode);
-                onFalseEdge = new Edge<>(onFalse2, endIfNode);
-                edgeCompassesMap.put(onTrueEdge, "s:nw");
-                edgeCompassesMap.put(onFalseEdge, "s:ne");
-                if (!edgeAttributesMap.containsKey(onTrueEdge)) {
-                    edgeAttributesMap.put(onTrueEdge, new AttributesBag());
+                EditableNode onFalseFinish = (EditableNode) endIfNode.getPrev().get(1);
+                Edge onTrueFinishEdge = new Edge<>(onTrueFinish, endIfNode);
+                Edge onFalseFinishEdge = new Edge<>(onFalseFinish, endIfNode);
+                if (onTrueFinishEdge.equals(onTrueStartEdge)) {
+                    edgeCompassesMap.put(onTrueFinishEdge, "sw:nw");
+                } else {
+                    edgeCompassesMap.put(onTrueFinishEdge, "s:nw");
                 }
-                if (!edgeAttributesMap.containsKey(onFalseEdge)) {
-                    edgeAttributesMap.put(onFalseEdge, new AttributesBag());
+                if (onFalseFinishEdge.equals(onFalseStartEdge)) {
+                    edgeCompassesMap.put(onFalseFinishEdge, "se:ne");
+                } else {
+                    edgeCompassesMap.put(onFalseFinishEdge, "s:ne");
+                }
+                if (!edgeAttributesMap.containsKey(onTrueFinishEdge)) {
+                    edgeAttributesMap.put(onTrueFinishEdge, new AttributesBag());
+                }
+                if (!edgeAttributesMap.containsKey(onFalseFinishEdge)) {
+                    edgeAttributesMap.put(onFalseFinishEdge, new AttributesBag());
                 }
                 markTrueFalseOrder(startNode, new LinkedHashSet<>(), edgeAttributesMap);
                 regenerate();

@@ -107,19 +107,16 @@ public class NodeJoiner {
             for (int i = 0; i < firstSubNode.getPrev().size(); i++) {
                 Node prev = firstSubNode.getPrev().get(i);
                 joinedNode.addPrev(prev);
-                if (firstSubNode instanceof EditableNode) { //it must be - TODO - make detector use only mutable
-                    EditableNode firstSubNodeMutable = (EditableNode) firstSubNode;
-                    firstSubNodeMutable.removePrev(prev);
-                    i--; //removing from iterated prevs, must decrement to not skip anything
-                }
-                if (prev instanceof EditableNode) { //it must be - TODO - make detector use only mutable
-                    EditableNode prevMutable = (EditableNode) prev;
-                    for (int j = 0; j < prev.getNext().size(); j++) {
-                        if (prev.getNext().get(j) == firstSubNode) {
-                            prevMutable.setNext(j, joinedNode);
-                        }
+                EditableNode firstSubNodeMutable = (EditableNode) firstSubNode;
+                firstSubNodeMutable.removePrev(prev);
+                i--; //removing from iterated prevs, must decrement to not skip anything
+                EditableNode prevMutable = (EditableNode) prev;
+                for (int j = 0; j < prev.getNext().size(); j++) {
+                    if (prev.getNext().get(j) == firstSubNode) {
+                        prevMutable.setNext(j, joinedNode);
                     }
                 }
+
             }
             fireNodesJoined(joinedNode);
             fireStep();
