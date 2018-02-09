@@ -1,7 +1,7 @@
 package com.jpexs.graphs.structure;
 
-import com.jpexs.graphs.structure.nodes.Node;
 import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
+import com.jpexs.graphs.structure.nodes.Node;
 
 /**
  *

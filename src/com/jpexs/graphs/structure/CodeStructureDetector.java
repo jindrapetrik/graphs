@@ -1,6 +1,5 @@
 package com.jpexs.graphs.structure;
 
-import com.jpexs.graphs.structure.nodes.EndIfNode;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import com.jpexs.graphs.structure.nodes.EditableNode;
-import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
 
 /**
  *

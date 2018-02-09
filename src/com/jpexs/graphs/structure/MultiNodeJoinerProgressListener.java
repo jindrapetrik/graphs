@@ -1,8 +1,7 @@
 package com.jpexs.graphs.structure;
 
-import com.jpexs.graphs.structure.nodes.MultiNode;
-import com.jpexs.graphs.structure.nodes.EditableNode;
 import com.jpexs.graphs.structure.nodes.EditableMultiNode;
+import com.jpexs.graphs.structure.nodes.EditableNode;
 
 /**
  *

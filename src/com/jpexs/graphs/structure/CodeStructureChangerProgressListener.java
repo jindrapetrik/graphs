@@ -4,7 +4,7 @@ import com.jpexs.graphs.structure.nodes.EditableNode;
 
 /**
  *
- * @author Jindra
+ * @author JPEXS
  */
 public interface CodeStructureChangerProgressListener<T extends EditableNode> extends CodeStructureDetectorProgressListener<T>, MultiNodeJoinerProgressListener<T>, EnfIfNodeInjectorProgressListener {
 

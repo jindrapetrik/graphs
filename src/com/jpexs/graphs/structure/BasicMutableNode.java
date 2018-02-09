@@ -1,10 +1,10 @@
 package com.jpexs.graphs.structure;
 
+import com.jpexs.graphs.structure.nodes.EditableNode;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import com.jpexs.graphs.structure.nodes.EditableNode;
 
 /**
  *

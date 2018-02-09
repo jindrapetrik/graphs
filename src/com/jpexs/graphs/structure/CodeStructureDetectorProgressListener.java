@@ -1,7 +1,5 @@
 package com.jpexs.graphs.structure;
 
-import com.jpexs.graphs.structure.nodes.MultiNode;
-import com.jpexs.graphs.structure.nodes.EndIfNode;
 import com.jpexs.graphs.structure.nodes.Node;
 import java.util.List;
 import java.util.Map;
