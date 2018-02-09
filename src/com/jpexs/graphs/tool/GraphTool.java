@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library.
  */
-package com.jpexs.graphs.gui;
+package com.jpexs.graphs.tool;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -57,7 +57,7 @@ import javax.swing.UIManager;
  *
  * @author JPEXS
  */
-public class Graphs {
+public class GraphTool {
 
     static JPanel imagePanel;
     static BufferedImage img;
@@ -66,6 +66,7 @@ public class Graphs {
     private static String currentFileName = "in";
     private static final String EXTENSION = ".gv";
     private static final String FILES_PATH = "graphs";
+    private static final String DOT_PATH = "c:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
 
     private static SwingWorker worker;
 
@@ -87,7 +88,7 @@ public class Graphs {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ex) {
-                Logger.getLogger(Graphs.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GraphTool.class.getName()).log(Level.SEVERE, null, ex);
                 //ignore
             }
         }
@@ -104,7 +105,7 @@ public class Graphs {
         pw.println(regenerateText(text));
         pw.close();
 
-        runCommand("\"c:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe\" -Tpng -Nfontname=times-bold -Nfontsize=12 -o out.png out.gv");
+        runCommand("\"" + DOT_PATH + "\" -Tpng -Nfontname=times-bold -Nfontsize=12 -o out.png out.gv");
         outGv.delete();
 
         BufferedImage br = ImageIO.read(new File("out.png"));
@@ -112,7 +113,7 @@ public class Graphs {
     }
 
     private static void setOperation(AbstractOperation op) {
-        Graphs.op = op;
+        GraphTool.op = op;
     }
 
     private static void loadCurrent() {
@@ -124,7 +125,7 @@ public class Graphs {
                 currentFileName = br.readLine();
                 br.close();
             } catch (IOException ex) {
-                Logger.getLogger(Graphs.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GraphTool.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -363,7 +364,7 @@ public class Graphs {
                         img = textToImage(text);
                         currentFileName = newName;
                     } catch (IOException ex) {
-                        Logger.getLogger(Graphs.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(GraphTool.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
                 imagePanel.repaint();

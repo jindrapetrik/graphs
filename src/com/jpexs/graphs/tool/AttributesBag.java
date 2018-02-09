@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library.
  */
-package com.jpexs.graphs.gui;
+package com.jpexs.graphs.tool;
 
 import java.util.HashMap;
 
