@@ -32,7 +32,7 @@ public class EndIfNodeInjector<T extends EditableNode> {
 
     private EditableEndIfFactory<EditableNode> endIfFactory = new BasicEditableEndIfFactory();
 
-    public void setEndIfFactory(EditableEndIfFactory endIfFactory) {
+    public void setEndIfFactory(EditableEndIfFactory<EditableNode> endIfFactory) {
         this.endIfFactory = endIfFactory;
     }
 
