@@ -16,7 +16,7 @@
  */
 package com.jpexs.graphs.tool;
 
-import com.jpexs.graphs.graphviz.graph.AttributesBag;
+import com.jpexs.graphs.graphviz.graph.AttributesMap;
 import com.jpexs.graphs.structure.BasicEditableNode;
 import com.jpexs.graphs.structure.Edge;
 import com.jpexs.graphs.structure.nodes.Node;
@@ -35,7 +35,7 @@ public class TestOperation extends AbstractGraphOperation {
     }
 
     @Override
-    protected void executeOnMutableGraph(Set<EditableNode> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
+    protected void executeOnMutableGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
         Node endifNode = new BasicEditableNode("endif-if");
         Node ifNode = new BasicEditableNode("if");
         Node after = new BasicEditableNode("after");

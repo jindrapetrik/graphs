@@ -23,9 +23,9 @@ package com.jpexs.graphs.graphviz.graph;
 public class NodeIdToAttributes {
 
     public NodeId nodeId;
-    public AttributesBag attributes;
+    public AttributesMap attributes;
 
-    public NodeIdToAttributes(NodeId nodeId, AttributesBag attributes) {
+    public NodeIdToAttributes(NodeId nodeId, AttributesMap attributes) {
         this.nodeId = nodeId;
         this.attributes = attributes;
     }

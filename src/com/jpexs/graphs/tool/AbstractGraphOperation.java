@@ -18,7 +18,7 @@ package com.jpexs.graphs.tool;
 
 import com.jpexs.graphs.graphviz.dot.parser.DotParseException;
 import com.jpexs.graphs.graphviz.dot.parser.DotParser;
-import com.jpexs.graphs.graphviz.graph.AttributesBag;
+import com.jpexs.graphs.graphviz.graph.AttributesMap;
 import com.jpexs.graphs.graphviz.graph.Graph;
 import com.jpexs.graphs.structure.Edge;
 import com.jpexs.graphs.structure.nodes.EditableNode;
@@ -60,7 +60,7 @@ public abstract class AbstractGraphOperation implements StringOperation {
         return String.join(join, strs);
     }
 
-    protected abstract void executeOnMutableGraph(Set<EditableNode> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap);
+    protected abstract void executeOnMutableGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap);
     protected StepHandler stepHandler;
 
     @Override
@@ -87,8 +87,8 @@ public abstract class AbstractGraphOperation implements StringOperation {
             return null;
         }
         this.currentGraph = parsedGraph;
-        Map<Node, AttributesBag> nodeAttributesMap = new HashMap<>();
-        Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap = new HashMap<>();
+        Map<Node, AttributesMap> nodeAttributesMap = new HashMap<>();
+        Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap = new HashMap<>();
         Map<Edge<EditableNode>, String> edgeCompassesMap = new HashMap<>();
         Set<EditableNode> nodes = facade.graphToNodes(currentGraph, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
 
@@ -96,14 +96,14 @@ public abstract class AbstractGraphOperation implements StringOperation {
         return facade.graphToString(facade.nodesToGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
     }
 
-    protected void regenerateGraph(Set<EditableNode> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
+    protected void regenerateGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
         GraphVizFacade f = new GraphVizFacade();
         currentGraph = f.nodesToGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
     }
 
-    protected void markEdge(Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap, Edge<EditableNode> edge, String color, String label) {
+    protected void markEdge(Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Edge<EditableNode> edge, String color, String label) {
         if (!edgeAttributesMap.containsKey(edge)) {
-            edgeAttributesMap.put(edge, new AttributesBag());
+            edgeAttributesMap.put(edge, new AttributesMap());
         }
         edgeAttributesMap.get(edge).put("color", color);
         if (label != null) {
@@ -112,18 +112,18 @@ public abstract class AbstractGraphOperation implements StringOperation {
         }
     }
 
-    protected void markEdge(Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap, EditableNode from, EditableNode to, String color, String label) {
+    protected void markEdge(Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, EditableNode from, EditableNode to, String color, String label) {
         markEdge(edgeAttributesMap, new Edge<>(from, to), color, label);
     }
 
-    protected void markNode(Map<Node, AttributesBag> nodeAttributesMap, Node nodeName, String color) {
+    protected void markNode(Map<Node, AttributesMap> nodeAttributesMap, Node nodeName, String color) {
         if (!nodeAttributesMap.containsKey(nodeName)) {
-            nodeAttributesMap.put(nodeName, new AttributesBag());
+            nodeAttributesMap.put(nodeName, new AttributesMap());
         }
         nodeAttributesMap.get(nodeName).put("color", color);
     }
 
-    protected void hilightNoNode(Set<EditableNode> allNodes, Map<Node, AttributesBag> nodeAttributesMap) {
+    protected void hilightNoNode(Set<EditableNode> allNodes, Map<Node, AttributesMap> nodeAttributesMap) {
         for (Node n : allNodes) {
             if (nodeAttributesMap.containsKey(n)) {
                 nodeAttributesMap.get(n).remove("color");
@@ -131,7 +131,7 @@ public abstract class AbstractGraphOperation implements StringOperation {
         }
     }
 
-    protected void hilightOneNode(Set<EditableNode> allNodes, Map<Node, AttributesBag> nodeAttributesMap, Node nodeName) {
+    protected void hilightOneNode(Set<EditableNode> allNodes, Map<Node, AttributesMap> nodeAttributesMap, Node nodeName) {
         hilightNoNode(allNodes, nodeAttributesMap);
         markNode(nodeAttributesMap, nodeName, "red");
     }

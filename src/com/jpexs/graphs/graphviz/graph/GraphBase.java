@@ -30,9 +30,9 @@ public abstract class GraphBase implements IdAware {
 
     protected boolean directed;
     public String id = null;
-    public AttributesBag graphAttributes = new AttributesBag();
-    public AttributesBag nodeAttributes = new AttributesBag();
-    public AttributesBag edgeAttributes = new AttributesBag();
+    public AttributesMap graphAttributes = new AttributesMap();
+    public AttributesMap nodeAttributes = new AttributesMap();
+    public AttributesMap edgeAttributes = new AttributesMap();
     public List<NodeIdToAttributes> nodes = new ArrayList<>();
     public List<Edge> edges = new ArrayList<>();
 

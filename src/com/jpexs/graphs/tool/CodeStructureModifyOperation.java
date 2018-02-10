@@ -16,7 +16,7 @@
  */
 package com.jpexs.graphs.tool;
 
-import com.jpexs.graphs.graphviz.graph.AttributesBag;
+import com.jpexs.graphs.graphviz.graph.AttributesMap;
 import com.jpexs.graphs.graphviz.graph.Graph;
 import com.jpexs.graphs.structure.DecisionList;
 import com.jpexs.graphs.structure.Edge;
@@ -44,7 +44,7 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
     }
 
     @Override
-    public void executeOnMutableGraph(Set<EditableNode> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
+    public void executeOnMutableGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
         CodeStructureModifier mod = new CodeStructureModifier();
         EditableNode startNode = nodes.iterator().next();
         final EditableNode fStartNode = startNode;
@@ -152,13 +152,13 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                 edgeCompassesMap.put(onTrueStartEdge, "sw:n");
                 edgeCompassesMap.put(onFalseStartEdge, "se:n");
                 if (!edgeAttributesMap.containsKey(onTrueStartEdge)) {
-                    edgeAttributesMap.put(onTrueStartEdge, new AttributesBag());
+                    edgeAttributesMap.put(onTrueStartEdge, new AttributesMap());
                 }
                 if (!edgeAttributesMap.containsKey(onFalseStartEdge)) {
-                    edgeAttributesMap.put(onFalseStartEdge, new AttributesBag());
+                    edgeAttributesMap.put(onFalseStartEdge, new AttributesMap());
                 }
-                AttributesBag onTrueAttr = edgeAttributesMap.get(onTrueStartEdge);
-                AttributesBag onFalseAttr = edgeAttributesMap.get(onFalseStartEdge);
+                AttributesMap onTrueAttr = edgeAttributesMap.get(onTrueStartEdge);
+                AttributesMap onFalseAttr = edgeAttributesMap.get(onFalseStartEdge);
                 if (!onTrueAttr.containsKey("color")) {
                     onTrueAttr.put("color", "darkgreen");
                 }
@@ -183,10 +183,10 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                     edgeCompassesMap.put(onFalseFinishEdge, "s:ne");
                 }
                 if (!edgeAttributesMap.containsKey(onTrueFinishEdge)) {
-                    edgeAttributesMap.put(onTrueFinishEdge, new AttributesBag());
+                    edgeAttributesMap.put(onTrueFinishEdge, new AttributesMap());
                 }
                 if (!edgeAttributesMap.containsKey(onFalseFinishEdge)) {
-                    edgeAttributesMap.put(onFalseFinishEdge, new AttributesBag());
+                    edgeAttributesMap.put(onFalseFinishEdge, new AttributesMap());
                 }
                 markTrueFalseOrder(startNode, new LinkedHashSet<>(), edgeAttributesMap);
                 regenerate();
@@ -206,7 +206,7 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                         startNode = node;
                     }
                     if (nodeAttributesMap.containsKey(subNode)) {
-                        AttributesBag attr = nodeAttributesMap.get(subNode);
+                        AttributesMap attr = nodeAttributesMap.get(subNode);
                         if (attr.containsKey("label")) {
                             labels.add(attr.get("label").toString());
                         } else {
@@ -227,7 +227,7 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                 }
                 shape = "box";
 
-                AttributesBag nattr = new AttributesBag();
+                AttributesMap nattr = new AttributesMap();
 
                 if (!labels.isEmpty()) {
                     nattr.put("label", String.join("\\l", labels));
@@ -254,7 +254,7 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
         mod.execute(startNode, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
-    private void markTrueFalseOrder(EditableNode n, Set<EditableNode> visited, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap) {
+    private void markTrueFalseOrder(EditableNode n, Set<EditableNode> visited, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap) {
         if (visited.contains(n)) {
             return;
         }
@@ -266,7 +266,7 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                 EditableNode prevEditable = (EditableNode) prev;
                 Edge<EditableNode> edge = new Edge<>(prevEditable, n);
                 if (!edgeAttributesMap.containsKey(edge)) {
-                    edgeAttributesMap.put(edge, new AttributesBag());
+                    edgeAttributesMap.put(edge, new AttributesMap());
                 }
                 edgeAttributesMap.get(edge).put("headlabel", branchLabels[i]);
             }
@@ -279,7 +279,7 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                 EditableNode nextEditable = (EditableNode) next;
                 Edge<EditableNode> edge = new Edge<>(n, nextEditable);
                 if (!edgeAttributesMap.containsKey(edge)) {
-                    edgeAttributesMap.put(edge, new AttributesBag());
+                    edgeAttributesMap.put(edge, new AttributesMap());
                 }
                 edgeAttributesMap.get(edge).put("taillabel", branchLabels[i]);
             }
@@ -291,11 +291,11 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
         }
     }
 
-    private void updateDecisionLists(Graph g, Map<Edge<EditableNode>, DecisionList<EditableNode>> decistionLists, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap) {
+    private void updateDecisionLists(Graph g, Map<Edge<EditableNode>, DecisionList<EditableNode>> decistionLists, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap) {
         boolean displayDecisionLists = false;
         for (Edge<EditableNode> edge : decistionLists.keySet()) {
             if (!edgeAttributesMap.containsKey(edge)) {
-                edgeAttributesMap.put(edge, new AttributesBag());
+                edgeAttributesMap.put(edge, new AttributesMap());
             }
             if (displayDecisionLists) {
                 edgeAttributesMap.get(edge).put("label", decistionLists.get(edge).isEmpty() ? "(empty)" : decistionLists.get(edge).toString());

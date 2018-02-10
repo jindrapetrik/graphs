@@ -16,7 +16,7 @@
  */
 package com.jpexs.graphs.graphviz.dot.parser;
 
-import com.jpexs.graphs.graphviz.graph.AttributesBag;
+import com.jpexs.graphs.graphviz.graph.AttributesMap;
 import com.jpexs.graphs.graphviz.graph.ConnectableObject;
 import com.jpexs.graphs.graphviz.graph.Edge;
 import com.jpexs.graphs.graphviz.graph.Graph;
@@ -77,9 +77,9 @@ public class DotParser {
         _expect(lexer, DotParsedSymbol.TYPE_BRACE_OPEN, "{");
         List<Edge> edges = new ArrayList<>();
         List<NodeIdToAttributes> standaloneNodes = new ArrayList<>();
-        AttributesBag graphAttributes = new AttributesBag();
-        AttributesBag nodeAttributes = new AttributesBag();
-        AttributesBag edgeAttributes = new AttributesBag();
+        AttributesMap graphAttributes = new AttributesMap();
+        AttributesMap nodeAttributes = new AttributesMap();
+        AttributesMap edgeAttributes = new AttributesMap();
         stmt_list(edges, standaloneNodes, graphAttributes, nodeAttributes, edgeAttributes, isDirectedGraph, lexer);
         _expect(lexer, DotParsedSymbol.TYPE_BRACE_CLOSE, "}");
 
@@ -96,7 +96,7 @@ public class DotParser {
     /*
     stmt_list : [ stmt [ ';' ] stmt_list ]
      */
-    public void stmt_list(List<Edge> edges, List<NodeIdToAttributes> standaloneNodes, AttributesBag graphAttributes, AttributesBag nodeAttributes, AttributesBag edgeAttributes, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
+    public void stmt_list(List<Edge> edges, List<NodeIdToAttributes> standaloneNodes, AttributesMap graphAttributes, AttributesMap nodeAttributes, AttributesMap edgeAttributes, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
         boolean empty = true;
         if (stmt(edges, standaloneNodes, graphAttributes, nodeAttributes, edgeAttributes, isDirectedGraph, lexer)) {
             empty = false;
@@ -125,7 +125,7 @@ public class DotParser {
 	 | d) ID '=' ID           - prefix: - ID '=' ...
 	 | e) subgraph            - prefix: - subgraph 
      */
-    public boolean stmt(List<Edge> edges, List<NodeIdToAttributes> standaloneNodes, AttributesBag graphAttributes, AttributesBag nodeAttributes, AttributesBag edgeAttributes, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
+    public boolean stmt(List<Edge> edges, List<NodeIdToAttributes> standaloneNodes, AttributesMap graphAttributes, AttributesMap nodeAttributes, AttributesMap edgeAttributes, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
         DotParsedSymbol symbol = lexer.lex();
         //d)
         if (symbol.type == DotParsedSymbol.TYPE_ID) {
@@ -148,7 +148,7 @@ public class DotParser {
         //c)
         if (symbol.type == DotParsedSymbol.TYPE_KEYWORD_GRAPH || symbol.type == DotParsedSymbol.TYPE_KEYWORD_NODE || symbol.type == DotParsedSymbol.TYPE_KEYWORD_EDGE) {
             lexer.pushback(symbol);
-            AttributesBag attributesBag = new AttributesBag();
+            AttributesMap attributesBag = new AttributesMap();
             String attrKind = attr_stmt(lexer, attributesBag);
             switch (attrKind) {
                 case "graph":
@@ -176,13 +176,13 @@ public class DotParser {
                     symbol = lexer.lex();
                 }
                 //a) or finish of b)
-                AttributesBag currentAttributes = new AttributesBag();
+                AttributesMap currentAttributes = new AttributesMap();
                 if (symbol.type == DotParsedSymbol.TYPE_BRACKET_OPEN && ((obj instanceof Edge) || (obj instanceof NodeId))) {
                     lexer.pushback(symbol);
                     if (obj instanceof Edge) {
                         currentAttributes = ((Edge) obj).attributes;
                     }
-                    AttributesBag attributes = attr_list(lexer);
+                    AttributesMap attributes = attr_list(lexer);
                     currentAttributes.putAll(attributes);
                 } else {
                     lexer.pushback(symbol);
@@ -217,8 +217,8 @@ public class DotParser {
     /*
     attr_list :	'[' [ a_list ] ']' [ attr_list ]
      */
-    public AttributesBag attr_list(DotLexer lexer) throws DotParseException, IOException {
-        AttributesBag attributesBag = new AttributesBag();
+    public AttributesMap attr_list(DotLexer lexer) throws DotParseException, IOException {
+        AttributesMap attributesBag = new AttributesMap();
         _expect(lexer, DotParsedSymbol.TYPE_BRACKET_OPEN, "[");
         DotParsedSymbol symbol = lexer.lex();
         if (symbol.type == DotParsedSymbol.TYPE_ID) {
@@ -231,7 +231,7 @@ public class DotParser {
         symbol = lexer.lex();
         if (symbol.type == DotParsedSymbol.TYPE_BRACKET_OPEN) {
             lexer.pushback(symbol);
-            AttributesBag nextAtributesBag = attr_list(lexer);
+            AttributesMap nextAtributesBag = attr_list(lexer);
             attributesBag.putAll(nextAtributesBag);
         } else {
             lexer.pushback(symbol);
@@ -242,7 +242,7 @@ public class DotParser {
     /*
     attr_stmt :	(graph | node | edge) attr_list
      */
-    public String /*type*/ attr_stmt(DotLexer lexer, AttributesBag out) throws DotParseException, IOException {
+    public String /*type*/ attr_stmt(DotLexer lexer, AttributesMap out) throws DotParseException, IOException {
         DotParsedSymbol symbol = lexer.lex();
         if (!((symbol.type == DotParsedSymbol.TYPE_KEYWORD_GRAPH) || (symbol.type == DotParsedSymbol.TYPE_KEYWORD_NODE) || (symbol.type == DotParsedSymbol.TYPE_KEYWORD_EDGE))) {
             _expected("graph or node or edge keyword", symbol);
@@ -254,7 +254,7 @@ public class DotParser {
     /*
     a_list: ID '=' ID [ (';' | ',') ] [ a_list ]
      */
-    public void a_list(AttributesBag attributesBag, DotLexer lexer) throws DotParseException, IOException {
+    public void a_list(AttributesMap attributesBag, DotLexer lexer) throws DotParseException, IOException {
         DotParsedSymbol symbol = lexer.lex();
         _expect(DotParsedSymbol.TYPE_ID, "ID", symbol);
         String key = symbol.getValueAsString();
@@ -282,7 +282,7 @@ public class DotParser {
         DotParsedSymbol symbol = lexer.lex();
         if (symbol.type == DotParsedSymbol.TYPE_BRACKET_OPEN) {
             lexer.pushback(symbol);
-            AttributesBag attributes = attr_list(lexer);
+            AttributesMap attributes = attr_list(lexer);
             standaloneNodes.add(new NodeIdToAttributes(node, attributes));
         } else {
             lexer.pushback(symbol);
@@ -306,7 +306,7 @@ public class DotParser {
         symbol = lexer.lex();
         if (symbol.type == DotParsedSymbol.TYPE_BRACKET_OPEN) {
             lexer.pushback(symbol);
-            AttributesBag attributes = attr_list(lexer);
+            AttributesMap attributes = attr_list(lexer);
             edge.attributes.putAll(attributes);
         } else {
             lexer.pushback(symbol);
@@ -430,9 +430,9 @@ public class DotParser {
 
         List<Edge> edges = new ArrayList<>();
         List<NodeIdToAttributes> standaloneNodes = new ArrayList<>();
-        AttributesBag graphAttributes = new AttributesBag();
-        AttributesBag nodeAttributes = new AttributesBag();
-        AttributesBag edgeAttributes = new AttributesBag();
+        AttributesMap graphAttributes = new AttributesMap();
+        AttributesMap nodeAttributes = new AttributesMap();
+        AttributesMap edgeAttributes = new AttributesMap();
         stmt_list(edges, standaloneNodes, graphAttributes, nodeAttributes, edgeAttributes, isDirectedGraph, lexer);
         _expect(lexer, DotParsedSymbol.TYPE_BRACE_CLOSE, "}");
         SubGraph graph = new SubGraph(isDirectedGraph);

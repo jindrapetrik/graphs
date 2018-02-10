@@ -22,7 +22,7 @@ package com.jpexs.graphs.graphviz.graph;
  */
 public class Edge {
 
-    public AttributesBag attributes = new AttributesBag();
+    public AttributesMap attributes = new AttributesMap();
     public ConnectableObject from;
     public ConnectableObject to;
 

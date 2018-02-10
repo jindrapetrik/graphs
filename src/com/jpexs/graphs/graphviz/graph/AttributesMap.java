@@ -24,13 +24,13 @@ import java.util.List;
  *
  * @author JPEXS
  */
-public class AttributesBag extends LinkedHashMap<String, String> {
+public class AttributesMap extends LinkedHashMap<String, String> {
 
-    public AttributesBag(AttributesBag source) {
+    public AttributesMap(AttributesMap source) {
         putAll(source);
     }
 
-    public AttributesBag() {
+    public AttributesMap() {
     }
 
     @Override
@@ -55,9 +55,9 @@ public class AttributesBag extends LinkedHashMap<String, String> {
     }
 
     @Override
-    public AttributesBag clone() {
+    public AttributesMap clone() {
         super.clone();
-        return new AttributesBag(this);
+        return new AttributesMap(this);
     }
 
 }

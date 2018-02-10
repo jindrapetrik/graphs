@@ -18,7 +18,7 @@ package com.jpexs.graphs.tool;
 
 import com.jpexs.graphs.graphviz.dot.parser.DotParseException;
 import com.jpexs.graphs.graphviz.dot.parser.DotParser;
-import com.jpexs.graphs.graphviz.graph.AttributesBag;
+import com.jpexs.graphs.graphviz.graph.AttributesMap;
 import com.jpexs.graphs.graphviz.graph.Graph;
 import com.jpexs.graphs.graphviz.graph.NodeId;
 import com.jpexs.graphs.graphviz.graph.NodeIdToAttributes;
@@ -44,8 +44,8 @@ public class GraphVizFacade {
 
     public String regenerateGraphString(String text) {
         Graph g = graphFromString(text);
-        Map<Node, AttributesBag> nodeAttributesMap = new HashMap<>();
-        Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap = new HashMap<>();
+        Map<Node, AttributesMap> nodeAttributesMap = new HashMap<>();
+        Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap = new HashMap<>();
         Map<Edge<EditableNode>, String> edgeCompassesMap = new HashMap<>();
 
         Set<EditableNode> nodes = graphToNodes(g, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
@@ -84,7 +84,7 @@ public class GraphVizFacade {
         }
     }
 
-    public Graph nodesToGraph(Set<EditableNode> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
+    public Graph nodesToGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
         Graph ret = new Graph(false, true);
         Set<EditableNode> orderedNodes = nodes;
 
@@ -98,7 +98,7 @@ public class GraphVizFacade {
         for (Node node : orderedNodes2) {
             NodeId nodeId = new NodeId(node.getId());
             if (nodeAttributesMap.containsKey(node)) {
-                AttributesBag attributesToSet = nodeAttributesMap.get(node);
+                AttributesMap attributesToSet = nodeAttributesMap.get(node);
                 standaloneNodes.add(new NodeIdToAttributes(nodeId, attributesToSet.clone()));
             }
 
@@ -132,7 +132,7 @@ public class GraphVizFacade {
         return ret;
     }
 
-    public Set<EditableNode> graphToNodes(Graph g, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
+    public Set<EditableNode> graphToNodes(Graph g, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
         Set<EditableNode> orderedNodeSet = new LinkedHashSet<>();
         Map<String, EditableNode> nameToNodeMap = new LinkedHashMap<>();
         for (NodeIdToAttributes na : g.nodes) {
