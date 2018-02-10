@@ -16,14 +16,15 @@
  */
 package com.jpexs.graphs.tool;
 
+import com.jpexs.graphs.graphviz.dot.parser.DotParseException;
+import com.jpexs.graphs.graphviz.dot.parser.DotParser;
 import com.jpexs.graphs.graphviz.graph.AttributesBag;
+import com.jpexs.graphs.graphviz.graph.Graph;
 import com.jpexs.graphs.structure.Edge;
 import com.jpexs.graphs.structure.nodes.EditableNode;
 import com.jpexs.graphs.structure.nodes.Node;
-import guru.nidi.graphviz.model.MutableGraph;
-import guru.nidi.graphviz.model.MutableNode;
-import guru.nidi.graphviz.parse.Parser;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -38,7 +41,7 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractGraphOperation implements StringOperation {
 
-    MutableGraph currentGraph;
+    Graph currentGraph;
     protected GraphVizFacade facade;
     private String source;
     private String currentText;
@@ -65,7 +68,7 @@ public abstract class AbstractGraphOperation implements StringOperation {
         this.stepHandler = stepHandler;
     }
 
-    protected void step(MutableGraph g) {
+    protected void step(Graph g) {
         if (this.stepHandler != null) {
             stepHandler.step(facade.graphToString(g));
         }
@@ -73,10 +76,14 @@ public abstract class AbstractGraphOperation implements StringOperation {
 
     @Override
     public String execute() {
-        MutableGraph parsedGraph;
+        Graph parsedGraph;
         try {
-            parsedGraph = Parser.read(source);
+            DotParser parser = new DotParser();
+            parsedGraph = parser.parse(new StringReader(source));
         } catch (IOException ex) {
+            return null;
+        } catch (DotParseException ex) {
+            ex.printStackTrace();
             return null;
         }
         this.currentGraph = parsedGraph;
@@ -86,28 +93,12 @@ public abstract class AbstractGraphOperation implements StringOperation {
         Set<EditableNode> nodes = facade.graphToNodes(currentGraph, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
 
         executeOnMutableGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
-        return facade.graphToString(facade.generateGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
+        return facade.graphToString(facade.nodesToGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
     }
 
     protected void regenerateGraph(Set<EditableNode> nodes, Map<Node, AttributesBag> nodeAttributesMap, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
         GraphVizFacade f = new GraphVizFacade();
-        currentGraph = f.generateGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
-    }
-
-    protected MutableNode getMutableNode(MutableGraph g, Node sourceNode) {
-        List<MutableNode> ret = new ArrayList<>();
-        g.nodes().forEach(new Consumer<MutableNode>() {
-            @Override
-            public void accept(MutableNode node) {
-                if (sourceNode.getId().equals(node.label().toString())) {
-                    ret.add(node);
-                };
-            }
-        });
-        if (ret.isEmpty()) {
-            return null;
-        }
-        return ret.get(0);
+        currentGraph = f.nodesToGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
     }
 
     protected void markEdge(Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap, Edge<EditableNode> edge, String color, String label) {

@@ -17,6 +17,7 @@
 package com.jpexs.graphs.tool;
 
 import com.jpexs.graphs.graphviz.graph.AttributesBag;
+import com.jpexs.graphs.graphviz.graph.Graph;
 import com.jpexs.graphs.structure.DecisionList;
 import com.jpexs.graphs.structure.Edge;
 import com.jpexs.graphs.structure.nodes.EditableEndIfNode;
@@ -25,7 +26,6 @@ import com.jpexs.graphs.structure.nodes.Node;
 import com.jpexs.graphs.structure.operations.CodeStructureModifier;
 import com.jpexs.graphs.structure.operations.CodeStructureModifierProgressListener;
 import com.jpexs.graphs.structure.operations.DetectedEdgeType;
-import guru.nidi.graphviz.model.MutableGraph;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -91,14 +91,16 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
                         label = "goto";
                         break;
                     case OUTSIDEIF:
+                        if (alreadyHasColor) {
+                            System.out.println("outside: " + edge);
+                            return;
+                        }
                         int branchIndex = edge.from.getNext().indexOf(edge.to);
                         int otherBranchIndex = branchIndex == 0 ? 1 : 0;
                         Edge<EditableNode> otherEdge = new Edge<>(edge.from, (EditableNode) edge.from.getNext().get(otherBranchIndex));
                         edgeCompassesMap.put(edge, (branchIndex == 0 ? "sw" : "se") + ":n");
                         edgeCompassesMap.put(otherEdge, "s:n");
-                        if (alreadyHasColor) {
-                            return;
-                        }
+
                         color = "chocolate1";
                         label = "outside";
                         break;
@@ -289,7 +291,7 @@ public class CodeStructureModifyOperation extends AbstractGraphOperation {
         }
     }
 
-    private void updateDecisionLists(MutableGraph g, Map<Edge<EditableNode>, DecisionList<EditableNode>> decistionLists, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap) {
+    private void updateDecisionLists(Graph g, Map<Edge<EditableNode>, DecisionList<EditableNode>> decistionLists, Map<Edge<EditableNode>, AttributesBag> edgeAttributesMap) {
         boolean displayDecisionLists = false;
         for (Edge<EditableNode> edge : decistionLists.keySet()) {
             if (!edgeAttributesMap.containsKey(edge)) {

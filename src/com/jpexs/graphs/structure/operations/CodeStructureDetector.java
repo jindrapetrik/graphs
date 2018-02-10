@@ -40,7 +40,7 @@ public class CodeStructureDetector<N extends Node> {
     private List<N> todoList = new ArrayList<>();
     private List<Node> alreadyProcessed = new ArrayList<>();
     private Map<Edge<N>, DecisionList<N>> decistionLists = new HashMap<>();
-    private List<DecisionList<N>> rememberedDecisionLists = new ArrayList<>();
+    private List<N> rememberedDecisionNodes = new ArrayList<>();
     private List<N> waiting = new ArrayList<>();
     private List<Node> loopContinues = new ArrayList<>();
     private List<Edge<N>> backEdges = new ArrayList<>();
@@ -225,7 +225,7 @@ public class CodeStructureDetector<N extends Node> {
         } else {
             //Remove decisionLists, which are remembered from last time as unstructured
             for (int i = prevDecisionLists.size() - 1; i >= 0; i--) {
-                if (rememberedDecisionLists.contains(prevDecisionLists.get(i))) {
+                if (prevDecisionLists.get(i).containsOneOfNodes(rememberedDecisionNodes)) {
                     Edge<N> gotoEdge = new Edge<>(prevNodes.get(i), BOD);
                     gotoEdges.add(gotoEdge);
                     fireEdgeMarked(gotoEdge, DetectedEdgeType.GOTO);
@@ -267,12 +267,7 @@ public class CodeStructureDetector<N extends Node> {
                             List<N> endBranchNodes = new ArrayList<>();
                             for (int index : sameIndices) {
                                 Decision<N> decision = prevDecisionLists.get(index).get(decisionListI.size() - 1);
-                                N ifNode = decision.getIfNode();
-                                System.out.println("-declist: " + prevDecisionLists.get(index));
-                                System.out.println("-decision: " + decision);
-                                System.out.println("-ifNode: " + ifNode);
                                 int branchNum = decision.getBranchNum();
-                                System.out.println("-branchNum: " + branchNum);
                                 prevDecisionLists.remove(index);
                                 N prev = decisionListNodes.remove(index);
                                 if (branchNum == 0) {
@@ -280,29 +275,15 @@ public class CodeStructureDetector<N extends Node> {
                                 } else {
                                     endBranchNodes.add(prev);
                                 }
-
-                                /*
-                                vydal se branchi 0
-                                
-                                jsou zde nejake prevnodes k afternode, kazda prevnode ma nejake cislo branche
-                                
-                                ta ktera ma cislo branche 0 by mela byt na pozici 0,
-                                ta ktera ma cislo branche 1 by mela byt na pozici 0,
-                                
-                                a prev 
-                                 */
                             }
 
                             fireNoNodeSelected();
-                            System.out.println("injecting if 1");
-                            System.out.println("decisionNode=" + decisionNode);
                             N endIfNode = fireEndIfDetected(decisionNode, endBranchNodes, BOD);
 
                             alreadyProcessed.add(endIfNode);
                             decisionListNodes.add(endIfNode);
                             prevDecisionLists.add(shorterDecisionList);
                             decistionLists.put(new Edge<>(endIfNode, BOD), shorterDecisionList);
-                            //fireEndIfNodeAdded(endIfNode);
                             fireUpdateDecisionLists(decistionLists);
                             fireStep();
                             continue loopcheck;
@@ -338,12 +319,12 @@ public class CodeStructureDetector<N extends Node> {
                                     decisionListJKratsi.addAll(decisionListJ);
                                     decisionListJKratsi.remove(decisionListJKratsi.size() - 1);
                                     if (decisionListJKratsi.ifNodesEquals(decisionListK)) {
-                                        rememberedDecisionLists.add(decisionListJ);
+
                                         prevDecisionLists.set(j, decisionListJKratsi.lockForChanges());
                                         decistionLists.put(new Edge<>(decisionListNodes.get(j), BOD), decisionListJKratsi);
                                         Decision<N> decisionK = decisionListK.get(decisionListK.size() - 1);
                                         Decision<N> decisionJ = decisionListJ.get(decisionListJKratsi.size() - 1);
-
+                                        rememberedDecisionNodes.add(decisionK.getIfNode());
                                         N decisionNode = decisionK.getIfNode();
 
                                         Decision<N> exitDecision = decisionListJ.get(decisionListJ.size() - 1);
@@ -371,8 +352,6 @@ public class CodeStructureDetector<N extends Node> {
 
                                         DecisionList<N> shorterDecisionList = new DecisionList<>(decisionListK);
                                         shorterDecisionList.remove(shorterDecisionList.size() - 1);
-                                        System.out.println("injecting if 2");
-                                        System.out.println("decisionNode=" + decisionNode);
                                         N endIfNode = fireEndIfDetected(decisionNode, endBranchNodes, BOD);
                                         alreadyProcessed.add(endIfNode);
                                         decisionListNodes.add(endIfNode);
@@ -428,16 +407,15 @@ public class CodeStructureDetector<N extends Node> {
                 for (int i = 0; i < prevDecisionLists.size(); i++) {
                     DecisionList<N> decisionList = prevDecisionLists.get(i);
                     if (decisionList.size() > prefix.size()) {
-                        rememberedDecisionLists.add(decisionList);
                         Edge<N> gotoEdge = new Edge<>(decisionListNodes.get(i), BOD);
                         gotoEdges.add(gotoEdge);
                         fireEdgeMarked(gotoEdge, DetectedEdgeType.GOTO);
                     }
-                    if (decisionList.size() > prefix.size()) {
+                    /*if (decisionList.size() > prefix.size() && !rememberedBefore) {
                         Decision<N> exitDecision = decisionList.get(prefix.size() - 1 + 1);
                         N exitNode = exitDecision.getIfNode();
                         removeExitPointFromPrevDlists(decisionListNodes.get(i), BOD, exitNode, new LinkedHashSet<>());
-                    }
+                    }*/
                 }
 
                 //just merge of unstructured branches

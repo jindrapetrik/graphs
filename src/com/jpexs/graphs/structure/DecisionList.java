@@ -52,4 +52,26 @@ public class DecisionList<T extends Node> extends ArrayList<Decision<T>> {
         }
         return true;
     }
+
+    public boolean containsOneOfNodes(Collection<T> nodes) {
+        for (Decision<T> dec : this) {
+            if (nodes.contains(dec.getIfNode())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsDecisionNode(Decision<T> decision) {
+        return containsDecisionNode(decision.getIfNode());
+    }
+
+    public boolean containsDecisionNode(T node) {
+        for (Decision<T> dec : this) {
+            if (dec.getIfNode().equals(node)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

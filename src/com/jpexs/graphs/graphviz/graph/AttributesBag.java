@@ -26,6 +26,13 @@ import java.util.List;
  */
 public class AttributesBag extends LinkedHashMap<String, String> {
 
+    public AttributesBag(AttributesBag source) {
+        putAll(source);
+    }
+
+    public AttributesBag() {
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -45,6 +52,12 @@ public class AttributesBag extends LinkedHashMap<String, String> {
             sb.append("]");
         }
         return sb.toString();
+    }
+
+    @Override
+    public AttributesBag clone() {
+        super.clone();
+        return new AttributesBag(this);
     }
 
 }
