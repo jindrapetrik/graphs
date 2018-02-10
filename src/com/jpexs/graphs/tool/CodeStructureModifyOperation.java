@@ -16,6 +16,7 @@
  */
 package com.jpexs.graphs.tool;
 
+import com.jpexs.graphs.graphviz.graph.AttributesBag;
 import com.jpexs.graphs.structure.DecisionList;
 import com.jpexs.graphs.structure.Edge;
 import com.jpexs.graphs.structure.nodes.EditableEndIfNode;

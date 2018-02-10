@@ -16,6 +16,9 @@
  */
 package com.jpexs.graphs.tool;
 
+import com.jpexs.graphs.graphviz.dot.parser.DotParseException;
+import com.jpexs.graphs.graphviz.dot.parser.DotParser;
+import com.jpexs.graphs.graphviz.graph.Graph;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -36,6 +39,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -265,6 +269,15 @@ public class GraphTool {
                     img = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
                 }
                 imagePanel.repaint();
+                try {
+                    DotParser dotParser = new DotParser();
+                    Graph gr = dotParser.parse(new StringReader(textArea.getText()));
+                    System.out.println("" + gr);
+                } catch (DotParseException ex) {
+                    Logger.getLogger(GraphTool.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(GraphTool.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
 

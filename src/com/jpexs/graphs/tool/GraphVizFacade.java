@@ -16,6 +16,7 @@
  */
 package com.jpexs.graphs.tool;
 
+import com.jpexs.graphs.graphviz.graph.AttributesBag;
 import com.jpexs.graphs.structure.BasicEditableNode;
 import com.jpexs.graphs.structure.Edge;
 import com.jpexs.graphs.structure.nodes.EditableNode;
@@ -265,7 +266,7 @@ public class GraphVizFacade {
                 AttributesBag nodeAttributes = new AttributesBag();
                 while (nodeAttrIterator.hasNext()) {
                     Map.Entry<String, Object> entry = nodeAttrIterator.next();
-                    nodeAttributes.put(entry.getKey(), entry.getValue());
+                    nodeAttributes.put(entry.getKey(), entry.getValue().toString());
                 }
                 nodeAttributesMap.put(retNode, nodeAttributes);
 
@@ -309,7 +310,7 @@ public class GraphVizFacade {
                         Iterator<Map.Entry<String, Object>> linkAttrIterator = link.attrs().iterator();
                         while (linkAttrIterator.hasNext()) {
                             Map.Entry<String, Object> entry = linkAttrIterator.next();
-                            edgeAttributes.put(entry.getKey(), entry.getValue());
+                            edgeAttributes.put(entry.getKey(), entry.getValue().toString());
                         }
                         edgeAttributesMap.put(edge, edgeAttributes);
 
