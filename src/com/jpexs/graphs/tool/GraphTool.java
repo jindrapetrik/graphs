@@ -16,15 +16,15 @@
  */
 package com.jpexs.graphs.tool;
 
-import com.jpexs.graphs.graphviz.graph.operations.TestOperation;
-import com.jpexs.graphs.graphviz.graph.operations.StringOperation;
-import com.jpexs.graphs.graphviz.graph.operations.codestructure.CodeStructureModifyOperation;
-import com.jpexs.graphs.graphviz.graph.operations.codestructure.BasicDecomposedGraphOperation;
-import com.jpexs.graphs.graphviz.graph.operations.codestructure.StructuredGraphFacade;
 import com.jpexs.graphs.graphviz.dot.parser.DotParseException;
 import com.jpexs.graphs.graphviz.dot.parser.DotParser;
 import com.jpexs.graphs.graphviz.graph.Graph;
 import com.jpexs.graphs.graphviz.graph.operations.StepHandler;
+import com.jpexs.graphs.graphviz.graph.operations.StringOperation;
+import com.jpexs.graphs.graphviz.graph.operations.TestOperation;
+import com.jpexs.graphs.graphviz.graph.operations.codestructure.BasicDecomposedGraphOperation;
+import com.jpexs.graphs.graphviz.graph.operations.codestructure.CodeStructureModifyOperation;
+import com.jpexs.graphs.graphviz.graph.operations.codestructure.StructuredGraphFacade;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -52,7 +52,6 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.script.ScriptException;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
