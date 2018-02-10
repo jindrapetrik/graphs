@@ -16,9 +16,15 @@
  */
 package com.jpexs.graphs.tool;
 
+import com.jpexs.graphs.graphviz.graph.operations.TestOperation;
+import com.jpexs.graphs.graphviz.graph.operations.StringOperation;
+import com.jpexs.graphs.graphviz.graph.operations.codestructure.CodeStructureModifyOperation;
+import com.jpexs.graphs.graphviz.graph.operations.codestructure.BasicDecomposedGraphOperation;
+import com.jpexs.graphs.graphviz.graph.operations.codestructure.StructuredGraphFacade;
 import com.jpexs.graphs.graphviz.dot.parser.DotParseException;
 import com.jpexs.graphs.graphviz.dot.parser.DotParser;
 import com.jpexs.graphs.graphviz.graph.Graph;
+import com.jpexs.graphs.graphviz.graph.operations.StepHandler;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -46,6 +52,7 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.script.ScriptException;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
@@ -99,8 +106,8 @@ public class GraphTool {
     };
 
     private static String regenerateText(String text) {
-        GraphVizFacade f = new GraphVizFacade();
-        return f.regenerateGraphString(text);
+        StructuredGraphFacade f = new StructuredGraphFacade();
+        return f.recompose(text);
     }
 
     private static BufferedImage textToImage(String text) throws IOException {
@@ -116,7 +123,7 @@ public class GraphTool {
         return br;
     }
 
-    private static void setOperation(AbstractGraphOperation op) {
+    private static void setOperation(BasicDecomposedGraphOperation op) {
         GraphTool.op = op;
     }
 
@@ -208,9 +215,8 @@ public class GraphTool {
                     @Override
                     protected Void doInBackground() throws Exception {
                         try {
-                            setOperation(new CodeStructureModifyOperation(runText));
-                            op.setStepHandler(handlerDoStep);
-                            String newText = op.execute();
+                            setOperation(new CodeStructureModifyOperation());
+                            String newText = op.execute(runText, handlerDoStep);
                             try {
                                 img = textToImage(newText);
                             } catch (IOException ex) {
@@ -240,8 +246,8 @@ public class GraphTool {
                     @Override
                     protected Void doInBackground() throws Exception {
                         try {
-                            setOperation(new CodeStructureModifyOperation(runText));
-                            String newText = op.execute();
+                            setOperation(new CodeStructureModifyOperation());
+                            String newText = op.execute(runText, null);
                             try {
                                 img = textToImage(newText);
                             } catch (IOException ex) {
@@ -293,8 +299,8 @@ public class GraphTool {
                     @Override
                     protected Void doInBackground() throws Exception {
                         try {
-                            setOperation(new TestOperation(runText));
-                            String newText = op.execute();
+                            setOperation(new TestOperation());
+                            String newText = op.execute(runText, handlerDoStep);
                             try {
                                 img = textToImage(newText);
                             } catch (IOException ex) {
