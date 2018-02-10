@@ -25,6 +25,8 @@ public class DotParsedSymbol {
     public int type;
     public int idtype = IDTYPE_NONE;
 
+    public int line;
+
     private Object value;
 
     public static final int IDTYPE_NONE = 0;
@@ -57,18 +59,21 @@ public class DotParsedSymbol {
     public static final int TYPE_EOF = 18;
     public static final int TYPE_INVALID_SYMBOL = -1;
 
-    public DotParsedSymbol(int type, Object value) {
+    public DotParsedSymbol(int line, int type, Object value) {
+        this.line = line;
         this.type = type;
         this.value = value;
     }
 
-    public DotParsedSymbol(int type, int idtype, Object value) {
+    public DotParsedSymbol(int line, int type, int idtype, Object value) {
+        this.line = line;
         this.type = type;
         this.value = value;
         this.idtype = idtype;
     }
 
-    public DotParsedSymbol(int type) {
+    public DotParsedSymbol(int line, int type) {
+        this.line = line;
         this.type = type;
     }
 

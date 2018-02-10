@@ -448,12 +448,12 @@ public class DotParser {
     private void _expect(DotLexer lexer, int symbolType, String expected) throws DotParseException, IOException {
         DotParsedSymbol found = lexer.lex();
         if (found.type != symbolType) {
-            throw new DotParseException("Expected " + expected + ", but " + found.getValueAsString() + " found");
+            throw new DotParseException(found.line, "Expected " + expected + ", but " + found.getValueAsString() + " found");
         }
     }
 
     private void _expected(String expected, DotParsedSymbol found) throws DotParseException {
-        throw new DotParseException("Expected " + expected + ", but " + found.getValueAsString() + " found");
+        throw new DotParseException(found.line, "Expected " + expected + ", but " + found.getValueAsString() + " found");
     }
 
     private void _expect(int symbolType, String typeString, DotParsedSymbol symbol) throws DotParseException {

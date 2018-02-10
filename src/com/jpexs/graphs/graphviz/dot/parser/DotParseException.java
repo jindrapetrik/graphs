@@ -22,8 +22,8 @@ package com.jpexs.graphs.graphviz.dot.parser;
  */
 public class DotParseException extends Exception {
 
-    public DotParseException(String msg) {
-        super(msg);
+    public DotParseException(int line, String msg) {
+        super(msg + " on line " + line);
     }
 
 }

@@ -98,23 +98,23 @@ Numeral = [-]?("."[0-9]+ | [0-9]+("."[0-9]*)? )
 %%  
 <YYINITIAL> {
   /* keywords */
-  "strict"                       { return new DotParsedSymbol(DotParsedSymbol.TYPE_KEYWORD_STRICT, yytext()); }
-  "graph"                        { return new DotParsedSymbol(DotParsedSymbol.TYPE_KEYWORD_GRAPH, yytext()); }
-  "digraph"                      { return new DotParsedSymbol(DotParsedSymbol.TYPE_KEYWORD_DIGRAPH, yytext()); }
-  "node"                         { return new DotParsedSymbol(DotParsedSymbol.TYPE_KEYWORD_NODE, yytext()); }
-  "edge"                         { return new DotParsedSymbol(DotParsedSymbol.TYPE_KEYWORD_EDGE, yytext()); }
-  "subgraph"                     { return new DotParsedSymbol(DotParsedSymbol.TYPE_KEYWORD_SUBGRAPH, yytext()); }
+  "strict"                       { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_KEYWORD_STRICT, yytext()); }
+  "graph"                        { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_KEYWORD_GRAPH, yytext()); }
+  "digraph"                      { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_KEYWORD_DIGRAPH, yytext()); }
+  "node"                         { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_KEYWORD_NODE, yytext()); }
+  "edge"                         { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_KEYWORD_EDGE, yytext()); }
+  "subgraph"                     { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_KEYWORD_SUBGRAPH, yytext()); }
 
-  ";"                            { return new DotParsedSymbol(DotParsedSymbol.TYPE_SEMICOLON, yytext()); }
-  ","                            { return new DotParsedSymbol(DotParsedSymbol.TYPE_COMMA, yytext()); }
-  "{"                            { return new DotParsedSymbol(DotParsedSymbol.TYPE_BRACE_OPEN, yytext()); }
-  "}"                            { return new DotParsedSymbol(DotParsedSymbol.TYPE_BRACE_CLOSE, yytext()); }
-  "="                            { return new DotParsedSymbol(DotParsedSymbol.TYPE_EQUAL, yytext()); }
-  "["                            { return new DotParsedSymbol(DotParsedSymbol.TYPE_BRACKET_OPEN, yytext()); }
-  "]"                            { return new DotParsedSymbol(DotParsedSymbol.TYPE_BRACKET_CLOSE, yytext()); }
-  ":"                            { return new DotParsedSymbol(DotParsedSymbol.TYPE_COLON, yytext()); }
-  "--"                           { return new DotParsedSymbol(DotParsedSymbol.TYPE_MINUSMINUS, yytext()); }
-  "->"                           { return new DotParsedSymbol(DotParsedSymbol.TYPE_ARROW, yytext()); }
+  ";"                            { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_SEMICOLON, yytext()); }
+  ","                            { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_COMMA, yytext()); }
+  "{"                            { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_BRACE_OPEN, yytext()); }
+  "}"                            { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_BRACE_CLOSE, yytext()); }
+  "="                            { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_EQUAL, yytext()); }
+  "["                            { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_BRACKET_OPEN, yytext()); }
+  "]"                            { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_BRACKET_CLOSE, yytext()); }
+  ":"                            { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_COLON, yytext()); }
+  "--"                           { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_MINUSMINUS, yytext()); }
+  "->"                           { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_ARROW, yytext()); }
 
   "<"                            {   string.setLength(0);
                                      tagLevel = 1;
@@ -131,19 +131,19 @@ Numeral = [-]?("."[0-9]+ | [0-9]+("."[0-9]*)? )
                                      string.setLength(0);
                                      yybegin(STRING);
                                  }  
-  {Numeral}                      { return new DotParsedSymbol(DotParsedSymbol.TYPE_ID, DotParsedSymbol.IDTYPE_NUMERAL, yytext()); }
-  {Identifier}                   { return new DotParsedSymbol(DotParsedSymbol.TYPE_ID, DotParsedSymbol.IDTYPE_IDENTIFIER, yytext()); }
+  {Numeral}                      { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_ID, DotParsedSymbol.IDTYPE_NUMERAL, yytext()); }
+  {Identifier}                   { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_ID, DotParsedSymbol.IDTYPE_IDENTIFIER, yytext()); }
   {WhiteSpace}                   { /*ignore*/ }
-  .                              { return new DotParsedSymbol(DotParsedSymbol.TYPE_INVALID_SYMBOL, yytext()); }
+  .                              { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_INVALID_SYMBOL, yytext()); }
 
-  <<EOF>>                        { return new DotParsedSymbol(DotParsedSymbol.TYPE_EOF, yytext()); }
+  <<EOF>>                        { return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_EOF, yytext()); }
 }
 
 <STRING> {
   \"                             {
                                      yybegin(YYINITIAL);
                                      // length also includes the trailing quote
-                                     return new DotParsedSymbol(DotParsedSymbol.TYPE_ID, DotParsedSymbol.IDTYPE_DOUBLE_QUOTED, string.toString());
+                                     return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_ID, DotParsedSymbol.IDTYPE_DOUBLE_QUOTED, string.toString());
                                  }
   
   /* escape*/
@@ -160,7 +160,7 @@ Numeral = [-]?("."[0-9]+ | [0-9]+("."[0-9]*)? )
     ">"                          { 
                                     tagLevel--;                                     
                                     if(tagLevel == 0){
-                                        return new DotParsedSymbol(DotParsedSymbol.TYPE_ID, DotParsedSymbol.IDTYPE_HTML_STRING, string.toString());
+                                        return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_ID, DotParsedSymbol.IDTYPE_HTML_STRING, string.toString());
                                     }else{
                                         string.append(yytext());
                                     }
