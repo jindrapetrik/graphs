@@ -269,7 +269,7 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
     }
 
     @Override
-    public void executeOnDecomposedGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap, StepHandler stepHandler) {
+    protected void executeOnDecomposedGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap, StepHandler stepHandler) {
         Executor ex = new Executor(stepHandler, nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
         ex.execute();
     }
