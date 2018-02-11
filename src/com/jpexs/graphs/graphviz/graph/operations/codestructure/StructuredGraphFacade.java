@@ -142,15 +142,6 @@ public class StructuredGraphFacade {
     public Set<EditableNode> decomposeGraph(Graph g, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
         Set<EditableNode> orderedNodeSet = new LinkedHashSet<>();
         Map<String, EditableNode> nameToNodeMap = new LinkedHashMap<>();
-        for (NodeIdToAttributes na : g.nodes) {
-            String id = na.nodeId.getId();
-            if (!nameToNodeMap.containsKey(id)) {
-                nameToNodeMap.put(id, new BasicEditableNode(id));
-            }
-            EditableNode node = nameToNodeMap.get(id);
-            nodeAttributesMap.put(node, na.attributes.clone());
-            orderedNodeSet.add(node);
-        }
         for (com.jpexs.graphs.graphviz.graph.Edge srcEdge : g.edges) {
             NodeId fromNodeId = null;
             if (srcEdge.from instanceof NodeId) {
@@ -182,6 +173,16 @@ public class StructuredGraphFacade {
                 orderedNodeSet.add(fromNode);
                 orderedNodeSet.add(toNode);
             }
+        }
+        //we need to add nodes with attributes after the edges for start edge (its first node) to be first
+        for (NodeIdToAttributes na : g.nodes) {
+            String id = na.nodeId.getId();
+            if (!nameToNodeMap.containsKey(id)) {
+                nameToNodeMap.put(id, new BasicEditableNode(id));
+            }
+            EditableNode node = nameToNodeMap.get(id);
+            nodeAttributesMap.put(node, na.attributes.clone());
+            orderedNodeSet.add(node);
         }
         return orderedNodeSet;
     }
