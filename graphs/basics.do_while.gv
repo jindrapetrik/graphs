@@ -1,0 +1,7 @@
+digraph {
+start;
+start:s->dowhile:n;
+dowhile:sw->dowhile:nw [color=darkorchid1 label=back fontcolor=darkorchid1];
+dowhile:s->end;
+end;
+}

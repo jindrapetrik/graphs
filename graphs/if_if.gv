@@ -13,5 +13,5 @@ onfalse2->after2;
 
 
 
-after2-> a->b->c->end;
+after2->end;
 }

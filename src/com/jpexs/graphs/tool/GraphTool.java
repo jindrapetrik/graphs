@@ -33,6 +33,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -40,6 +41,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -83,11 +85,31 @@ public class GraphTool {
     private static final String DOT_PATH = "c:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
 
     private static SwingWorker worker;
+    private static JComboBox<String> scriptCombo;
 
     private static JEditorPane textArea;
+    private static final String NOVY = "<new>";
+
+    private static final String NOVY_TEXT = "digraph {\r\nstart;\r\nstart->end;\r\nend;\r\n}";
+
+    private static final BufferedImage EMPTY_IMAGE = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
 
     private static String makeFileName(String name) {
         return FILES_PATH + "/" + name + EXTENSION;
+    }
+
+    private static void sortScriptCombo() {
+        String selectedItem = (String) scriptCombo.getSelectedItem();
+        scriptCombo.removeItem(NOVY);
+        List<String> items = new ArrayList<>();
+        for (int i = 0; i < scriptCombo.getItemCount(); i++) {
+            items.add(scriptCombo.getItemAt(i));
+        }
+        Collections.sort(items);
+        items.add(NOVY);
+        scriptCombo.setModel(new DefaultComboBoxModel<>(items.toArray(new String[items.size()])));
+        scriptCombo.setSelectedItem(selectedItem);
+
     }
 
     static StepHandler handlerDoStep = new StepHandler() {
@@ -96,7 +118,7 @@ public class GraphTool {
             try {
                 img = textToImage(currentGraph);
             } catch (IOException ex) {
-                //ignore
+                img = EMPTY_IMAGE;
             }
             imagePanel.repaint();
             try {
@@ -191,7 +213,9 @@ public class GraphTool {
             }
         };
 
-        String text = new String(Files.readAllBytes(Paths.get(makeFileName(currentFileName))), StandardCharsets.UTF_8);
+        String fileName = makeFileName(currentFileName);
+
+        String text = (new File(fileName)).exists() ? new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8) : NOVY_TEXT;
         img = textToImage(text);
 
         int WIN_HEIGHT = 800;
@@ -223,7 +247,7 @@ public class GraphTool {
                             try {
                                 img = textToImage(newText);
                             } catch (IOException ex) {
-                                //ignore
+                                img = EMPTY_IMAGE;
                             }
                             imagePanel.repaint();
                         } catch (Exception ex) {
@@ -275,7 +299,7 @@ public class GraphTool {
                 try {
                     img = textToImage(textArea.getText());
                 } catch (IOException ex) {
-                    img = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
+                    img = EMPTY_IMAGE;
                 }
                 imagePanel.repaint();
                 try {
@@ -307,7 +331,7 @@ public class GraphTool {
                             try {
                                 img = textToImage(newText);
                             } catch (IOException ex) {
-                                //ignore
+                                img = EMPTY_IMAGE;
                             }
                             imagePanel.repaint();
                         } catch (Exception ex) {
@@ -337,7 +361,7 @@ public class GraphTool {
         codePanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         JPanel selectScriptPanel = new JPanel(new FlowLayout());
-        final String NOVY = "<new>";
+
         String files[] = new File(FILES_PATH).list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -350,11 +374,13 @@ public class GraphTool {
         }
         files2[files2.length - 1] = NOVY;
         files = files2;
-        JComboBox<String> scriptCombo = new JComboBox<>(files);
+        scriptCombo = new JComboBox<>(files);
         selectScriptPanel.add(scriptCombo);
         JButton renameButton = new JButton("rename");
+        JButton deleteButton = new JButton("delete");
 
         selectScriptPanel.add(renameButton);
+        selectScriptPanel.add(deleteButton);
         scriptCombo.setSelectedItem(currentFileName);
         scriptCombo.addActionListener(new ActionListener() {
             @Override
@@ -367,27 +393,39 @@ public class GraphTool {
                     if (newName == null) {
                         return;
                     }
-                    scriptCombo.removeItem(NOVY);
                     scriptCombo.addItem(newName);
-                    scriptCombo.addItem(NOVY);
                     scriptCombo.setSelectedItem(newName);
                     currentFileName = newName;
-                    img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+                    textArea.setText(NOVY_TEXT);
+                    sortScriptCombo();
+                    try {
+                        img = textToImage(textArea.getText());
+                    } catch (IOException ex) {
+                        img = EMPTY_IMAGE;
+                    }
+                    imagePanel.repaint();
                 } else {
                     if (newName.equals(currentFileName)) {
                         return;
                     }
                     currentFileName = newName;
 
-                    String text;
-                    try {
-                        text = new String(Files.readAllBytes(Paths.get(makeFileName(newName))), StandardCharsets.UTF_8);
-                        textArea.setText(text);
-                        img = textToImage(text);
-                        currentFileName = newName;
-                    } catch (IOException ex) {
-                        Logger.getLogger(GraphTool.class.getName()).log(Level.SEVERE, null, ex);
+                    String fileName = makeFileName(newName);
+                    String text = NOVY_TEXT;
+                    if (new File(fileName).exists()) {
+                        try {
+                            text = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
+                        } catch (IOException ex) {
+                            Logger.getLogger(GraphTool.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
+                    textArea.setText(text);
+                    try {
+                        img = textToImage(text);
+                    } catch (IOException ex) {
+                        img = EMPTY_IMAGE;
+                    }
+                    currentFileName = newName;
                 }
                 imagePanel.repaint();
             }
@@ -400,23 +438,46 @@ public class GraphTool {
                 if (newName == null || newName.isEmpty()) {
                     return;
                 }
-                new File(makeFileName(currentFileName)).renameTo(new File(makeFileName(newName)));
-                scriptCombo.removeItem(NOVY);
-                scriptCombo.removeItem(currentFileName);
-                scriptCombo.addItem(newName);
-
-                List<String> items = new ArrayList<>();
-                for (int i = 0; i < scriptCombo.getItemCount(); i++) {
-                    items.add(scriptCombo.getItemAt(i));
+                if (new File(makeFileName(newName)).exists()) {
+                    JOptionPane.showMessageDialog(frame, "File " + newName + " already exists", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
-                Collections.sort(items);
-                items.add(NOVY);
+                String oldFileName = currentFileName;
 
-                scriptCombo.setModel(new DefaultComboBoxModel<>(items.toArray(new String[items.size()])));
+                PrintWriter pw;
+                try {
+                    pw = new PrintWriter(new File(makeFileName(newName)));
+                    pw.print(textArea.getText());
+                    pw.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(GraphTool.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                scriptCombo.addItem(newName);
                 scriptCombo.setSelectedItem(newName);
                 currentFileName = newName;
+                sortScriptCombo();
+                scriptCombo.removeItem(oldFileName);
+                new File(makeFileName(oldFileName)).delete();
             }
         });
+
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (JOptionPane.showConfirmDialog(frame, "Really delete " + currentFileName + "?", "Delete", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+                    String oldFileName = currentFileName;
+                    scriptCombo.removeItem(oldFileName);
+                    currentFileName = (String) scriptCombo.getSelectedItem();
+                    String fname = makeFileName(oldFileName);
+                    if (!new File(fname).delete()) {
+                        System.err.println("cannot delete " + fname);
+                    }
+
+                }
+            }
+        });
+
         codePanel.add(selectScriptPanel, BorderLayout.NORTH);
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(imagePanelBkg), codePanel);

@@ -1,0 +1,8 @@
+digraph {
+start;
+start:s->while:n;
+while:s->body:n;
+body:s->while:ne [color=darkorchid1 label=back fontcolor=darkorchid1];
+while:sw->end:n;
+end;
+}

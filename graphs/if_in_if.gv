@@ -1,0 +1,17 @@
+digraph ifif {
+start->if1;
+if1->ontrue1 [label="0"];
+ontrue1->if2;
+if1->onfalse1 [label="1"];
+onfalse1->after2;
+
+if2->ontrue2 [label="0"];
+ontrue2->after2;
+if2->onfalse2 [label="1"];
+onfalse2->after2;
+
+
+
+
+after2->end;
+}

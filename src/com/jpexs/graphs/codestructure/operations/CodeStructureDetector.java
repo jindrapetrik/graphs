@@ -406,23 +406,47 @@ public class CodeStructureDetector<N extends Node> {
                 }
                 for (int i = 0; i < prevDecisionLists.size(); i++) {
                     DecisionList<N> decisionList = prevDecisionLists.get(i);
-                    if (decisionList.size() > prefix.size()) {
+                    /*if (decisionList.size() > prefix.size()) {
+                        System.out.println("decisionList=" + decisionList);
+                        System.out.println("prefix=" + prefix);
+                        System.out.println("dlsize=" + decisionList.size());
+                        System.out.println("prefixsize=" + prefix.size());
                         Edge<N> gotoEdge = new Edge<>(decisionListNodes.get(i), BOD);
                         gotoEdges.add(gotoEdge);
                         fireEdgeMarked(gotoEdge, DetectedEdgeType.GOTO);
-                    }
-                    /*if (decisionList.size() > prefix.size() && !rememberedBefore) {
+                    }*/
+                    if (decisionList.size() > prefix.size()) {
                         Decision<N> exitDecision = decisionList.get(prefix.size() - 1 + 1);
                         N exitNode = exitDecision.getIfNode();
                         removeExitPointFromPrevDlists(decisionListNodes.get(i), BOD, exitNode, new LinkedHashSet<>());
-                    }*/
+                    }
+                }
+                N nextBod = BOD;
+                if (!prefix.isEmpty()) {
+
+                    List<N> endBranchNodes = new ArrayList<>();
+                    N decisionNode = null;
+                    for (int i = 0; i < prevDecisionLists.size(); i++) {
+                        Decision<N> decision = prevDecisionLists.get(i).get(prefix.size() - 1);
+                        decisionNode = decision.getIfNode();
+                        int branchNum = decision.getBranchNum();
+                        N prev = decisionListNodes.get(i);
+                        if (branchNum == 0) {
+                            endBranchNodes.add(0, prev);
+                        } else {
+                            endBranchNodes.add(prev);
+                        }
+                    }
+                    N endIfNode = fireEndIfDetected(decisionNode, endBranchNodes, BOD);
+                    alreadyProcessed.add(endIfNode);
+                    nextBod = endIfNode;
                 }
 
                 //just merge of unstructured branches
                 for (Node prev : decisionListNodes) {
                     @SuppressWarnings("unchecked")
                     N prevT = (N) prev;
-                    decistionLists.put(new Edge<>(prevT, BOD), prefix);
+                    decistionLists.put(new Edge<>(prevT, nextBod), prefix);
                 }
                 fireStep();
                 nextDecisionList = prefix;
