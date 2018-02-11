@@ -17,6 +17,7 @@
 package com.jpexs.graphs.codestructure;
 
 import com.jpexs.graphs.codestructure.nodes.EditableEndIfNode;
+import com.jpexs.graphs.codestructure.nodes.EditableNode;
 import com.jpexs.graphs.codestructure.nodes.Node;
 
 /**
@@ -25,15 +26,15 @@ import com.jpexs.graphs.codestructure.nodes.Node;
  */
 public class BasicEditableEndIfNode extends BasicEditableNode implements EditableEndIfNode {
 
-    private Node ifNode;
+    private EditableNode ifNode;
 
-    public BasicEditableEndIfNode(Node ifNode) {
+    public BasicEditableEndIfNode(EditableNode ifNode) {
         super(ENDIF_ID_PREFIX + ifNode.getId());
         this.ifNode = ifNode;
     }
 
     @Override
-    public Node getIfNode() {
+    public EditableNode getIfNode() {
         return ifNode;
     }
 

@@ -77,12 +77,10 @@ public class StructuredGraphFacade {
             return;
         }
         visited.add(currentNode);
-        for (com.jpexs.graphs.codestructure.nodes.Node next : currentNode.getNext()) {
-            @SuppressWarnings("unchecked")
-            EditableNode nextEditableNode = (EditableNode) next;
-            Edge<EditableNode> e = new Edge<>(currentNode, nextEditableNode);
+        for (com.jpexs.graphs.codestructure.nodes.EditableNode next : currentNode.getNext()) {
+            Edge<EditableNode> e = new Edge<>(currentNode, next);
             orderedEdges.add(e);
-            populateEdges(nextEditableNode, visited, orderedEdges);
+            populateEdges(next, visited, orderedEdges);
         }
     }
 

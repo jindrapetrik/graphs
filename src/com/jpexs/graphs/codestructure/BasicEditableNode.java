@@ -29,8 +29,8 @@ import java.util.Objects;
 public class BasicEditableNode implements EditableNode {
 
     private String id;
-    private List<Node> nextNodes = new ArrayList<>();
-    private List<Node> prevNodes = new ArrayList<>();
+    private List<EditableNode> nextNodes = new ArrayList<>();
+    private List<EditableNode> prevNodes = new ArrayList<>();
 
     public BasicEditableNode(String id) {
         this.id = id;
@@ -41,21 +41,21 @@ public class BasicEditableNode implements EditableNode {
         return "\"" + id + "\"";
     }
 
-    public void addNext(Node node) {
+    public void addNext(EditableNode node) {
         nextNodes.add(node);
     }
 
-    public void addPrev(Node node) {
+    public void addPrev(EditableNode node) {
         prevNodes.add(node);
     }
 
     @Override
-    public List<Node> getNext() {
+    public List<? extends EditableNode> getNext() {
         return new ArrayList<>(nextNodes);
     }
 
     @Override
-    public List<Node> getPrev() {
+    public List<? extends EditableNode> getPrev() {
         return new ArrayList<>(prevNodes);
     }
 
@@ -90,12 +90,12 @@ public class BasicEditableNode implements EditableNode {
     }
 
     @Override
-    public void removePrev(Node node) {
+    public void removePrev(EditableNode node) {
         prevNodes.remove(node);
     }
 
     @Override
-    public void removeNext(Node node) {
+    public void removeNext(EditableNode node) {
         nextNodes.remove(node);
     }
 
@@ -105,22 +105,22 @@ public class BasicEditableNode implements EditableNode {
     }
 
     @Override
-    public void setPrev(int index, Node node) {
+    public void setPrev(int index, EditableNode node) {
         prevNodes.set(index, node);
     }
 
     @Override
-    public void setNext(int index, Node node) {
+    public void setNext(int index, EditableNode node) {
         nextNodes.set(index, node);
     }
 
     @Override
-    public void addNext(int index, Node node) {
+    public void addNext(int index, EditableNode node) {
         nextNodes.add(index, node);
     }
 
     @Override
-    public void addPrev(int index, Node node) {
+    public void addPrev(int index, EditableNode node) {
         prevNodes.add(index, node);
     }
 

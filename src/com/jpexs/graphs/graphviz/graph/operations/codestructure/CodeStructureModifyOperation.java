@@ -148,23 +148,16 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
         @Override
         public void endIfAdded(EditableEndIfNode endIfNode) {
             nodes.add(endIfNode);
-            for (Node prev : endIfNode.getPrev()) {
-                @SuppressWarnings("unchecked")
-                EditableNode prevEditable = (EditableNode) prev;
-                edgeCompassesMap.put(new Edge<>(prevEditable, endIfNode), "s:");
+            for (EditableNode prev : endIfNode.getPrev()) {
+                edgeCompassesMap.put(new Edge<>(prev, endIfNode), "s:");
             }
-            for (Node next : endIfNode.getNext()) {
-                @SuppressWarnings("unchecked")
-                EditableNode nextEditable = (EditableNode) next;
-                edgeCompassesMap.put(new Edge<>(endIfNode, nextEditable), "s:");
+            for (EditableNode next : endIfNode.getNext()) {
+                edgeCompassesMap.put(new Edge<>(endIfNode, next), "s:");
             }
-            @SuppressWarnings("unchecked")
-            EditableNode ifNode = (EditableNode) endIfNode.getIfNode();
-            List<Node> ifNodeNext = ifNode.getNext();
-            @SuppressWarnings("unchecked")
-            EditableNode onTrue = (EditableNode) ifNodeNext.get(0);
-            @SuppressWarnings("unchecked")
-            EditableNode onFalse = (EditableNode) ifNodeNext.get(1);
+            EditableNode ifNode = endIfNode.getIfNode();
+            List<? extends EditableNode> ifNodeNext = ifNode.getNext();
+            EditableNode onTrue = ifNodeNext.get(0);
+            EditableNode onFalse = ifNodeNext.get(1);
             Edge<EditableNode> onTrueStartEdge = new Edge<>(ifNode, onTrue);
             Edge<EditableNode> onFalseStartEdge = new Edge<>(ifNode, onFalse);
             edgeCompassesMap.put(onTrueStartEdge, "sw:n");
@@ -184,10 +177,8 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
                 onFalseAttr.put("color", "red");
             }
 
-            @SuppressWarnings("unchecked")
-            EditableNode onTrueFinish = (EditableNode) endIfNode.getPrev().get(0);
-            @SuppressWarnings("unchecked")
-            EditableNode onFalseFinish = (EditableNode) endIfNode.getPrev().get(1);
+            EditableNode onTrueFinish = endIfNode.getPrev().get(0);
+            EditableNode onFalseFinish = endIfNode.getPrev().get(1);
             Edge<EditableNode> onTrueFinishEdge = new Edge<>(onTrueFinish, endIfNode);
             Edge<EditableNode> onFalseFinishEdge = new Edge<>(onFalseFinish, endIfNode);
             if (onTrueFinishEdge.equals(onTrueStartEdge)) {
@@ -282,10 +273,8 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
         String branchLabels[] = new String[]{"+", "-"};
         if (n instanceof EditableEndIfNode) {
             for (int i = 0; i < n.getPrev().size(); i++) {
-                Node prev = n.getPrev().get(i);
-                @SuppressWarnings("unchecked")
-                EditableNode prevEditable = (EditableNode) prev;
-                Edge<EditableNode> edge = new Edge<>(prevEditable, n);
+                EditableNode prev = n.getPrev().get(i);
+                Edge<EditableNode> edge = new Edge<>(prev, n);
                 if (!edgeAttributesMap.containsKey(edge)) {
                     edgeAttributesMap.put(edge, new AttributesMap());
                 }
@@ -295,20 +284,16 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
         visited.add(n);
         if (n.getNext().size() == 2) { //more than 2 = some of them are gotos
             for (int i = 0; i < n.getNext().size(); i++) {
-                Node next = n.getNext().get(i);
-                @SuppressWarnings("unchecked")
-                EditableNode nextEditable = (EditableNode) next;
-                Edge<EditableNode> edge = new Edge<>(n, nextEditable);
+                EditableNode next = n.getNext().get(i);
+                Edge<EditableNode> edge = new Edge<>(n, next);
                 if (!edgeAttributesMap.containsKey(edge)) {
                     edgeAttributesMap.put(edge, new AttributesMap());
                 }
                 edgeAttributesMap.get(edge).put("taillabel", branchLabels[i]);
             }
         }
-        for (Node next : n.getNext()) {
-            @SuppressWarnings("unchecked")
-            EditableNode nextEditable = (EditableNode) next;
-            markTrueFalseOrder(nextEditable, visited, edgeAttributesMap);
+        for (EditableNode next : n.getNext()) {
+            markTrueFalseOrder(next, visited, edgeAttributesMap);
         }
     }
 

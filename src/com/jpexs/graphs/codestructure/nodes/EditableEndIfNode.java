@@ -22,4 +22,6 @@ package com.jpexs.graphs.codestructure.nodes;
  */
 public interface EditableEndIfNode extends EndIfNode, EditableNode {
 
+    @Override
+    public EditableNode getIfNode();
 }

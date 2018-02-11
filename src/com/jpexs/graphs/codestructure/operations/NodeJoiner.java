@@ -62,7 +62,7 @@ public class NodeJoiner {
         EditableNode result;
 
         EditableNode currentNode = originalNode;
-        List<Node> subNodesList = new ArrayList<>();
+        List<EditableNode> subNodesList = new ArrayList<>();
         subNodesList.add(currentNode);
         visited.add(currentNode);
 
@@ -73,8 +73,8 @@ public class NodeJoiner {
         }
 
         if (subNodesList.size() > 1) {
-            Node lastSubNode = subNodesList.get(subNodesList.size() - 1);
-            Node firstSubNode = subNodesList.get(0);
+            EditableNode lastSubNode = subNodesList.get(subNodesList.size() - 1);
+            EditableNode firstSubNode = subNodesList.get(0);
 
             List<String> subIds = new ArrayList<>();
             for (Node sub : subNodesList) {
@@ -86,7 +86,7 @@ public class NodeJoiner {
             }
             //remove connection lastSubNode->after, add connection joinedNode->after
             for (int i = 0; i < lastSubNode.getNext().size(); i++) {
-                Node next = lastSubNode.getNext().get(i);
+                EditableNode next = lastSubNode.getNext().get(i);
                 joinedNode.addNext(next);
                 if (lastSubNode instanceof EditableNode) {  //it must be - TODO - make detector use only mutable
                     EditableNode lastSubNodeMutable = (EditableNode) lastSubNode;
@@ -104,7 +104,7 @@ public class NodeJoiner {
             }
             //remove connection before->firstNode, add connection before->joinedNode
             for (int i = 0; i < firstSubNode.getPrev().size(); i++) {
-                Node prev = firstSubNode.getPrev().get(i);
+                EditableNode prev = firstSubNode.getPrev().get(i);
                 joinedNode.addPrev(prev);
                 EditableNode firstSubNodeMutable = (EditableNode) firstSubNode;
                 firstSubNodeMutable.removePrev(prev);
@@ -124,10 +124,8 @@ public class NodeJoiner {
             result = originalNode;
         }
 
-        for (Node next : result.getNext()) {
-            @SuppressWarnings("unchecked")
-            EditableNode nextN = (EditableNode) next;
-            joinNodes(nextN, visited);
+        for (EditableNode next : result.getNext()) {
+            joinNodes(next, visited);
         }
 
         return result;
