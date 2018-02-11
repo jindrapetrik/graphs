@@ -80,4 +80,10 @@ public class DotParsedSymbol {
     public String getValueAsString() {
         return "" + value;
     }
+
+    @Override
+    public String toString() {
+        return "symbol type=" + type + " idtype=" + idtype + " value=" + getValueAsString();
+    }
+
 }
