@@ -305,7 +305,6 @@ public class GraphTool {
                 try {
                     DotParser dotParser = new DotParser();
                     Graph gr = dotParser.parse(new StringReader(textArea.getText()));
-                    System.out.println("" + gr);
                 } catch (DotParseException ex) {
                     Logger.getLogger(GraphTool.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (IOException ex) {
