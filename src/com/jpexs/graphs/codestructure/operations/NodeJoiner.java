@@ -80,8 +80,7 @@ public class NodeJoiner {
             for (Node sub : subNodesList) {
                 subIds.add(sub.getId());
             }
-            String joinedId = String.join("\\l", subIds) + "\\l";
-            EditableJoinedNode joinedNode = joinedNodeFactory.create(joinedId);
+            EditableJoinedNode joinedNode = joinedNodeFactory.create(subIds);
             for (Node sub : subNodesList) {
                 joinedNode.addSubNode(sub);
             }

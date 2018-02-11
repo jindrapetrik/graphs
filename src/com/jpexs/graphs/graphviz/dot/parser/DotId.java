@@ -18,6 +18,8 @@ package com.jpexs.graphs.graphviz.dot.parser;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -32,7 +34,8 @@ public final class DotId {
     final static Pattern NUMERAL_PATTERN = Pattern.compile("^[-]?(.[0-9]+ | [0-9]+(.[0-9]*)?)$");
     final static String IDENTIFIER_FIRST_CHARS = "a-zA-Z\\u0200-\\u0377";
     final static String IDENTIFIER_NEXT_CHARS = IDENTIFIER_FIRST_CHARS + "0-9";
-    final static Pattern IDENTIFIER_PATTERN = Pattern.compile("^[" + IDENTIFIER_FIRST_CHARS + "][" + IDENTIFIER_NEXT_CHARS + "]*$");
+    final static String CH = "^[" + IDENTIFIER_FIRST_CHARS + "][" + IDENTIFIER_NEXT_CHARS + "]*$";
+    final static Pattern IDENTIFIER_PATTERN = Pattern.compile(CH);
     final static Pattern HTML_PATTERN = Pattern.compile("^<.+>$");
 
     private String value;
@@ -56,9 +59,13 @@ public final class DotId {
             if (symbol.idtype == DotParsedSymbol.IDTYPE_HTML_STRING) {
                 isHtml = true;
             }
+            DotParsedSymbol next = lex.lex();
+            if (next.type != DotParsedSymbol.TYPE_EOF) {
+                throw new RuntimeException("Invalid id: " + id);
+            }
             return new DotId(symbol.getValueAsString(), isHtml);
         } catch (IOException | DotParseException ex) {
-            return null;  //TODO: maybe throw an exception?
+            throw new RuntimeException("Invalid id: " + id);
         }
     }
 
@@ -118,7 +125,7 @@ public final class DotId {
     }
 
     public static DotId join(DotId delimiter, DotId... ids) {
-        return join(delimiter, ids);
+        return join(delimiter, Arrays.asList(ids));
     }
 
     public static DotId join(CharSequence delimiter, Iterable<? extends DotId> ids) {

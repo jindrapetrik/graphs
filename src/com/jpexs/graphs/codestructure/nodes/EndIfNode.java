@@ -20,7 +20,9 @@ package com.jpexs.graphs.codestructure.nodes;
  *
  * @author JPEXS
  */
-public interface EndIfNode extends Node {
+public interface EndIfNode extends PrefixedNode {
+
+    public static String ENDIF_ID_PREFIX = "endif-";
 
     public Node getIfNode();
 }

@@ -26,16 +26,25 @@ import com.jpexs.graphs.codestructure.nodes.Node;
 public class BasicEditableEndIfNode extends BasicEditableNode implements EditableEndIfNode {
 
     private Node ifNode;
-    public static String ID_PREFIX = "endif-";
 
     public BasicEditableEndIfNode(Node ifNode) {
-        super(ID_PREFIX + ifNode.getId());
+        super(ENDIF_ID_PREFIX + ifNode.getId());
         this.ifNode = ifNode;
     }
 
     @Override
     public Node getIfNode() {
         return ifNode;
+    }
+
+    @Override
+    public String getIdPrefix() {
+        return ENDIF_ID_PREFIX;
+    }
+
+    @Override
+    public String getOriginalId() {
+        return ifNode.getId();
     }
 
 }

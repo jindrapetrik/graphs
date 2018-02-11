@@ -25,7 +25,9 @@ import com.jpexs.graphs.graphviz.graph.NodeIdToAttributes;
 import com.jpexs.graphs.codestructure.BasicEditableNode;
 import com.jpexs.graphs.codestructure.Edge;
 import com.jpexs.graphs.codestructure.nodes.EditableNode;
+import com.jpexs.graphs.codestructure.nodes.JoinedNode;
 import com.jpexs.graphs.codestructure.nodes.Node;
+import com.jpexs.graphs.codestructure.nodes.PrefixedNode;
 import com.jpexs.graphs.graphviz.dot.parser.DotId;
 import java.io.IOException;
 import java.io.StringReader;
@@ -83,6 +85,29 @@ public class StructuredGraphFacade {
         }
     }
 
+    private DotId nodeToDotId(Node n) {
+        try {
+            if (n instanceof JoinedNode) {
+                JoinedNode jn = (JoinedNode) n;
+                List<DotId> snIds = new ArrayList<>();
+                for (Node sn : jn.getAllSubNodes()) {
+                    snIds.add(nodeToDotId(sn));
+                }
+                return DotId.join(new DotId(jn.getIdDelimiter(), false), snIds);
+            }
+            if (n instanceof PrefixedNode) {
+                PrefixedNode pn = (PrefixedNode) n;
+                DotId prefix = new DotId(pn.getIdPrefix(), false);
+                DotId original = DotId.fromString(pn.getOriginalId());
+                return DotId.join("", prefix, original);
+            }
+            return DotId.fromString(n.getId());
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return null;
+    }
+
     public Graph composeGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
         Graph ret = new Graph(false, true);
         Set<EditableNode> orderedNodes = nodes;
@@ -98,7 +123,7 @@ public class StructuredGraphFacade {
         List<NodeIdToAttributes> standaloneNodes = new ArrayList<>();
         Set<Node> processedNodes = new LinkedHashSet<>();
         for (Node node : orderedNodes2) {
-            NodeId nodeId = new NodeId(DotId.fromString(node.getId()));
+            NodeId nodeId = new NodeId(nodeToDotId(node));
             if (nodeAttributesMap.containsKey(node)) {
                 AttributesMap attributesToSet = nodeAttributesMap.get(node);
                 standaloneNodes.add(new NodeIdToAttributes(nodeId, attributesToSet.clone()));
@@ -109,8 +134,8 @@ public class StructuredGraphFacade {
         ret.nodes = standaloneNodes;
         for (Edge<EditableNode> edge : orderedEdges) {
 
-            NodeId fromId = new NodeId(DotId.fromString(edge.from.getId()));
-            NodeId toId = new NodeId(DotId.fromString(edge.to.getId()));
+            NodeId fromId = new NodeId(nodeToDotId(edge.from));
+            NodeId toId = new NodeId(nodeToDotId(edge.to));
             com.jpexs.graphs.graphviz.graph.Edge newEdge = new com.jpexs.graphs.graphviz.graph.Edge(true, fromId, toId);
             if (edgeAttributesMap.containsKey(edge)) {
                 newEdge.attributes = edgeAttributesMap.get(edge).clone();
@@ -130,7 +155,7 @@ public class StructuredGraphFacade {
             ret.edges.add(newEdge);
         }
         if (startNode != null && !processedNodes.contains(startNode)) {
-            standaloneNodes.add(new NodeIdToAttributes(new NodeId(DotId.fromString(startNode.getId())), new AttributesMap()));
+            standaloneNodes.add(new NodeIdToAttributes(new NodeId(nodeToDotId(startNode)), new AttributesMap()));
         }
         return ret;
     }

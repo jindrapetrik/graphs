@@ -16,25 +16,13 @@
  */
 package com.jpexs.graphs.codestructure.nodes;
 
-import java.util.List;
-
 /**
  *
  * @author JPEXS
  */
-public interface JoinedNode extends Node {
+public interface PrefixedNode extends Node {
 
-    public final String ID_DELIMITER = "-";
+    public String getIdPrefix();
 
-    public void addSubNode(Node node);
-
-    public void removeSubNode(int index);
-
-    public int getSubNodeCount();
-
-    public Node getSubNode(int index);
-
-    public List<Node> getAllSubNodes();
-
-    public String getIdDelimiter();
+    public String getOriginalId();
 }

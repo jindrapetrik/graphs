@@ -17,6 +17,7 @@
 package com.jpexs.graphs.codestructure.factories;
 
 import com.jpexs.graphs.codestructure.nodes.EditableJoinedNode;
+import java.util.List;
 
 /**
  *
@@ -24,5 +25,5 @@ import com.jpexs.graphs.codestructure.nodes.EditableJoinedNode;
  */
 public interface EditableJoinedNodeFactory {
 
-    public EditableJoinedNode create(String id);
+    public EditableJoinedNode create(List<String> ids);
 }

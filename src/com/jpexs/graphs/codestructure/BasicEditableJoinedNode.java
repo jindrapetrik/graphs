@@ -29,8 +29,8 @@ public class BasicEditableJoinedNode extends BasicEditableNode implements Editab
 
     private List<Node> subNodes = new ArrayList<>();
 
-    public BasicEditableJoinedNode(String id) {
-        super(id);
+    public BasicEditableJoinedNode(List<String> ids) {
+        super(String.join(ID_DELIMITER, ids));
     }
 
     @Override
@@ -56,6 +56,11 @@ public class BasicEditableJoinedNode extends BasicEditableNode implements Editab
     @Override
     public List<Node> getAllSubNodes() {
         return new ArrayList<>(subNodes);
+    }
+
+    @Override
+    public String getIdDelimiter() {
+        return ID_DELIMITER;
     }
 
 }

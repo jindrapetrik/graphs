@@ -18,6 +18,7 @@ package com.jpexs.graphs.codestructure.factories;
 
 import com.jpexs.graphs.codestructure.BasicEditableJoinedNode;
 import com.jpexs.graphs.codestructure.nodes.EditableJoinedNode;
+import java.util.List;
 
 /**
  *
@@ -26,8 +27,8 @@ import com.jpexs.graphs.codestructure.nodes.EditableJoinedNode;
 public class BasicEditableJoinedNodeFactory implements EditableJoinedNodeFactory {
 
     @Override
-    public EditableJoinedNode create(String id) {
-        return new BasicEditableJoinedNode(id);
+    public EditableJoinedNode create(List<String> ids) {
+        return new BasicEditableJoinedNode(ids);
     }
 
 }
