@@ -114,6 +114,11 @@ public class GraphTool {
 
     private synchronized static void setGraphImage(BufferedImage newImage) {
         img = newImage;
+        Dimension dim = new Dimension(img.getWidth(), img.getHeight());
+        imagePanel.setMinimumSize(dim);
+        imagePanel.setPreferredSize(dim);
+        imagePanel.setSize(dim);
+
         imagePanel.repaint();
         imagePanel.updateUI();
     }
@@ -264,10 +269,6 @@ public class GraphTool {
                     return;
                 }
                 g.drawImage(img, 0, 0, null);
-                Dimension dim = new Dimension(img.getWidth(), img.getHeight());
-                imagePanel.setMinimumSize(dim);
-                imagePanel.setPreferredSize(dim);
-                imagePanel.setSize(dim);
                 //f.pack();
             }
         };
