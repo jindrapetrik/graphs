@@ -24,8 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -84,8 +82,12 @@ public class AttributesMap {
         return values.put(key, value);
     }
 
-    public DotId put(String key, String value) {
-        return values.put(new DotId(key, false), new DotId(value, false));
+    public String put(String key, String value) {
+        DotId ret = values.put(new DotId(key, false), new DotId(value, false));
+        if (ret == null) {
+            return null;
+        }
+        return ret.toString();
     }
 
     public DotId remove(DotId key) {
