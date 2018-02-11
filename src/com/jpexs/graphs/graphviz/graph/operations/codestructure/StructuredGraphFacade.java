@@ -46,6 +46,7 @@ import java.util.Set;
 public class StructuredGraphFacade {
 
     public static final String IGNORE_ATTRIBUTE = "_ignore";
+    public static final String IGNORE_ATTRIBUTES_ATTRIBUTE = "_ignoreattrib";
 
     public String recompose(String text) {
         Graph g = graphFromString(text);
@@ -181,6 +182,9 @@ public class StructuredGraphFacade {
                 if (at.containsKey(IGNORE_ATTRIBUTE) && "true".equals(at.get(IGNORE_ATTRIBUTE))) {
                     continue;
                 }
+                if (at.containsKey(IGNORE_ATTRIBUTES_ATTRIBUTE) && "true".equals(at.get(IGNORE_ATTRIBUTES_ATTRIBUTE))) {
+                    at.clear();
+                }
 
                 String fromId = fromNodeId.getId().toString();
                 String toId = toNodeId.getId().toString();
@@ -212,6 +216,9 @@ public class StructuredGraphFacade {
             AttributesMap at = na.attributes.clone();
             if (at.containsKey(IGNORE_ATTRIBUTE) && "true".equals(at.get(IGNORE_ATTRIBUTE))) {
                 continue;
+            }
+            if (at.containsKey(IGNORE_ATTRIBUTES_ATTRIBUTE) && "true".equals(at.get(IGNORE_ATTRIBUTES_ATTRIBUTE))) {
+                at.clear();
             }
 
             if (!nameToNodeMap.containsKey(id)) {

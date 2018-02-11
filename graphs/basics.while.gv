@@ -1,11 +1,5 @@
-/*
-
-while(hasNext()){
-   trace(getNext());
-}
-
-*/
 digraph {
+explain [_ignore=true fillcolor=khaki1 shape=box style=filled label="while(hasNext()) {\l    trace(getNext());\l}\l"]
 node [shape=box]
 start [shape=circle];
 end [shape=circle];
@@ -15,9 +9,9 @@ start:s->while:n;
 while:s->body:n;
 body:s->while:ne [color=darkorchid1 label=back fontcolor=darkorchid1];
 
-body:e->while:ne[color=brown label="continue(s)" fontcolor=brown];
-body:w->end:ne[color=brown label="break(s)" fontcolor=brown];
+body:e->while:ne[color=brown label="continue(s)" fontcolor=brown _ignoreattrib=true];
+body:w->end:ne[color=brown label="break(s)" fontcolor=brown _ignore=true];
 
-while:sw->end:n [color=red fontcolor=red label="exit"];
+while:sw->end:n [color=red fontcolor=red label="exit" _ignoreattrib=true];
 end;
 }

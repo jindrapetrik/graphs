@@ -1,13 +1,6 @@
-/*
-
-if (a>5){
-  trace("yes");
-}else{
-  trace("no");
-}
-
-*/
 digraph if {
+explain [_ignore=true fillcolor=khaki1 shape=box style=filled label="if (a>5){\l  trace(\"yes\");\l}else{\l  trace(\"no\");\l}\l"]
+
 node [shape=box]
 start [shape=circle];
 end [shape=circle];

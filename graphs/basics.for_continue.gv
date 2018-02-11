@@ -6,6 +6,7 @@ for(var i=0;i<10;i++)
     trace("yes1");
     if(a>2){
        trace("yes2");
+       continue; //critical
     }else{
        trace("no2");
     }
@@ -17,12 +18,13 @@ for(var i=0;i<10;i++)
     }else{
        trace("no3");
     }
+    trace("after3");
   }
+  trace("after1");
 }
-end;
-
 */
 digraph {
+explain [_ignore=true fillcolor=khaki1 shape=box style=filled label="for(var i=0;i<10;i++)\l{\l  trace(i);\l  if(a>1){\l    trace(\"yes1\");\l    if(a>2){\l       trace(\"yes2\");\l       continue; //critical\l    }else{\l       trace(\"no2\");\l    }\l    trace(\"after2\");\l  }else{\l    trace(\"no1\");\l    if(a>3){\l       trace(\"yes3\");\l    }else{\l       trace(\"no3\");\l    }\l    trace(\"after3\");\l  }\l  trace(\"after1\");\l}\l"]
 node [shape=box]
 start [shape=circle];
 end [shape=circle];
@@ -43,7 +45,7 @@ forbody
 ontrue[label="trace(\"yes1\");"]
 onfalse[label="trace(\"no1\");"]
 ifcond[label=<<FONT color="blue">if</FONT> (a&gt;1)>]
-ifcond:sw->ontrue:n [color=darkgreen fontcolor=darkgreen label="+"];
+ifcond:sw->ontrue:n [color=darkgreen fontcolor=darkgreen label="+" _ignoreattrib=true];
 ontrue:s
 //ontrue
 
@@ -51,17 +53,17 @@ ontrue:s
 ontrue2[label="trace(\"yes2\");"]
 onfalse2[label="trace(\"no2\");"]
 ifcond2[label=<<FONT color="blue">if</FONT> (a&gt;2)>]
-ifcond2:sw->ontrue2:n [color=darkgreen fontcolor=darkgreen label="+"];
-ontrue2:s->ifend2:nw;
-ifcond2:se->onfalse2:n [color=red fontcolor=red label="-"];
-onfalse2:s->ifend2:ne;
+ifcond2:sw->ontrue2:n [color=darkgreen fontcolor=darkgreen label="+" _ignoreattrib=true];
+ontrue2:s->forlast:nw [color=brown label="continue" fontcolor=brown _ignoreattrib=true];
+ifcond2:se->onfalse2:n [color=red fontcolor=red label="-" _ignoreattrib=true];
+onfalse2:s->ifend2:nw;
 ifend2[label="trace(\"after2\");"]
 ifend2
 
 
 
 ->ifend:nw;
-ifcond:se->onfalse:n [color=red fontcolor=red label="-"];
+ifcond:se->onfalse:n [color=red fontcolor=red label="-" _ignoreattrib=true];
 onfalse:s
 //onfalse
 
@@ -69,10 +71,10 @@ onfalse:s
 ontrue3[label="trace(\"yes3\");"]
 onfalse3[label="trace(\"no3\");"]
 ifcond3[label=<<FONT color="blue">if</FONT> (a&gt;3)>]
-ifcond3:sw->ontrue3:n [color=darkgreen fontcolor=darkgreen label="+"];
+ifcond3:sw->ontrue3:n [color=darkgreen fontcolor=darkgreen label="+" _ignoreattrib=true];
 ontrue3:s->ifend3:n;
-ifcond3:se->onfalse3:n [color=red fontcolor=red label="-"];
-onfalse3:s->forlast:ne [color=brown label="continue" fontcolor=brown];
+ifcond3:se->onfalse3:n [color=red fontcolor=red label="-" _ignoreattrib=true];
+onfalse3:s->ifend3:ne;
 ifend3[label="trace(\"after3\");"]
 ifend3
 
@@ -94,13 +96,7 @@ ifend:s
 forbodyend->forlast;
 
 
-//note: _ignore attribute used - detection algorithm ignores this edge
-//forbody:e->forlast:n[color=brown label="continue(s)" fontcolor=brown _ignore=true];
-//forbody:w->end:ne[color=brown label="break(s)" fontcolor=brown _ignore=true];
-
-
-
-forlast:s->forcond:ne [color=darkorchid1 label=back fontcolor=darkorchid1];
-forcond:sw->end:n [color=red fontcolor=red label="exit"];
+forlast:s->forcond:ne [color=darkorchid1 label=back fontcolor=darkorchid1 _ignoreattrib=true];
+forcond:sw->end:n [color=red fontcolor=red label="exit" _ignoreattrib=true];
 end;
 }

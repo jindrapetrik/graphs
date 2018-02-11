@@ -1,13 +1,6 @@
-/*
-start;
-for(forfirst;forcond;forlast)
-{
-  forbody;
-}
-end;
-
-*/
 digraph {
+explain [_ignore=true fillcolor=khaki1 shape=box style=filled label="for(var i=0;i<10;i++)\l{\l  trace(i);\l}\l"]
+
 node [shape=box]
 start [shape=circle];
 end [shape=circle];
@@ -29,8 +22,8 @@ forbody:e->forlast:n[color=brown label="continue(s)" fontcolor=brown _ignore=tru
 forbody:w->end:ne[color=brown label="break(s)" fontcolor=brown _ignore=true];
 
 
-
-forlast:s->forcond:ne [color=darkorchid1 label=back fontcolor=darkorchid1];
-forcond:sw->end:n [color=red fontcolor=red label="exit"];
+//note: _ignoreattrib attribute used - detection algorithm will discard these attributes before start
+forlast:s->forcond:ne [color=darkorchid1 label=back fontcolor=darkorchid1 _ignoreattrib=true];
+forcond:sw->end:n [color=red fontcolor=red label="exit" _ignoreattrib=true];
 end;
 }

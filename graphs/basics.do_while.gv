@@ -1,11 +1,5 @@
-/*
-do
-{
-  file = nextName();
-}while(file.exists());
-
-*/
 digraph {
+explain [_ignore=true fillcolor=khaki1 shape=box style=filled label="do\l{\l  file = nextName();\l}while(file.exists());\l"]
 node [shape=box]
 start [shape=circle];
 end [shape=circle];
@@ -17,7 +11,7 @@ do [label=<<FONT color="blue">do</FONT>>]
 start:s->do:n;
 do:s->body:n;
 body:s->while:n;
-while:sw->body:nw [color=darkorchid1 label=back fontcolor=darkorchid1];
+while:sw->body:nw [color=darkorchid1 label=back fontcolor=darkorchid1 _ignoreattrib=true];
 while:s->end;
 end;
 }
