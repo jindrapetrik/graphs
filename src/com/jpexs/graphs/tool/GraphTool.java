@@ -49,9 +49,13 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
@@ -400,8 +404,16 @@ public class GraphTool {
                 scriptCombo.removeItem(NOVY);
                 scriptCombo.removeItem(currentFileName);
                 scriptCombo.addItem(newName);
+
+                List<String> items = new ArrayList<>();
+                for (int i = 0; i < scriptCombo.getItemCount(); i++) {
+                    items.add(scriptCombo.getItemAt(i));
+                }
+                Collections.sort(items);
+                items.add(NOVY);
+
+                scriptCombo.setModel(new DefaultComboBoxModel<>(items.toArray(new String[items.size()])));
                 scriptCombo.setSelectedItem(newName);
-                scriptCombo.addItem(NOVY);
                 currentFileName = newName;
             }
         });
