@@ -138,7 +138,7 @@ public class GraphTool {
     private static BufferedImage textToImage(String text) throws IOException {
         File outGv = new File("out.gv");
         PrintWriter pw = new PrintWriter(outGv);
-        pw.println(regenerateText(text));
+        pw.println(text);
         pw.close();
 
         runCommand("\"" + DOT_PATH + "\" -Tpng -Nfontname=times-bold -Nfontsize=12 -o out.png out.gv");

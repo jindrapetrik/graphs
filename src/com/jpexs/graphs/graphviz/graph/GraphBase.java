@@ -16,6 +16,7 @@
  */
 package com.jpexs.graphs.graphviz.graph;
 
+import com.jpexs.graphs.graphviz.dot.parser.DotId;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.Set;
 public abstract class GraphBase implements IdAware {
 
     protected boolean directed;
-    public String id = null;
+    public DotId id = null;
     public AttributesMap graphAttributes = new AttributesMap();
     public AttributesMap nodeAttributes = new AttributesMap();
     public AttributesMap edgeAttributes = new AttributesMap();
@@ -41,7 +42,7 @@ public abstract class GraphBase implements IdAware {
     }
 
     @Override
-    public String getId() {
+    public DotId getId() {
         return id;
     }
 
@@ -54,7 +55,7 @@ public abstract class GraphBase implements IdAware {
         String NEWLINE = "\r\n";
         StringBuilder sb = new StringBuilder();
         if (hasId()) {
-            sb.append(Serializer.serializeId(id));
+            sb.append(id.toString());
         }
         sb.append("{");
 

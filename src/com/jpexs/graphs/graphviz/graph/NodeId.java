@@ -16,6 +16,7 @@
  */
 package com.jpexs.graphs.graphviz.graph;
 
+import com.jpexs.graphs.graphviz.dot.parser.DotId;
 import java.util.Objects;
 
 /**
@@ -24,16 +25,16 @@ import java.util.Objects;
  */
 public class NodeId implements ConnectableObject {
 
-    private final String id;
+    private final DotId id;
     public String portId;
     public String compassPt;
 
-    public NodeId(String id) {
+    public NodeId(DotId id) {
         this.id = id;
     }
 
     @Override
-    public String getId() {
+    public DotId getId() {
         return id;
     }
 
@@ -45,7 +46,7 @@ public class NodeId implements ConnectableObject {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(Serializer.serializeId(id));
+        sb.append(id.toString());
         if (portId != null) {
             sb.append(":").append(portId);
         }

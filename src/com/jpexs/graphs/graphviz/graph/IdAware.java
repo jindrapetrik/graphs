@@ -16,13 +16,15 @@
  */
 package com.jpexs.graphs.graphviz.graph;
 
+import com.jpexs.graphs.graphviz.dot.parser.DotId;
+
 /**
  *
  * @author JPEXS
  */
 public interface IdAware {
 
-    public String getId();
+    public DotId getId();
 
     public boolean hasId();
 }

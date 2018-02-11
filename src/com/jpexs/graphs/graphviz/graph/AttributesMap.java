@@ -16,6 +16,7 @@
  */
 package com.jpexs.graphs.graphviz.graph;
 
+import com.jpexs.graphs.graphviz.dot.parser.DotId;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.List;
  *
  * @author JPEXS
  */
-public class AttributesMap extends LinkedHashMap<String, String> {
+public class AttributesMap extends LinkedHashMap<DotId, DotId> {
 
     public AttributesMap(AttributesMap source) {
         putAll(source);
@@ -33,21 +34,51 @@ public class AttributesMap extends LinkedHashMap<String, String> {
     public AttributesMap() {
     }
 
+    public void put(String key, DotId value) {
+        put(new DotId(key, false), value);
+    }
+
+    public void put(String key, String value) {
+        put(new DotId(key, false), new DotId(value, false));
+    }
+
+    @Override
+    public DotId put(DotId key, DotId value) {
+        if (value == null) {
+            throw new NullPointerException("Cannot set null as value for key " + key);
+        }
+        return super.put(key, value);
+    }
+
+    @Override
+    public DotId remove(Object key) {
+        Object keyId = (key instanceof String) ? (new DotId((String) key, false)) : key;
+        return super.remove(keyId);
+    }
+
+    @Override
+    public boolean remove(Object key, Object value) {
+        Object keyId = (key instanceof String) ? (new DotId((String) key, false)) : key;
+        Object valueId = (value instanceof String) ? (new DotId((String) value, false)) : value;
+
+        return super.remove(keyId, valueId);
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (!isEmpty()) {
             sb.append("[");
-            List<String> keys = new ArrayList<>(keySet());
+            List<DotId> keys = new ArrayList<>(keySet());
             for (int i = 0; i < keys.size(); i++) {
-                String key = keys.get(i);
-                String value = this.get(key);
+                DotId key = keys.get(i);
+                DotId value = this.get(key);
                 if (i > 0) {
                     sb.append(" ");
                 }
-                sb.append(Serializer.serializeId(key));
+                sb.append(key.toString());
                 sb.append("=");
-                sb.append(Serializer.serializeId(value));
+                sb.append(value.toString());
             }
             sb.append("]");
         }

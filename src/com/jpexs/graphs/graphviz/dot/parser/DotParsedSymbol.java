@@ -81,6 +81,13 @@ public class DotParsedSymbol {
         return "" + value;
     }
 
+    public DotId getValueAsId() {
+        if (type != TYPE_ID) {
+            return null;
+        }
+        return new DotId(getValueAsString(), idtype == IDTYPE_HTML_STRING);
+    }
+
     @Override
     public String toString() {
         return "symbol type=" + type + " idtype=" + idtype + " value=" + getValueAsString();

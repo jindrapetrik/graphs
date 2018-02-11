@@ -26,6 +26,7 @@ import com.jpexs.graphs.graphviz.graph.operations.StringOperation;
 import com.jpexs.graphs.codestructure.Edge;
 import com.jpexs.graphs.codestructure.nodes.EditableNode;
 import com.jpexs.graphs.codestructure.nodes.Node;
+import com.jpexs.graphs.graphviz.dot.parser.DotId;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;

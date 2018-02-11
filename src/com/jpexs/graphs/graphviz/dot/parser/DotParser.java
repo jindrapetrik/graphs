@@ -68,9 +68,9 @@ public class DotParser {
             _expected("draph or digraph keyword", symbol);
         }
         symbol = lexer.lex();
-        String id = null;
+        DotId id = null;
         if (symbol.type == DotParsedSymbol.TYPE_ID) {
-            id = symbol.getValueAsString();
+            id = symbol.getValueAsId();
         } else {
             lexer.pushback(symbol);
         }
@@ -132,10 +132,10 @@ public class DotParser {
             DotParsedSymbol idSymbol = symbol;
             symbol = lexer.lex();
             if (symbol.type == DotParsedSymbol.TYPE_EQUAL) {
-                String key = idSymbol.getValueAsString();
+                DotId key = idSymbol.getValueAsId();
                 symbol = lexer.lex();
                 _expect(DotParsedSymbol.TYPE_ID, "ID", symbol);
-                String value = symbol.getValueAsString();
+                DotId value = symbol.getValueAsId();
                 graphAttributes.put(key, value);
                 return true;
             } else {
@@ -257,10 +257,10 @@ public class DotParser {
     public void a_list(AttributesMap attributesBag, DotLexer lexer) throws DotParseException, IOException {
         DotParsedSymbol symbol = lexer.lex();
         _expect(DotParsedSymbol.TYPE_ID, "ID", symbol);
-        String key = symbol.getValueAsString();
+        DotId key = symbol.getValueAsId();
         _expect(lexer, DotParsedSymbol.TYPE_EQUAL, "=");
         symbol = lexer.lex();
-        String value = symbol.getValueAsString();
+        DotId value = symbol.getValueAsId();
         attributesBag.put(key, value);
         symbol = lexer.lex();
         if (symbol.type == DotParsedSymbol.TYPE_SEMICOLON || symbol.type == DotParsedSymbol.TYPE_COMMA) {
@@ -319,7 +319,7 @@ public class DotParser {
     public NodeId node_id(DotLexer lexer) throws DotParseException, IOException {
         DotParsedSymbol symbol = lexer.lex();
         _expect(DotParsedSymbol.TYPE_ID, "ID", symbol);
-        String id = symbol.getValueAsString();
+        DotId id = symbol.getValueAsId();
         symbol = lexer.lex();
         NodeId node = new NodeId(id);
         if (symbol.type == DotParsedSymbol.TYPE_COLON) {
@@ -418,11 +418,11 @@ public class DotParser {
      */
     public SubGraph subgraph(boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
         DotParsedSymbol symbol = lexer.lex();
-        String id = null;
+        DotId id = null;
         if (symbol.type == DotParsedSymbol.TYPE_KEYWORD_SUBGRAPH) {
             symbol = lexer.lex();
             if (symbol.type == DotParsedSymbol.TYPE_ID) {
-                id = symbol.getValueAsString();
+                id = symbol.getValueAsId();
                 symbol = lexer.lex();
             }
         }

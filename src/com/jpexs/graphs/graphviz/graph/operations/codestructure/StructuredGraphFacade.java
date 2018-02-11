@@ -26,6 +26,7 @@ import com.jpexs.graphs.codestructure.BasicEditableNode;
 import com.jpexs.graphs.codestructure.Edge;
 import com.jpexs.graphs.codestructure.nodes.EditableNode;
 import com.jpexs.graphs.codestructure.nodes.Node;
+import com.jpexs.graphs.graphviz.dot.parser.DotId;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -97,7 +98,7 @@ public class StructuredGraphFacade {
         List<NodeIdToAttributes> standaloneNodes = new ArrayList<>();
         Set<Node> processedNodes = new LinkedHashSet<>();
         for (Node node : orderedNodes2) {
-            NodeId nodeId = new NodeId(node.getId());
+            NodeId nodeId = new NodeId(DotId.fromString(node.getId()));
             if (nodeAttributesMap.containsKey(node)) {
                 AttributesMap attributesToSet = nodeAttributesMap.get(node);
                 standaloneNodes.add(new NodeIdToAttributes(nodeId, attributesToSet.clone()));
@@ -108,8 +109,8 @@ public class StructuredGraphFacade {
         ret.nodes = standaloneNodes;
         for (Edge<EditableNode> edge : orderedEdges) {
 
-            NodeId fromId = new NodeId(edge.from.getId());
-            NodeId toId = new NodeId(edge.to.getId());
+            NodeId fromId = new NodeId(DotId.fromString(edge.from.getId()));
+            NodeId toId = new NodeId(DotId.fromString(edge.to.getId()));
             com.jpexs.graphs.graphviz.graph.Edge newEdge = new com.jpexs.graphs.graphviz.graph.Edge(true, fromId, toId);
             if (edgeAttributesMap.containsKey(edge)) {
                 newEdge.attributes = edgeAttributesMap.get(edge).clone();
@@ -129,7 +130,7 @@ public class StructuredGraphFacade {
             ret.edges.add(newEdge);
         }
         if (startNode != null && !processedNodes.contains(startNode)) {
-            standaloneNodes.add(new NodeIdToAttributes(new NodeId(startNode.getId()), new AttributesMap()));
+            standaloneNodes.add(new NodeIdToAttributes(new NodeId(DotId.fromString(startNode.getId())), new AttributesMap()));
         }
         return ret;
     }
@@ -152,8 +153,8 @@ public class StructuredGraphFacade {
                 toNodeId = (NodeId) srcEdge.to;
             }
             if (fromNodeId != null && toNodeId != null) {
-                String fromId = fromNodeId.getId();
-                String toId = toNodeId.getId();
+                String fromId = fromNodeId.getId().toString();
+                String toId = toNodeId.getId().toString();
                 if (!nameToNodeMap.containsKey(fromId)) {
                     nameToNodeMap.put(fromId, new BasicEditableNode(fromId));
                 }
@@ -176,7 +177,7 @@ public class StructuredGraphFacade {
         }
         //we need to add nodes with attributes after the edges for start edge (its first node) to be first
         for (NodeIdToAttributes na : g.nodes) {
-            String id = na.nodeId.getId();
+            String id = na.nodeId.getId().toString();
             if (!nameToNodeMap.containsKey(id)) {
                 nameToNodeMap.put(id, new BasicEditableNode(id));
             }
