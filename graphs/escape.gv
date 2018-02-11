@@ -1,7 +1,11 @@
 digraph {
 start;
-a[label="x\"x"]
-start->a;
-a->end;
+a[label="x1\"x1"]
+b[label="x2\"x2\lx3\lx4\l"]
+c[label=<<FONT color="red">C</FONT><FONT color="red">C2</FONT>>]
+d[label=<<FONT color="blue">D</FONT>>]
+
+start->a->b->c->d;
+d->end;
 end;
 }

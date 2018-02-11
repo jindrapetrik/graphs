@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  *
  * @author JPEXS
  */
-public class DotId {
+public final class DotId {
 
     final static String[] RESERVED_WORDS = new String[]{"node", "edge", "graph", "digraph", "subgraph", "strict"};
     final static Pattern RESERVED_PATTERN = Pattern.compile("^" + String.join("|", RESERVED_WORDS) + "$", Pattern.CASE_INSENSITIVE);
@@ -37,10 +37,12 @@ public class DotId {
 
     private String value;
     private boolean isHtml;
+    private String toStringValue;
 
     public DotId(String value, boolean isHtml) {
         this.value = value;
         this.isHtml = isHtml;
+        this.toStringValue = generateToString();
     }
 
     public static DotId fromString(String id) {
@@ -62,6 +64,10 @@ public class DotId {
 
     @Override
     public String toString() {
+        return toStringValue;
+    }
+
+    private String generateToString() {
         if (isHtml) {
             return "<" + value + ">";
         }
@@ -108,25 +114,60 @@ public class DotId {
     }
 
     public static DotId join(CharSequence delimiter, DotId... ids) {
+        return join(new DotId(delimiter.toString(), false), ids);
+    }
+
+    public static DotId join(DotId delimiter, DotId... ids) {
         return join(delimiter, ids);
     }
 
     public static DotId join(CharSequence delimiter, Iterable<? extends DotId> ids) {
+        return join(new DotId(delimiter.toString(), false), ids);
+    }
+
+    public static DotId join(DotId delimiter, Iterable<? extends DotId> ids) {
         StringBuilder sb = new StringBuilder();
         boolean retHtml = false;
-        boolean first = true;
+
         for (DotId id : ids) {
-            if (!first) {
-                sb.append(delimiter);
-            }
-            first = false;
             if (id.isHtml) {
                 retHtml = true;
             }
-            sb.append(id.value);
+        }
+        DotId usedDelimiter = delimiter;
+        if (retHtml) {
+            usedDelimiter = usedDelimiter.toHtmlDotId();
+        }
+
+        boolean first = true;
+        for (DotId id : ids) {
+            if (!first) {
+                sb.append(usedDelimiter.value);
+            }
+            first = false;
+            DotId idToAppend = id;
+            if (retHtml) {
+                idToAppend = idToAppend.stripEndNewLine().toHtmlDotId();
+            }
+            sb.append(idToAppend.value);
         }
 
         return new DotId(sb.toString(), retHtml);
+    }
+
+    private DotId stripEndNewLine() {
+        if (isHtml) {
+            return this;
+        }
+        return new DotId(value.replaceFirst("\\\\(r|n|l)$", ""), false);
+    }
+
+    private DotId toHtmlDotId() {
+        if (isHtml) {
+            return this;
+        }
+        String htmlValue = value.replaceAll("\\\\(r|n|l)", "<BR/>");
+        return new DotId(htmlValue, true);
     }
 
 }
