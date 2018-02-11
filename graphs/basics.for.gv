@@ -23,8 +23,10 @@ forfirst->forcond;
 forcond->forbody;
 forbody->forlast;
 
-forbody:e->forlast:n[color=brown label="continue(s)" fontcolor=brown];
-forbody:w->end:ne[color=brown label="break(s)" fontcolor=brown];
+
+//note: _ignore attribute used - detection algorithm ignores this edge
+forbody:e->forlast:n[color=brown label="continue(s)" fontcolor=brown _ignore=true];
+forbody:w->end:ne[color=brown label="break(s)" fontcolor=brown _ignore=true];
 
 
 

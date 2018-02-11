@@ -1,0 +1,106 @@
+/*
+for(var i=0;i<10;i++)
+{  
+  trace(i);
+  if(a>1){
+    trace("yes1");
+    if(a>2){
+       trace("yes2");
+    }else{
+       trace("no2");
+    }
+    trace("after2");
+  }else{
+    trace("no1");
+    if(a>3){
+       trace("yes3");
+    }else{
+       trace("no3");
+    }
+  }
+}
+end;
+
+*/
+digraph {
+node [shape=box]
+start [shape=circle];
+end [shape=circle];
+for [label=<<FONT color="blue">for</FONT>>]
+
+forcond[label="i<10"];
+forfirst[label="var i=0;"];
+forlast[label="i++;"];
+forbody[label="trace(i);"];
+
+start->for->forfirst;
+forfirst->forcond;
+forcond->forbody;
+
+forbody
+
+->ifcond;
+ontrue[label="trace(\"yes1\");"]
+onfalse[label="trace(\"no1\");"]
+ifcond[label=<<FONT color="blue">if</FONT> (a&gt;1)>]
+ifcond:sw->ontrue:n [color=darkgreen fontcolor=darkgreen label="+"];
+ontrue:s
+//ontrue
+
+->ifcond2;
+ontrue2[label="trace(\"yes2\");"]
+onfalse2[label="trace(\"no2\");"]
+ifcond2[label=<<FONT color="blue">if</FONT> (a&gt;2)>]
+ifcond2:sw->ontrue2:n [color=darkgreen fontcolor=darkgreen label="+"];
+ontrue2:s->ifend2:nw;
+ifcond2:se->onfalse2:n [color=red fontcolor=red label="-"];
+onfalse2:s->ifend2:ne;
+ifend2[label="trace(\"after2\");"]
+ifend2
+
+
+
+->ifend:nw;
+ifcond:se->onfalse:n [color=red fontcolor=red label="-"];
+onfalse:s
+//onfalse
+
+->ifcond3;
+ontrue3[label="trace(\"yes3\");"]
+onfalse3[label="trace(\"no3\");"]
+ifcond3[label=<<FONT color="blue">if</FONT> (a&gt;3)>]
+ifcond3:sw->ontrue3:n [color=darkgreen fontcolor=darkgreen label="+"];
+ontrue3:s->ifend3:n;
+ifcond3:se->onfalse3:n [color=red fontcolor=red label="-"];
+onfalse3:s->forlast:ne [color=brown label="continue" fontcolor=brown];
+ifend3[label="trace(\"after3\");"]
+ifend3
+
+
+
+->ifend:ne;
+
+ifend[label="trace(\"after1\");"];
+
+ifend:s
+
+
+
+->forbodyend;
+
+
+
+
+forbodyend->forlast;
+
+
+//note: _ignore attribute used - detection algorithm ignores this edge
+//forbody:e->forlast:n[color=brown label="continue(s)" fontcolor=brown _ignore=true];
+//forbody:w->end:ne[color=brown label="break(s)" fontcolor=brown _ignore=true];
+
+
+
+forlast:s->forcond:ne [color=darkorchid1 label=back fontcolor=darkorchid1];
+forcond:sw->end:n [color=red fontcolor=red label="exit"];
+end;
+}
