@@ -319,6 +319,7 @@ public final class DotLexer {
     boolean parameter = false;
     String parameterName = null;
     int tagLevel = 0;
+    boolean printLexed = false;
 
     /**
      * Create an empty lexer, yyrset will be called later to reset and assign
@@ -326,6 +327,11 @@ public final class DotLexer {
      */
     public DotLexer() {
 
+    }
+
+    public void setPrintLexed(boolean printLexed)
+    {
+        this.printLexed = printLexed;
     }
 
     public int yychar() {
@@ -351,7 +357,10 @@ public final class DotLexer {
         } else {
             ret = last = yylex();
         }
-        System.out.println("LEX:"+ret);
+        if(printLexed)
+        {
+            System.out.println("LEX:"+ret);
+        }
         return ret;
     }
 
