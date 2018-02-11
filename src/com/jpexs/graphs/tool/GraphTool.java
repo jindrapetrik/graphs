@@ -230,8 +230,8 @@ public class GraphTool {
         textArea.setMinimumSize(textAreaSize);
         textArea.setPreferredSize(textAreaSize);
 
-        JButton runButton = new JButton("RUN");
-        runButton.addActionListener(new ActionListener() {
+        JButton runInteractiveButton = new JButton("Run interactive");
+        runInteractiveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final String runText = textArea.getText();
@@ -261,8 +261,8 @@ public class GraphTool {
             }
         });
 
-        JButton quickButton = new JButton("Quick RUN");
-        quickButton.addActionListener(new ActionListener() {
+        JButton runDetectionButton = new JButton("Run detection");
+        runDetectionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final String runText = textArea.getText();
@@ -354,8 +354,8 @@ public class GraphTool {
 
         JPanel buttonsPanel = new JPanel(new FlowLayout());
         buttonsPanel.add(showButton);
-        buttonsPanel.add(runButton);
-        buttonsPanel.add(quickButton);
+        buttonsPanel.add(runDetectionButton);
+        buttonsPanel.add(runInteractiveButton);
         buttonsPanel.add(testButton);
         codePanel.add(buttonsPanel, BorderLayout.SOUTH);
 
