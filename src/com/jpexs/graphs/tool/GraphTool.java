@@ -34,8 +34,12 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -66,6 +70,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 
@@ -197,7 +203,7 @@ public class GraphTool {
             // handle exception
         }
         loadCurrent();
-        JFrame frame = new JFrame("Graph");
+        JFrame frame = new JFrame("Graph structure detection");
         imagePanel = new JPanel() {
             @Override
             public void paint(Graphics g) {
@@ -221,6 +227,42 @@ public class GraphTool {
         int WIN_HEIGHT = 800;
 
         frame.getContentPane().setLayout(new BorderLayout());
+
+        MouseAdapter ma = new MouseAdapter() {
+
+            private Point origin;
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                origin = new Point(e.getPoint());
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (origin != null) {
+                    JViewport viewPort = (JViewport) SwingUtilities.getAncestorOfClass(JViewport.class, imagePanel);
+                    if (viewPort != null) {
+                        int deltaX = origin.x - e.getX();
+                        int deltaY = origin.y - e.getY();
+
+                        Rectangle view = viewPort.getViewRect();
+                        view.x += deltaX;
+                        view.y += deltaY;
+
+                        imagePanel.scrollRectToVisible(view);
+                    }
+                }
+            }
+
+        };
+
+        imagePanel.addMouseListener(ma);
+        imagePanel.addMouseMotionListener(ma);
+
         JScrollPane imageScrollPane = new JScrollPane(imagePanel);
         imageScrollPane.setPreferredSize(new Dimension(500, WIN_HEIGHT));
         textArea = new JEditorPane("text/plain", text);
