@@ -45,11 +45,15 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -58,6 +62,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -83,9 +88,11 @@ public class GraphTool {
 
     static JPanel imagePanel;
     static BufferedImage img;
+    static JFrame frame;
+    static JSplitPane splitPane;
 
     static StringOperation op = null;
-    private static String currentFileName = "in";
+    private static String currentScriptName = "in";
     private static final String EXTENSION = ".gv";
     private static final String FILES_PATH = "graphs";
     private static final String DOT_PATH = "c:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
@@ -103,6 +110,8 @@ public class GraphTool {
     private static String makeFileName(String name) {
         return FILES_PATH + "/" + name + EXTENSION;
     }
+
+    private static String SETTINGS_PROP_FILE = "settings.properties";
 
     private static void sortScriptCombo() {
         String selectedItem = (String) scriptCombo.getSelectedItem();
@@ -158,36 +167,55 @@ public class GraphTool {
         GraphTool.op = op;
     }
 
-    private static void loadCurrent() {
-        File f = new File("current.txt");
-        if (f.exists()) {
-            BufferedReader br;
-            try {
-                br = new BufferedReader(new FileReader(f));
-                currentFileName = br.readLine();
-                br.close();
+    private static void saveSettings() {
+        Properties propOut = new Properties();
+        propOut.setProperty("currentScriptName", currentScriptName);
+        propOut.setProperty("window.width", "" + frame.getWidth());
+        propOut.setProperty("window.height", "" + frame.getHeight());
+        propOut.setProperty("window.location.x", "" + frame.getLocation().x);
+        propOut.setProperty("window.location.y", "" + frame.getLocation().y);
+        propOut.setProperty("window.splitter.location", "" + splitPane.getDividerLocation());
+        try (OutputStream output = new FileOutputStream(SETTINGS_PROP_FILE)) {
+            propOut.store(output, null);
+        } catch (IOException ex) {
+            System.err.println("Error saving current config");
+        }
+    }
+
+    private static void loadSettings() {
+        Properties propIn = new Properties();
+        if (new File(SETTINGS_PROP_FILE).exists()) {
+            try (InputStream input = new FileInputStream(SETTINGS_PROP_FILE)) {
+                propIn.load(input);
             } catch (IOException ex) {
                 Logger.getLogger(GraphTool.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        int windowWidth = Integer.parseInt(propIn.getProperty("window.width", "" + frame.getWidth()));
+        int windowHeight = Integer.parseInt(propIn.getProperty("window.height", "" + frame.getHeight()));
+        frame.setSize(windowWidth, windowHeight);
+
+        int windowLocationX = Integer.parseInt(propIn.getProperty("window.location.x", "" + frame.getLocation().x));
+        int windowLocationY = Integer.parseInt(propIn.getProperty("window.location.y", "" + frame.getLocation().y));
+        frame.setLocation(windowLocationX, windowLocationY);
+
+        int windowSplitterLocation = Integer.parseInt(propIn.getProperty("window.splitter.location", "" + splitPane.getDividerLocation()));
+        splitPane.setDividerLocation(windowSplitterLocation);
+
+        currentScriptName = propIn.getProperty("currentScriptName", "");
     }
 
     private static void saveCurrent() {
-        try {
-            PrintWriter pw = new PrintWriter(new File(makeFileName(currentFileName)));
-            pw.print(textArea.getText());
-            pw.close();
-        } catch (Exception ex) {
-
+        if (!currentScriptName.isEmpty()) {
+            try {
+                PrintWriter pw = new PrintWriter(new File(makeFileName(currentScriptName)));
+                pw.print(textArea.getText());
+                pw.close();
+            } catch (Exception ex) {
+                System.err.println("Error saving script");
+            }
         }
-
-        try {
-            PrintWriter pw = new PrintWriter(new File("current.txt"));
-            pw.print(currentFileName);
-            pw.close();
-        } catch (Exception ex) {
-
-        }
+        saveSettings();
     }
 
     /**
@@ -202,8 +230,7 @@ public class GraphTool {
         } catch (Exception e) {
             // handle exception
         }
-        loadCurrent();
-        JFrame frame = new JFrame("Graph structure detection");
+        frame = new JFrame("Graph structure detection");
         imagePanel = new JPanel() {
             @Override
             public void paint(Graphics g) {
@@ -218,12 +245,19 @@ public class GraphTool {
                 //f.pack();
             }
         };
+        initGui();
+        loadSettings();
 
-        String fileName = makeFileName(currentFileName);
-
+        img = EMPTY_IMAGE;
+        String fileName = makeFileName(currentScriptName);
         String text = (new File(fileName)).exists() ? new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8) : NOVY_TEXT;
+        textArea.setText(text);
         img = textToImage(text);
+        scriptCombo.setSelectedItem(currentScriptName);
+        imagePanel.repaint();
+    }
 
+    private static void initGui() {
         int WIN_HEIGHT = 800;
 
         frame.getContentPane().setLayout(new BorderLayout());
@@ -265,7 +299,7 @@ public class GraphTool {
 
         JScrollPane imageScrollPane = new JScrollPane(imagePanel);
         imageScrollPane.setPreferredSize(new Dimension(500, WIN_HEIGHT));
-        textArea = new JEditorPane("text/plain", text);
+        textArea = new JEditorPane("text/plain", "");
         textArea.setContentType("text/plain");
         textArea.setFont(new Font("Courier New", Font.PLAIN, 12));
         Dimension textAreaSize = new Dimension(600, WIN_HEIGHT);
@@ -422,7 +456,6 @@ public class GraphTool {
 
         selectScriptPanel.add(renameButton);
         selectScriptPanel.add(deleteButton);
-        scriptCombo.setSelectedItem(currentFileName);
         scriptCombo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -436,7 +469,7 @@ public class GraphTool {
                     }
                     scriptCombo.addItem(newName);
                     scriptCombo.setSelectedItem(newName);
-                    currentFileName = newName;
+                    currentScriptName = newName;
                     textArea.setText(NOVY_TEXT);
                     sortScriptCombo();
                     try {
@@ -446,10 +479,10 @@ public class GraphTool {
                     }
                     imagePanel.repaint();
                 } else {
-                    if (newName.equals(currentFileName)) {
+                    if (newName.equals(currentScriptName)) {
                         return;
                     }
-                    currentFileName = newName;
+                    currentScriptName = newName;
 
                     String fileName = makeFileName(newName);
                     String text = NOVY_TEXT;
@@ -466,7 +499,7 @@ public class GraphTool {
                     } catch (IOException ex) {
                         img = EMPTY_IMAGE;
                     }
-                    currentFileName = newName;
+                    currentScriptName = newName;
                 }
                 imagePanel.repaint();
             }
@@ -475,7 +508,7 @@ public class GraphTool {
         renameButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String newName = JOptionPane.showInputDialog("Enter new name: ", currentFileName);
+                String newName = JOptionPane.showInputDialog("Enter new name: ", currentScriptName);
                 if (newName == null || newName.isEmpty()) {
                     return;
                 }
@@ -483,7 +516,7 @@ public class GraphTool {
                     JOptionPane.showMessageDialog(frame, "File " + newName + " already exists", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                String oldFileName = currentFileName;
+                String oldFileName = currentScriptName;
 
                 PrintWriter pw;
                 try {
@@ -496,7 +529,7 @@ public class GraphTool {
 
                 scriptCombo.addItem(newName);
                 scriptCombo.setSelectedItem(newName);
-                currentFileName = newName;
+                currentScriptName = newName;
                 sortScriptCombo();
                 scriptCombo.removeItem(oldFileName);
                 new File(makeFileName(oldFileName)).delete();
@@ -506,10 +539,10 @@ public class GraphTool {
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (JOptionPane.showConfirmDialog(frame, "Really delete " + currentFileName + "?", "Delete", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
-                    String oldFileName = currentFileName;
+                if (JOptionPane.showConfirmDialog(frame, "Really delete " + currentScriptName + "?", "Delete", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+                    String oldFileName = currentScriptName;
                     scriptCombo.removeItem(oldFileName);
-                    currentFileName = (String) scriptCombo.getSelectedItem();
+                    currentScriptName = (String) scriptCombo.getSelectedItem();
                     String fname = makeFileName(oldFileName);
                     if (!new File(fname).delete()) {
                         System.err.println("cannot delete " + fname);
@@ -521,8 +554,8 @@ public class GraphTool {
 
         codePanel.add(selectScriptPanel, BorderLayout.NORTH);
 
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(imagePanelBkg), codePanel);
-        frame.getContentPane().add(split, BorderLayout.CENTER);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(imagePanelBkg), codePanel);
+        frame.getContentPane().add(splitPane, BorderLayout.CENTER);
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -533,8 +566,7 @@ public class GraphTool {
         });
         frame.setSize(new Dimension(1024, 768));
         frame.setVisible(true);
-        split.setDividerLocation(0.3);
-
+        splitPane.setDividerLocation(0.3);
     }
 
     private static void runCommand(String command) {
