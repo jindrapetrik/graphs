@@ -1,0 +1,34 @@
+/*
+start;
+for(forfirst;forcond;forlast)
+{
+  forbody;
+}
+end;
+
+*/
+digraph {
+node [shape=box]
+start [shape=circle];
+end [shape=circle];
+for [label=<<FONT color="blue">for</FONT>>]
+
+forcond[label="i<10"];
+forfirst[label="var i=0;"];
+forlast[label="i++;"];
+forbody[label="trace(i);"];
+
+start->for->forfirst;
+forfirst->forcond;
+forcond->forbody;
+forbody->forlast;
+
+forbody:e->forlast:n[color=brown label="continue(s)" fontcolor=brown];
+forbody:w->end:ne[color=brown label="break(s)" fontcolor=brown];
+
+
+
+forlast:s->forcond:ne [color=darkorchid1 label=back fontcolor=darkorchid1];
+forcond:sw->end:n [color=red fontcolor=red label="exit"];
+end;
+}

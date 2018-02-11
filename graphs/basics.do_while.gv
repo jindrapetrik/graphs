@@ -1,7 +1,23 @@
+/*
+do
+{
+  file = nextName();
+}while(file.exists());
+
+*/
 digraph {
-start;
-start:s->dowhile:n;
-dowhile:sw->dowhile:nw [color=darkorchid1 label=back fontcolor=darkorchid1];
-dowhile:s->end;
+node [shape=box]
+start [shape=circle];
+end [shape=circle];
+body [label="file = nextName();"]
+while [label=<<FONT color="blue">while</FONT>(file.exists())>]
+do [label=<<FONT color="blue">do</FONT>>]
+
+
+start:s->do:n;
+do:s->body:n;
+body:s->while:n;
+while:sw->body:nw [color=darkorchid1 label=back fontcolor=darkorchid1];
+while:s->end;
 end;
 }

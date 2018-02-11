@@ -1,8 +1,26 @@
+/*
+
+if (a>5){
+  trace("yes");
+}else{
+  trace("no");
+}
+
+*/
 digraph if {
-start:s->if;
-if->ontrue->after;
-if->onfalse->after
+node [shape=box]
+start [shape=circle];
+end [shape=circle];
+ontrue[label="trace(\"yes\");"]
+onfalse[label="trace(\"no\");"]
+ifcond[label=<<FONT color="blue">if</FONT> (a&gt;5)>]
 
+start:s->ifcond:n;
 
-after-> end:n;
+ifcond:sw->ontrue:n [color=darkgreen fontcolor=darkgreen label="+"];
+ontrue:s->end:nw;
+
+ifcond:se->onfalse:n [color=red fontcolor=red label="-"];
+onfalse:s->end:ne;
+
 }

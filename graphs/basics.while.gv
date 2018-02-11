@@ -1,8 +1,23 @@
+/*
+
+while(hasNext()){
+   trace(getNext());
+}
+
+*/
 digraph {
-start;
+node [shape=box]
+start [shape=circle];
+end [shape=circle];
+while[label=<<FONT color="blue">while</FONT>(hasNext())>]
+body[label="trace(getNext())"]
 start:s->while:n;
 while:s->body:n;
 body:s->while:ne [color=darkorchid1 label=back fontcolor=darkorchid1];
-while:sw->end:n;
+
+body:e->while:ne[color=brown label="continue(s)" fontcolor=brown];
+body:w->end:ne[color=brown label="break(s)" fontcolor=brown];
+
+while:sw->end:n [color=red fontcolor=red label="exit"];
 end;
 }
