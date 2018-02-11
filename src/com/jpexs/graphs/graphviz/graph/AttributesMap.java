@@ -18,44 +18,156 @@ package com.jpexs.graphs.graphviz.graph;
 
 import com.jpexs.graphs.graphviz.dot.parser.DotId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author JPEXS
  */
-public class AttributesMap extends LinkedHashMap<DotId, DotId> {
+public class AttributesMap {
+
+    private Map<DotId, DotId> values = new LinkedHashMap<>();
 
     public AttributesMap(AttributesMap source) {
-        putAll(source);
+        values.putAll(source.values);
+    }
+
+    public AttributesMap(Map<String, String> source) {
+        for (Map.Entry<String, String> entry : source.entrySet()) {
+            put(entry.getKey(), entry.getValue());
+        }
     }
 
     public AttributesMap() {
     }
 
-    public void put(String key, DotId value) {
-        put(new DotId(key, false), value);
+    public int size() {
+        return values.size();
     }
 
-    public void put(String key, String value) {
-        put(new DotId(key, false), new DotId(value, false));
+    public boolean isEmpty() {
+        return values.isEmpty();
     }
 
-    @Override
-    public DotId put(DotId key, DotId value) {
-        if (value == null) {
-            throw new NullPointerException("Cannot set null as value for key " + key);
+    public boolean containsKey(DotId key) {
+        return values.containsKey(key);
+    }
+
+    public boolean containsKey(String key) {
+        return containsKey(new DotId(key, false));
+    }
+
+    public boolean containsValue(DotId value) {
+        return values.containsValue(value);
+    }
+
+    public DotId get(DotId key) {
+        return values.get(key);
+    }
+
+    public String get(String key) {
+        DotId ret = values.get(new DotId(key, false));
+        if (ret == null) {
+            return null;
         }
-        return super.put(key, value);
+        return ret.toString();
     }
 
-    public DotId remove(String key) {
-        return remove(new DotId(key, false));
+    public DotId put(DotId key, DotId value) {
+        return values.put(key, value);
     }
 
-    public boolean remove(String key, String value) {
-        return remove(new DotId(key, false), new DotId(value, false));
+    public DotId put(String key, String value) {
+        return values.put(new DotId(key, false), new DotId(value, false));
+    }
+
+    public DotId remove(DotId key) {
+        return values.remove(key);
+    }
+
+    public String remove(String key) {
+        DotId ret = values.remove(new DotId(key, false));
+        if (ret == null) {
+            return null;
+        }
+        return ret.toString();
+    }
+
+    public void putAll(Map<? extends DotId, ? extends DotId> m) {
+        values.putAll(m);
+    }
+
+    public void putAll(AttributesMap a) {
+        values.putAll(a.values);
+    }
+
+    public void clear() {
+        values.clear();
+    }
+
+    public Set<DotId> keySet() {
+        return values.keySet();
+    }
+
+    public Set<String> stringKeySet() {
+        Set<String> ret = new LinkedHashSet<>();
+        for (DotId value : values.keySet()) {
+            ret.add(value.toString());
+        }
+        return ret;
+    }
+
+    public Collection<DotId> values() {
+        return values.values();
+    }
+
+    public Collection<String> stringValues() {
+        List<String> ret = new ArrayList<>();
+        for (DotId value : values.values()) {
+            ret.add(value.toString());
+        }
+        return ret;
+    }
+
+    public Set<Map.Entry<DotId, DotId>> entrySet() {
+        return values.entrySet();
+    }
+
+    public Set<Map.Entry<String, String>> stringEntrySet() {
+        Set<Map.Entry<String, String>> ret = new LinkedHashSet<>();
+        for (Map.Entry<DotId, DotId> entry : values.entrySet()) {
+            final String stringKey = entry.getKey().toString();
+            ret.add(new Map.Entry<String, String>() {
+                @Override
+                public String getKey() {
+                    return stringKey;
+                }
+
+                @Override
+                public String getValue() {
+                    return get(stringKey);
+                }
+
+                @Override
+                public String setValue(String value) {
+                    String oldValue = get(stringKey);
+                    put(stringKey, value);
+                    return oldValue;
+                }
+            });
+        }
+        return ret;
+    }
+
+    public AttributesMap clone() {
+        return new AttributesMap(this);
     }
 
     @Override
@@ -78,23 +190,4 @@ public class AttributesMap extends LinkedHashMap<DotId, DotId> {
         }
         return sb.toString();
     }
-
-    @Override
-    public AttributesMap clone() {
-        super.clone();
-        return new AttributesMap(this);
-    }
-
-    public boolean containsKey(String key) {
-        return containsKey(new DotId(key, false));
-    }
-
-    public boolean containsValue(String value) {
-        return containsValue(new DotId(value, false));
-    }
-
-    public DotId get(String key) {
-        return get(new DotId(key, false));
-    }
-
 }
