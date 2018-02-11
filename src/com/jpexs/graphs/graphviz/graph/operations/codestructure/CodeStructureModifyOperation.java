@@ -28,6 +28,7 @@ import com.jpexs.graphs.codestructure.nodes.Node;
 import com.jpexs.graphs.codestructure.operations.CodeStructureModifier;
 import com.jpexs.graphs.codestructure.operations.CodeStructureModifierProgressListener;
 import com.jpexs.graphs.codestructure.operations.DetectedEdgeType;
+import com.jpexs.graphs.graphviz.dot.parser.DotId;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -216,7 +217,8 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
 
         @Override
         public void nodesJoined(EditableJoinedNode node) {
-            List<String> labels = new ArrayList<>();
+            List<DotId> labels = new ArrayList<>();
+            DotId labelKey = new DotId("label", false);
             String shape;
             /*=null;*/
             for (Node subNode : node.getAllSubNodes()) {
@@ -225,10 +227,10 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
                 }
                 if (nodeAttributesMap.containsKey(subNode)) {
                     AttributesMap attr = nodeAttributesMap.get(subNode);
-                    if (attr.containsKey("label")) {
-                        labels.add(attr.get("label").toString());
+                    if (attr.containsKey(labelKey)) {
+                        labels.add(attr.get(labelKey));
                     } else {
-                        labels.add(subNode.getId());
+                        labels.add(DotId.fromString(subNode.getId()));
                     }
                     /*if (attr.containsKey("shape")) {
                             String nshape = attr.get("shape").toString();
@@ -239,7 +241,7 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
                             shape = "";
                         }*/
                 } else {
-                    labels.add(subNode.getId());
+                    labels.add(DotId.fromString(subNode.getId()));
                 }
                 nodes.remove((EditableNode) subNode);
             }
@@ -248,7 +250,7 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
             AttributesMap nattr = new AttributesMap();
 
             if (!labels.isEmpty()) {
-                nattr.put("label", String.join("\\l", labels));
+                nattr.put(new DotId("label", false), DotId.join("\\l", labels));
                 nodeAttributesMap.put(node, nattr);
             }
             if (/*shape != null &&*/!shape.isEmpty()) {

@@ -1,0 +1,7 @@
+digraph {
+start;
+a[label="x\"x"]
+start->a;
+a->end;
+end;
+}

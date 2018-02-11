@@ -33,7 +33,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -46,9 +45,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -137,6 +134,7 @@ public class GraphTool {
     static StepHandler handlerDoStep = new StepHandler() {
         @Override
         public void step(String currentGraph) {
+            System.out.println(currentGraph);
             try {
                 setGraphImage(textToImage(currentGraph));
             } catch (IOException ex) {
@@ -328,6 +326,7 @@ public class GraphTool {
                             try {
                                 setGraphImage(textToImage(newText));
                             } catch (IOException ex) {
+                                ex.printStackTrace();
                                 setGraphImage(EMPTY_IMAGE);
                             }
                         } catch (Exception ex) {
@@ -358,6 +357,7 @@ public class GraphTool {
                             try {
                                 setGraphImage(textToImage(newText));
                             } catch (IOException ex) {
+                                ex.printStackTrace();
                                 setGraphImage(EMPTY_IMAGE);
                             }
                             imagePanel.repaint();
@@ -379,6 +379,7 @@ public class GraphTool {
                 try {
                     setGraphImage(textToImage(textArea.getText()));
                 } catch (IOException ex) {
+                    ex.printStackTrace();
                     setGraphImage(EMPTY_IMAGE);
                 }
                 try {
@@ -409,6 +410,7 @@ public class GraphTool {
                             try {
                                 setGraphImage(textToImage(newText));
                             } catch (IOException ex) {
+                                ex.printStackTrace();
                                 setGraphImage(EMPTY_IMAGE);
                             }
                         } catch (Exception ex) {
@@ -477,6 +479,7 @@ public class GraphTool {
                     try {
                         setGraphImage(textToImage(textArea.getText()));
                     } catch (IOException ex) {
+                        ex.printStackTrace();
                         setGraphImage(EMPTY_IMAGE);
                     }
                 } else {
@@ -498,6 +501,7 @@ public class GraphTool {
                     try {
                         setGraphImage(textToImage(text));
                     } catch (IOException ex) {
+                        ex.printStackTrace();
                         setGraphImage(EMPTY_IMAGE);
                     }
                     currentScriptName = newName;
@@ -578,6 +582,7 @@ public class GraphTool {
 
             }
         } catch (IOException e) {
+            e.printStackTrace();
             //ignore
         }
     }

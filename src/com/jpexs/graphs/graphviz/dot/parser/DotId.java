@@ -107,4 +107,26 @@ public class DotId {
         return true;
     }
 
+    public static DotId join(CharSequence delimiter, DotId... ids) {
+        return join(delimiter, ids);
+    }
+
+    public static DotId join(CharSequence delimiter, Iterable<? extends DotId> ids) {
+        StringBuilder sb = new StringBuilder();
+        boolean retHtml = false;
+        boolean first = true;
+        for (DotId id : ids) {
+            if (!first) {
+                sb.append(delimiter);
+            }
+            first = false;
+            if (id.isHtml) {
+                retHtml = true;
+            }
+            sb.append(id.value);
+        }
+
+        return new DotId(sb.toString(), retHtml);
+    }
+
 }

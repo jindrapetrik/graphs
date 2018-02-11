@@ -71,6 +71,7 @@ public abstract class BasicDecomposedGraphOperation implements StringOperation, 
             DotParser parser = new DotParser();
             parsedGraph = parser.parse(new StringReader(source));
         } catch (IOException ex) {
+            ex.printStackTrace();
             return null;
         } catch (DotParseException ex) {
             ex.printStackTrace();
@@ -86,7 +87,8 @@ public abstract class BasicDecomposedGraphOperation implements StringOperation, 
         Set<EditableNode> nodes = facade.decomposeGraph(graph, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
 
         executeOnDecomposedGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap, stepHandler);
-        return facade.composeGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
+        Graph ret = facade.composeGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
+        return ret;
     }
 
     protected Graph composeGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
