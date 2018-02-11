@@ -67,6 +67,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -93,7 +94,7 @@ public class GraphTool {
     private static String currentScriptName = "in";
     private static final String EXTENSION = ".gv";
     private static final String FILES_PATH = "graphs";
-    private static final String DOT_PATH = "c:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
+    private static String dotExecutablePath = "";
 
     private static SwingWorker worker;
     private static JComboBox<String> scriptCombo;
@@ -155,12 +156,15 @@ public class GraphTool {
     }
 
     private static BufferedImage textToImage(String text) throws IOException {
+        if (!new File(dotExecutablePath).exists()) {
+            throw new IOException("Dot executable not found");
+        }
         File outGv = new File("out.gv");
         PrintWriter pw = new PrintWriter(outGv);
         pw.println(text);
         pw.close();
 
-        runCommand("\"" + DOT_PATH + "\" -Tpng -Nfontname=times-bold -Nfontsize=12 -o out.png out.gv");
+        runCommand("\"" + dotExecutablePath + "\" -Tpng -Nfontname=times-bold -Nfontsize=12 -o out.png out.gv");
         outGv.delete();
 
         BufferedImage br = ImageIO.read(new File("out.png"));
@@ -179,6 +183,7 @@ public class GraphTool {
         propOut.setProperty("window.location.x", "" + frame.getLocation().x);
         propOut.setProperty("window.location.y", "" + frame.getLocation().y);
         propOut.setProperty("window.splitter.location", "" + splitPane.getDividerLocation());
+        propOut.setProperty("dotExecutablePath", dotExecutablePath);
         try (OutputStream output = new FileOutputStream(SETTINGS_PROP_FILE)) {
             propOut.store(output, null);
         } catch (IOException ex) {
@@ -206,7 +211,24 @@ public class GraphTool {
         int windowSplitterLocation = Integer.parseInt(propIn.getProperty("window.splitter.location", "" + splitPane.getDividerLocation()));
         splitPane.setDividerLocation(windowSplitterLocation);
 
+        dotExecutablePath = propIn.getProperty("dotExecutablePath", "");
         currentScriptName = propIn.getProperty("currentScriptName", "");
+
+        if (dotExecutablePath.isEmpty() || !new File(dotExecutablePath).exists()) {
+            selectDotExecutable();
+            saveSettings();
+        }
+    }
+
+    private static void selectDotExecutable() {
+
+        File directory = new File(dotExecutablePath).getParentFile();
+
+        JFileChooser fc = new JFileChooser(directory);
+        fc.setDialogTitle("Select dot executable path (GraphViz)");
+        if (fc.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
+            dotExecutablePath = fc.getSelectedFile().getAbsolutePath();
+        }
     }
 
     private static void saveCurrent() {
@@ -256,7 +278,11 @@ public class GraphTool {
         String fileName = makeFileName(currentScriptName);
         String text = (new File(fileName)).exists() ? new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8) : NOVY_TEXT;
         textArea.setText(text);
-        setGraphImage(textToImage(text));
+        try {
+            setGraphImage(textToImage(text));
+        } catch (IOException ex) {
+            setGraphImage(EMPTY_IMAGE);
+        }
         scriptCombo.setSelectedItem(currentScriptName);
     }
 
@@ -573,18 +599,15 @@ public class GraphTool {
         splitPane.setDividerLocation(0.3);
     }
 
-    private static void runCommand(String command) {
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String s;
-            while ((s = reader.readLine()) != null) {
+    private static void runCommand(String command) throws IOException {
 
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            //ignore
+        Process process = Runtime.getRuntime().exec(command);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String s;
+        while ((s = reader.readLine()) != null) {
+
         }
+
     }
 
     /*
