@@ -50,18 +50,12 @@ public class AttributesMap extends LinkedHashMap<DotId, DotId> {
         return super.put(key, value);
     }
 
-    @Override
-    public DotId remove(Object key) {
-        Object keyId = (key instanceof String) ? (new DotId((String) key, false)) : key;
-        return super.remove(keyId);
+    public DotId remove(String key) {
+        return remove(new DotId(key, false));
     }
 
-    @Override
-    public boolean remove(Object key, Object value) {
-        Object keyId = (key instanceof String) ? (new DotId((String) key, false)) : key;
-        Object valueId = (value instanceof String) ? (new DotId((String) value, false)) : value;
-
-        return super.remove(keyId, valueId);
+    public boolean remove(String key, String value) {
+        return remove(new DotId(key, false), new DotId(value, false));
     }
 
     @Override
@@ -89,6 +83,14 @@ public class AttributesMap extends LinkedHashMap<DotId, DotId> {
     public AttributesMap clone() {
         super.clone();
         return new AttributesMap(this);
+    }
+
+    public boolean containsKey(String key) {
+        return containsKey(new DotId(key, false));
+    }
+
+    public boolean containsValue(String value) {
+        return containsValue(new DotId(value, false));
     }
 
 }
