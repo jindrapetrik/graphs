@@ -45,6 +45,8 @@ import java.util.Set;
  */
 public class StructuredGraphFacade {
 
+    public static final String IGNORE_ATTRIBUTE = "_ignore";
+
     public String recompose(String text) {
         Graph g = graphFromString(text);
         Map<Node, AttributesMap> nodeAttributesMap = new HashMap<>();
@@ -178,8 +180,14 @@ public class StructuredGraphFacade {
                 toNodeId = (NodeId) srcEdge.to;
             }
             if (fromNodeId != null && toNodeId != null) {
+                AttributesMap at = srcEdge.attributes.clone();
+                if (at.containsKey(IGNORE_ATTRIBUTE) && "true".equals(at.get(IGNORE_ATTRIBUTE))) {
+                    continue;
+                }
+
                 String fromId = fromNodeId.getId().toString();
                 String toId = toNodeId.getId().toString();
+
                 if (!nameToNodeMap.containsKey(fromId)) {
                     nameToNodeMap.put(fromId, new BasicEditableNode(fromId));
                 }
@@ -189,7 +197,8 @@ public class StructuredGraphFacade {
                 EditableNode fromNode = nameToNodeMap.get(fromId);
                 EditableNode toNode = nameToNodeMap.get(toId);
                 Edge<EditableNode> targetEdge = new Edge<>(fromNode, toNode);
-                edgeAttributesMap.put(targetEdge, srcEdge.attributes.clone());
+
+                edgeAttributesMap.put(targetEdge, at);
                 String compassToSet = (fromNodeId.compassPt == null ? "" : fromNodeId.compassPt) + ":" + (toNodeId.compassPt == null ? "" : toNodeId.compassPt);
                 if (!compassToSet.equals(":")) {
                     edgeCompassesMap.put(targetEdge, compassToSet);
@@ -203,11 +212,17 @@ public class StructuredGraphFacade {
         //we need to add nodes with attributes after the edges for start edge (its first node) to be first
         for (NodeIdToAttributes na : g.nodes) {
             String id = na.nodeId.getId().toString();
+            AttributesMap at = na.attributes.clone();
+            if (at.containsKey(IGNORE_ATTRIBUTE) && "true".equals(at.get(IGNORE_ATTRIBUTE))) {
+                continue;
+            }
+
             if (!nameToNodeMap.containsKey(id)) {
                 nameToNodeMap.put(id, new BasicEditableNode(id));
             }
             EditableNode node = nameToNodeMap.get(id);
-            nodeAttributesMap.put(node, na.attributes.clone());
+
+            nodeAttributesMap.put(node, at);
             orderedNodeSet.add(node);
         }
         return orderedNodeSet;
