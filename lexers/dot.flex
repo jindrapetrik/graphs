@@ -69,6 +69,7 @@ import java.util.Stack;
         } else {
             ret = last = yylex();
         }
+        System.out.println("LEX:"+ret);
         return ret;
     }
 
@@ -160,6 +161,7 @@ Numeral = [-]?("."[0-9]+ | [0-9]+("."[0-9]*)? )
     ">"                          { 
                                     tagLevel--;                                     
                                     if(tagLevel == 0){
+                                        yybegin(YYINITIAL);
                                         return new DotParsedSymbol(yyline(), DotParsedSymbol.TYPE_ID, DotParsedSymbol.IDTYPE_HTML_STRING, string.toString());
                                     }else{
                                         string.append(yytext());

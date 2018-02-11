@@ -206,4 +206,15 @@ public class DotLexerTest {
         Assert.assertSame(symbols.get(1).type, DotParsedSymbol.TYPE_ID);
     }
 
+    @Test
+    public void testHtmlAfter() throws DotParseException {
+        List<DotParsedSymbol> symbols = parseAll("<<FONT>test</FONT>>after");
+        if (symbols.size() != 2) {
+            Assert.fail("2 symbols expected, but " + symbols.size() + " found");
+        }
+        if (symbols.get(1).idtype != DotParsedSymbol.IDTYPE_IDENTIFIER || !"after".equals(symbols.get(1).getValueAsString())) {
+            Assert.fail("after identifier expected, but " + symbols.get(1) + " found");
+        }
+    }
+
 }
