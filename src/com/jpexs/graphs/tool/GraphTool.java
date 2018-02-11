@@ -87,6 +87,7 @@ import javax.swing.UIManager;
 public class GraphTool {
 
     static JPanel imagePanel;
+    static JScrollPane imageScrollPane;
     static BufferedImage img;
     static JFrame frame;
     static JSplitPane splitPane;
@@ -113,6 +114,12 @@ public class GraphTool {
 
     private static String SETTINGS_PROP_FILE = "settings.properties";
 
+    private synchronized static void setGraphImage(BufferedImage newImage) {
+        img = newImage;
+        imagePanel.repaint();
+        imagePanel.updateUI();
+    }
+
     private static void sortScriptCombo() {
         String selectedItem = (String) scriptCombo.getSelectedItem();
         scriptCombo.removeItem(NOVY);
@@ -131,11 +138,10 @@ public class GraphTool {
         @Override
         public void step(String currentGraph) {
             try {
-                img = textToImage(currentGraph);
+                setGraphImage(textToImage(currentGraph));
             } catch (IOException ex) {
-                img = EMPTY_IMAGE;
+                setGraphImage(EMPTY_IMAGE);
             }
-            imagePanel.repaint();
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ex) {
@@ -248,13 +254,12 @@ public class GraphTool {
         initGui();
         loadSettings();
 
-        img = EMPTY_IMAGE;
+        setGraphImage(EMPTY_IMAGE);
         String fileName = makeFileName(currentScriptName);
         String text = (new File(fileName)).exists() ? new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8) : NOVY_TEXT;
         textArea.setText(text);
-        img = textToImage(text);
+        setGraphImage(textToImage(text));
         scriptCombo.setSelectedItem(currentScriptName);
-        imagePanel.repaint();
     }
 
     private static void initGui() {
@@ -297,7 +302,7 @@ public class GraphTool {
         imagePanel.addMouseListener(ma);
         imagePanel.addMouseMotionListener(ma);
 
-        JScrollPane imageScrollPane = new JScrollPane(imagePanel);
+        imageScrollPane = new JScrollPane(imagePanel);
         imageScrollPane.setPreferredSize(new Dimension(500, WIN_HEIGHT));
         textArea = new JEditorPane("text/plain", "");
         textArea.setContentType("text/plain");
@@ -321,11 +326,10 @@ public class GraphTool {
                             setOperation(new CodeStructureModifyOperation());
                             String newText = op.execute(runText, handlerDoStep);
                             try {
-                                img = textToImage(newText);
+                                setGraphImage(textToImage(newText));
                             } catch (IOException ex) {
-                                img = EMPTY_IMAGE;
+                                setGraphImage(EMPTY_IMAGE);
                             }
-                            imagePanel.repaint();
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
@@ -352,9 +356,9 @@ public class GraphTool {
                             setOperation(new CodeStructureModifyOperation());
                             String newText = op.execute(runText, null);
                             try {
-                                img = textToImage(newText);
+                                setGraphImage(textToImage(newText));
                             } catch (IOException ex) {
-                                //ignore
+                                setGraphImage(EMPTY_IMAGE);
                             }
                             imagePanel.repaint();
                         } catch (Exception ex) {
@@ -373,11 +377,10 @@ public class GraphTool {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    img = textToImage(textArea.getText());
+                    setGraphImage(textToImage(textArea.getText()));
                 } catch (IOException ex) {
-                    img = EMPTY_IMAGE;
+                    setGraphImage(EMPTY_IMAGE);
                 }
-                imagePanel.repaint();
                 try {
                     DotParser dotParser = new DotParser();
                     Graph gr = dotParser.parse(new StringReader(textArea.getText()));
@@ -404,11 +407,10 @@ public class GraphTool {
                             setOperation(new TestOperation());
                             String newText = op.execute(runText, handlerDoStep);
                             try {
-                                img = textToImage(newText);
+                                setGraphImage(textToImage(newText));
                             } catch (IOException ex) {
-                                img = EMPTY_IMAGE;
+                                setGraphImage(EMPTY_IMAGE);
                             }
-                            imagePanel.repaint();
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
@@ -473,11 +475,10 @@ public class GraphTool {
                     textArea.setText(NOVY_TEXT);
                     sortScriptCombo();
                     try {
-                        img = textToImage(textArea.getText());
+                        setGraphImage(textToImage(textArea.getText()));
                     } catch (IOException ex) {
-                        img = EMPTY_IMAGE;
+                        setGraphImage(EMPTY_IMAGE);
                     }
-                    imagePanel.repaint();
                 } else {
                     if (newName.equals(currentScriptName)) {
                         return;
@@ -495,13 +496,12 @@ public class GraphTool {
                     }
                     textArea.setText(text);
                     try {
-                        img = textToImage(text);
+                        setGraphImage(textToImage(text));
                     } catch (IOException ex) {
-                        img = EMPTY_IMAGE;
+                        setGraphImage(EMPTY_IMAGE);
                     }
                     currentScriptName = newName;
                 }
-                imagePanel.repaint();
             }
         });
 
