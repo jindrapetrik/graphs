@@ -16,12 +16,8 @@
  */
 package com.jpexs.graphs.graphviz.dot.parser;
 
-import com.jpexs.graphs.graphviz.dot.parser.DotLexer;
-import com.jpexs.graphs.graphviz.dot.parser.DotParseException;
-import com.jpexs.graphs.graphviz.dot.parser.DotParsedSymbol;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
