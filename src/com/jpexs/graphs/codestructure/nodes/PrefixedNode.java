@@ -25,4 +25,6 @@ public interface PrefixedNode extends Node {
     public String getIdPrefix();
 
     public String getOriginalId();
+
+    public Node getOriginalNode();
 }

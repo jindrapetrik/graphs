@@ -111,7 +111,6 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
                     break;
                 case OUTSIDEIF:
                     if (alreadyHasColor) {
-                        System.out.println("outside: " + edge);
                         return;
                     }
                     int branchIndex = edge.from.getNext().indexOf(edge.to);

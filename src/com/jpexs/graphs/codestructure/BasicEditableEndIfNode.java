@@ -47,4 +47,9 @@ public class BasicEditableEndIfNode extends BasicEditableNode implements Editabl
         return ifNode.getId();
     }
 
+    @Override
+    public Node getOriginalNode() {
+        return ifNode;
+    }
+
 }

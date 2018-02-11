@@ -81,7 +81,6 @@ public class StructuredGraphFacade {
             @SuppressWarnings("unchecked")
             EditableNode nextEditableNode = (EditableNode) next;
             Edge<EditableNode> e = new Edge<>(currentNode, nextEditableNode);
-            //System.out.println("generateGraph adding " + e);
             orderedEdges.add(e);
             populateEdges(nextEditableNode, visited, orderedEdges);
         }
@@ -100,7 +99,7 @@ public class StructuredGraphFacade {
             if (n instanceof PrefixedNode) {
                 PrefixedNode pn = (PrefixedNode) n;
                 DotId prefix = new DotId(pn.getIdPrefix(), false);
-                DotId original = DotId.fromString(pn.getOriginalId());
+                DotId original = nodeToDotId(pn.getOriginalNode());
                 return DotId.join("", prefix, original);
             }
             return DotId.fromString(n.getId());

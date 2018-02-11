@@ -140,7 +140,6 @@ public class GraphTool {
     static StepHandler handlerDoStep = new StepHandler() {
         @Override
         public void step(String currentGraph) {
-            System.out.println(currentGraph);
             try {
                 setGraphImage(textToImage(currentGraph));
             } catch (IOException ex) {
