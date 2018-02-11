@@ -93,4 +93,8 @@ public class AttributesMap extends LinkedHashMap<DotId, DotId> {
         return containsValue(new DotId(value, false));
     }
 
+    public DotId get(String key) {
+        return get(new DotId(key, false));
+    }
+
 }
