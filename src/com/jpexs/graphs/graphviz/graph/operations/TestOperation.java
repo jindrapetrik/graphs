@@ -24,6 +24,8 @@ import com.jpexs.graphs.codestructure.nodes.Node;
 import java.util.Map;
 import java.util.Set;
 import com.jpexs.graphs.codestructure.nodes.EditableNode;
+import com.jpexs.graphs.graphviz.graph.operations.codestructure.DecomposedGraph;
+import java.util.List;
 
 /**
  *
@@ -32,7 +34,7 @@ import com.jpexs.graphs.codestructure.nodes.EditableNode;
 public class TestOperation extends BasicDecomposedGraphOperation {
 
     @Override
-    protected void executeOnDecomposedGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap, StepHandler stepHandler) {
+    protected void executeOnDecomposedGraph(List<DecomposedGraph> decomposedGraphs, StepHandler stepHandler) {
         Node endifNode = new BasicEditableNode("endif-if");
         Node ifNode = new BasicEditableNode("if");
         Node after = new BasicEditableNode("after");

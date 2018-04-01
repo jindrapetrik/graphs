@@ -16,6 +16,7 @@
  */
 package com.jpexs.graphs.graphviz.dot.parser;
 
+import com.jpexs.graphs.graphviz.graph.SubGraph;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -124,13 +125,13 @@ public class DotParserTest {
     @Test(dataProvider = "provideGraphEdgeSamples")
     public void testGraphEdgeStatement(String edge) throws DotParseException, IOException {
         parse("graph {" + edge + "}");
-        new DotParser().edge_stmt(new ArrayList<>(), false, lexerFor(edge));
+        new DotParser().edge_stmt(new ArrayList<>(), new ArrayList<>(), false, lexerFor(edge));
     }
 
     @Test(dataProvider = "provideDiGraphEdgeSamples")
     public void testDigraphEdgeStatement(String edge) throws DotParseException, IOException {
         parse("digraph {" + edge + "}");
-        new DotParser().edge_stmt(new ArrayList<>(), true, lexerFor(edge));
+        new DotParser().edge_stmt(new ArrayList<>(), new ArrayList<>(), true, lexerFor(edge));
     }
 
     @Test
@@ -183,7 +184,7 @@ public class DotParserTest {
         }
 
         try {
-            new DotParser().edge_stmt(new ArrayList<>(), false, lexerFor(sample));
+            new DotParser().edge_stmt(new ArrayList<>(), new ArrayList<>(), false, lexerFor(sample));
             Assert.fail("-> for graph allowed");
         } catch (DotParseException ex) {
             //okay
@@ -201,7 +202,7 @@ public class DotParserTest {
         }
 
         try {
-            new DotParser().edge_stmt(new ArrayList<>(), true, lexerFor(sample));
+            new DotParser().edge_stmt(new ArrayList<>(), new ArrayList<>(), true, lexerFor(sample));
             Assert.fail("-- for digraph allowed");
         } catch (DotParseException ex) {
             //okay

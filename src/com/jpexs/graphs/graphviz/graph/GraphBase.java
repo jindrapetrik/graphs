@@ -35,6 +35,7 @@ public abstract class GraphBase implements IdAware {
     public AttributesMap nodeAttributes = new AttributesMap();
     public AttributesMap edgeAttributes = new AttributesMap();
     public List<NodeIdToAttributes> nodes = new ArrayList<>();
+    public List<SubGraph> subgraphs = new ArrayList<>();
     public List<Edge> edges = new ArrayList<>();
 
     public GraphBase(boolean directed) {
@@ -58,6 +59,9 @@ public abstract class GraphBase implements IdAware {
             sb.append(id.toString());
         }
         sb.append("{");
+        for (DotId key : graphAttributes.keySet()) {
+            sb.append(key.toString()).append("=").append(graphAttributes.get(key)).append(";");
+        }
 
         StringBuilder esb = new StringBuilder();
         Set<NodeId> nodesInEdges = new LinkedHashSet<>();
@@ -87,6 +91,13 @@ public abstract class GraphBase implements IdAware {
                 sb.append(";").append(NEWLINE);
             }
             sb.append(esb);
+        }
+        if (!subgraphs.isEmpty()) {
+            sb.append(";");
+        }
+        for (SubGraph subgraph : subgraphs) {
+            sb.append(subgraph.toString());
+            sb.append(";").append(NEWLINE);
         }
         sb.append("}");
         return sb.toString();

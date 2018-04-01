@@ -29,6 +29,8 @@ import com.jpexs.graphs.codestructure.nodes.JoinedNode;
 import com.jpexs.graphs.codestructure.nodes.Node;
 import com.jpexs.graphs.codestructure.nodes.PrefixedNode;
 import com.jpexs.graphs.graphviz.dot.parser.DotId;
+import com.jpexs.graphs.graphviz.graph.GraphBase;
+import com.jpexs.graphs.graphviz.graph.SubGraph;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -50,12 +52,8 @@ public class StructuredGraphFacade {
 
     public String recompose(String text) {
         Graph g = graphFromString(text);
-        Map<Node, AttributesMap> nodeAttributesMap = new HashMap<>();
-        Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap = new HashMap<>();
-        Map<Edge<EditableNode>, String> edgeCompassesMap = new HashMap<>();
-
-        Set<EditableNode> nodes = decomposeGraph(g, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
-        String ret = graphToString(composeGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
+        List<DecomposedGraph> graphs = decomposeGraph(g);
+        String ret = graphToString(composeGraph(graphs));
         return ret;
 
     }
@@ -108,8 +106,22 @@ public class StructuredGraphFacade {
         return null;
     }
 
-    public Graph composeGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
-        Graph ret = new Graph(false, true);
+    public Graph composeGraph(List<DecomposedGraph> gs) {
+        DecomposedGraph mainGraph = gs.get(0);
+        Graph ret = (Graph) composeOneGraph(false, mainGraph.getId(), mainGraph.graphAttributes, mainGraph.getNodes(), mainGraph.getNodeAttributesMap(), mainGraph.getEdgeAttributesMap(), mainGraph.getEdgeCompassesMap());
+
+        for (int i = 1; i < gs.size(); i++) {
+            DecomposedGraph g = gs.get(i);
+            SubGraph nextGraph = (SubGraph) composeOneGraph(true, g.getId(), g.graphAttributes, g.getNodes(), g.getNodeAttributesMap(), g.getEdgeAttributesMap(), g.getEdgeCompassesMap());
+            ret.subgraphs.add(nextGraph);
+        }
+        return ret;
+    }
+
+    public GraphBase composeOneGraph(boolean isSubgraph, DotId id, AttributesMap graphAttributes, Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
+        GraphBase ret = isSubgraph ? new SubGraph(true) : new Graph(false, true);
+        ret.id = id;
+        ret.graphAttributes = graphAttributes;
         Set<EditableNode> orderedNodes = nodes;
 
         Set<Edge<EditableNode>> orderedEdges = new LinkedHashSet<>();//HashSet<>();//new TreeSet<>();
@@ -165,20 +177,65 @@ public class StructuredGraphFacade {
         return ret;
     }
 
-    public Set<EditableNode> decomposeGraph(Graph g, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
-        Set<EditableNode> orderedNodeSet = new LinkedHashSet<>();
-        Map<String, EditableNode> nameToNodeMap = new LinkedHashMap<>();
-        for (com.jpexs.graphs.graphviz.graph.Edge srcEdge : g.edges) {
-            NodeId fromNodeId = null;
-            if (srcEdge.from instanceof NodeId) {
-                fromNodeId = (NodeId) srcEdge.from;
+    public List<DecomposedGraph> decomposeGraph(Graph fullGraph) {
+        List<GraphBase> allGraphs = new ArrayList<>();
+        allGraphs.add(fullGraph);
+        allGraphs.addAll(fullGraph.subgraphs);
+        List<DecomposedGraph> ret = new ArrayList<>();
+
+        for (GraphBase gb : allGraphs) {
+            Map<Node, AttributesMap> nodeAttributesMap = new LinkedHashMap<>();
+            Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap = new LinkedHashMap<>();
+            Map<Edge<EditableNode>, String> edgeCompassesMap = new LinkedHashMap<>();
+
+            Set<EditableNode> orderedNodeSet = new LinkedHashSet<>();
+            Map<String, EditableNode> nameToNodeMap = new LinkedHashMap<>();
+            for (com.jpexs.graphs.graphviz.graph.Edge srcEdge : gb.edges) {
+                NodeId fromNodeId = null;
+                if (srcEdge.from instanceof NodeId) {
+                    fromNodeId = (NodeId) srcEdge.from;
+                }
+                NodeId toNodeId = null;
+                if (srcEdge.to instanceof NodeId) {
+                    toNodeId = (NodeId) srcEdge.to;
+                }
+                if (fromNodeId != null && toNodeId != null) {
+                    AttributesMap at = srcEdge.attributes.clone();
+                    if (at.containsKey(IGNORE_ATTRIBUTE) && "true".equals(at.get(IGNORE_ATTRIBUTE))) {
+                        continue;
+                    }
+                    if (at.containsKey(IGNORE_ATTRIBUTES_ATTRIBUTE) && "true".equals(at.get(IGNORE_ATTRIBUTES_ATTRIBUTE))) {
+                        at.clear();
+                    }
+
+                    String fromId = fromNodeId.getId().toString();
+                    String toId = toNodeId.getId().toString();
+
+                    if (!nameToNodeMap.containsKey(fromId)) {
+                        nameToNodeMap.put(fromId, new BasicEditableNode(fromId));
+                    }
+                    if (!nameToNodeMap.containsKey(toId)) {
+                        nameToNodeMap.put(toId, new BasicEditableNode(toId));
+                    }
+                    EditableNode fromNode = nameToNodeMap.get(fromId);
+                    EditableNode toNode = nameToNodeMap.get(toId);
+                    Edge<EditableNode> targetEdge = new Edge<>(fromNode, toNode);
+
+                    edgeAttributesMap.put(targetEdge, at);
+                    String compassToSet = (fromNodeId.compassPt == null ? "" : fromNodeId.compassPt) + ":" + (toNodeId.compassPt == null ? "" : toNodeId.compassPt);
+                    if (!compassToSet.equals(":")) {
+                        edgeCompassesMap.put(targetEdge, compassToSet);
+                    }
+                    fromNode.addNext(toNode);
+                    toNode.addPrev(fromNode);
+                    orderedNodeSet.add(fromNode);
+                    orderedNodeSet.add(toNode);
+                }
             }
-            NodeId toNodeId = null;
-            if (srcEdge.to instanceof NodeId) {
-                toNodeId = (NodeId) srcEdge.to;
-            }
-            if (fromNodeId != null && toNodeId != null) {
-                AttributesMap at = srcEdge.attributes.clone();
+            //we need to add nodes with attributes after the edges for start edge (its first node) to be first
+            for (NodeIdToAttributes na : gb.nodes) {
+                String id = na.nodeId.getId().toString();
+                AttributesMap at = na.attributes.clone();
                 if (at.containsKey(IGNORE_ATTRIBUTE) && "true".equals(at.get(IGNORE_ATTRIBUTE))) {
                     continue;
                 }
@@ -186,49 +243,16 @@ public class StructuredGraphFacade {
                     at.clear();
                 }
 
-                String fromId = fromNodeId.getId().toString();
-                String toId = toNodeId.getId().toString();
+                if (!nameToNodeMap.containsKey(id)) {
+                    nameToNodeMap.put(id, new BasicEditableNode(id));
+                }
+                EditableNode node = nameToNodeMap.get(id);
 
-                if (!nameToNodeMap.containsKey(fromId)) {
-                    nameToNodeMap.put(fromId, new BasicEditableNode(fromId));
-                }
-                if (!nameToNodeMap.containsKey(toId)) {
-                    nameToNodeMap.put(toId, new BasicEditableNode(toId));
-                }
-                EditableNode fromNode = nameToNodeMap.get(fromId);
-                EditableNode toNode = nameToNodeMap.get(toId);
-                Edge<EditableNode> targetEdge = new Edge<>(fromNode, toNode);
-
-                edgeAttributesMap.put(targetEdge, at);
-                String compassToSet = (fromNodeId.compassPt == null ? "" : fromNodeId.compassPt) + ":" + (toNodeId.compassPt == null ? "" : toNodeId.compassPt);
-                if (!compassToSet.equals(":")) {
-                    edgeCompassesMap.put(targetEdge, compassToSet);
-                }
-                fromNode.addNext(toNode);
-                toNode.addPrev(fromNode);
-                orderedNodeSet.add(fromNode);
-                orderedNodeSet.add(toNode);
+                nodeAttributesMap.put(node, at);
+                orderedNodeSet.add(node);
             }
+            ret.add(new DecomposedGraph(gb.getId(), gb.graphAttributes, orderedNodeSet, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap));
         }
-        //we need to add nodes with attributes after the edges for start edge (its first node) to be first
-        for (NodeIdToAttributes na : g.nodes) {
-            String id = na.nodeId.getId().toString();
-            AttributesMap at = na.attributes.clone();
-            if (at.containsKey(IGNORE_ATTRIBUTE) && "true".equals(at.get(IGNORE_ATTRIBUTE))) {
-                continue;
-            }
-            if (at.containsKey(IGNORE_ATTRIBUTES_ATTRIBUTE) && "true".equals(at.get(IGNORE_ATTRIBUTES_ATTRIBUTE))) {
-                at.clear();
-            }
-
-            if (!nameToNodeMap.containsKey(id)) {
-                nameToNodeMap.put(id, new BasicEditableNode(id));
-            }
-            EditableNode node = nameToNodeMap.get(id);
-
-            nodeAttributesMap.put(node, at);
-            orderedNodeSet.add(node);
-        }
-        return orderedNodeSet;
+        return ret;
     }
 }

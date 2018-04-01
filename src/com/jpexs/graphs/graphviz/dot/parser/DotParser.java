@@ -77,15 +77,17 @@ public class DotParser {
         _expect(lexer, DotParsedSymbol.TYPE_BRACE_OPEN, "{");
         List<Edge> edges = new ArrayList<>();
         List<NodeIdToAttributes> standaloneNodes = new ArrayList<>();
+        List<SubGraph> standaloneSubGraphs = new ArrayList<>();
         AttributesMap graphAttributes = new AttributesMap();
         AttributesMap nodeAttributes = new AttributesMap();
         AttributesMap edgeAttributes = new AttributesMap();
-        stmt_list(edges, standaloneNodes, graphAttributes, nodeAttributes, edgeAttributes, isDirectedGraph, lexer);
+        stmt_list(edges, standaloneSubGraphs, standaloneNodes, graphAttributes, nodeAttributes, edgeAttributes, isDirectedGraph, lexer);
         _expect(lexer, DotParsedSymbol.TYPE_BRACE_CLOSE, "}");
 
         Graph graph = new Graph(isStrict, isDirectedGraph);
         graph.edges = edges;
         graph.nodes = standaloneNodes;
+        graph.subgraphs = standaloneSubGraphs;
         graph.id = id;
         graph.graphAttributes = graphAttributes;
         graph.nodeAttributes = nodeAttributes;
@@ -96,9 +98,9 @@ public class DotParser {
     /*
     stmt_list : [ stmt [ ';' ] stmt_list ]
      */
-    public void stmt_list(List<Edge> edges, List<NodeIdToAttributes> standaloneNodes, AttributesMap graphAttributes, AttributesMap nodeAttributes, AttributesMap edgeAttributes, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
+    public void stmt_list(List<Edge> edges, List<SubGraph> standaloneSubGraphs, List<NodeIdToAttributes> standaloneNodes, AttributesMap graphAttributes, AttributesMap nodeAttributes, AttributesMap edgeAttributes, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
         boolean empty = true;
-        if (stmt(edges, standaloneNodes, graphAttributes, nodeAttributes, edgeAttributes, isDirectedGraph, lexer)) {
+        if (stmt(edges, standaloneSubGraphs, standaloneNodes, graphAttributes, nodeAttributes, edgeAttributes, isDirectedGraph, lexer)) {
             empty = false;
         }
         DotParsedSymbol symbol = lexer.lex();
@@ -109,7 +111,7 @@ public class DotParser {
             lexer.pushback(symbol);
         }
         if (!empty) {
-            stmt_list(edges, standaloneNodes, graphAttributes, nodeAttributes, edgeAttributes, isDirectedGraph, lexer);
+            stmt_list(edges, standaloneSubGraphs, standaloneNodes, graphAttributes, nodeAttributes, edgeAttributes, isDirectedGraph, lexer);
         }
     }
 
@@ -125,7 +127,7 @@ public class DotParser {
 	 | d) ID '=' ID           - prefix: - ID '=' ...
 	 | e) subgraph            - prefix: - subgraph 
      */
-    public boolean stmt(List<Edge> edges, List<NodeIdToAttributes> standaloneNodes, AttributesMap graphAttributes, AttributesMap nodeAttributes, AttributesMap edgeAttributes, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
+    public boolean stmt(List<Edge> edges, List<SubGraph> standaloneSubGraphs, List<NodeIdToAttributes> standaloneNodes, AttributesMap graphAttributes, AttributesMap nodeAttributes, AttributesMap edgeAttributes, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
         DotParsedSymbol symbol = lexer.lex();
         //d)
         if (symbol.type == DotParsedSymbol.TYPE_ID) {
@@ -166,13 +168,13 @@ public class DotParser {
             /* a) b) e) */
             lexer.pushback(symbol);
             ConnectableObject from;
-            if ((from = node_id_or_subgraph(standaloneNodes, isDirectedGraph, lexer)) != null) {
+            if ((from = node_id_or_subgraph(standaloneSubGraphs, standaloneNodes, isDirectedGraph, lexer)) != null) {
                 symbol = lexer.lex();
                 Object obj = from;
                 //b)
                 if (symbol.type == DotParsedSymbol.TYPE_MINUSMINUS || symbol.type == DotParsedSymbol.TYPE_ARROW) {
                     lexer.pushback(symbol);
-                    obj = edge_rhs(from, edges, isDirectedGraph, lexer);
+                    obj = edge_rhs(from, standaloneSubGraphs, edges, isDirectedGraph, lexer);
                     symbol = lexer.lex();
                 }
                 //a) or finish of b)
@@ -200,11 +202,11 @@ public class DotParser {
     /*
         (node_id | subgraph)
      */
-    private ConnectableObject node_id_or_subgraph(List<NodeIdToAttributes> standaloneNodes, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
+    private ConnectableObject node_id_or_subgraph(List<SubGraph> standaloneSubgraphs, List<NodeIdToAttributes> standaloneNodes, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
         DotParsedSymbol symbol = lexer.lex();
         if (symbol.type == DotParsedSymbol.TYPE_KEYWORD_SUBGRAPH || symbol.type == DotParsedSymbol.TYPE_BRACE_OPEN) {
             lexer.pushback(symbol);
-            return subgraph(isDirectedGraph, lexer);
+            return subgraph(standaloneSubgraphs, isDirectedGraph, lexer);
         } else if (symbol.type == DotParsedSymbol.TYPE_ID) {
             lexer.pushback(symbol);
             return node_id(lexer);
@@ -292,7 +294,7 @@ public class DotParser {
     /*
     edge_stmt : (node_id | subgraph) edgeRHS [ attr_list ]
      */
-    public void edge_stmt(List<Edge> edges, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
+    public void edge_stmt(List<SubGraph> standaloneSubgraphs, List<Edge> edges, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
         DotParsedSymbol symbol = lexer.lex();
         ConnectableObject from;
         if (symbol.type == DotParsedSymbol.TYPE_ID) {
@@ -300,9 +302,9 @@ public class DotParser {
             from = node_id(lexer);
         } else {
             _expect(DotParsedSymbol.TYPE_KEYWORD_SUBGRAPH, "subgraph", symbol);
-            from = subgraph(isDirectedGraph, lexer);
+            from = subgraph(standaloneSubgraphs, isDirectedGraph, lexer);
         }
-        Edge edge = edge_rhs(from, edges, isDirectedGraph, lexer);
+        Edge edge = edge_rhs(from, standaloneSubgraphs, edges, isDirectedGraph, lexer);
         symbol = lexer.lex();
         if (symbol.type == DotParsedSymbol.TYPE_BRACKET_OPEN) {
             lexer.pushback(symbol);
@@ -376,7 +378,7 @@ public class DotParser {
     /*
     edgeRHS : edgeop (node_id | subgraph) [ edgeRHS ]
      */
-    public Edge edge_rhs(ConnectableObject from, List<Edge> edges, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
+    public Edge edge_rhs(ConnectableObject from, List<SubGraph> standaloneSubgraphs, List<Edge> edges, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
         DotParsedSymbol symbol = lexer.lex();
         if (symbol.type == DotParsedSymbol.TYPE_ARROW) {
             if (!isDirectedGraph) {
@@ -394,7 +396,7 @@ public class DotParser {
             to = node_id(lexer);
         } else if (symbol.type == DotParsedSymbol.TYPE_KEYWORD_SUBGRAPH || symbol.type == DotParsedSymbol.TYPE_BRACE_OPEN) {
             lexer.pushback(symbol);
-            to = subgraph(isDirectedGraph, lexer);
+            to = subgraph(standaloneSubgraphs, isDirectedGraph, lexer);
         }
         Edge edge = null;
         if (to != null) {
@@ -405,7 +407,7 @@ public class DotParser {
         symbol = lexer.lex();
         if (symbol.type == DotParsedSymbol.TYPE_ARROW || symbol.type == DotParsedSymbol.TYPE_MINUSMINUS) {
             lexer.pushback(symbol);
-            edge = edge_rhs(to, edges, isDirectedGraph, lexer);
+            edge = edge_rhs(to, standaloneSubgraphs, edges, isDirectedGraph, lexer);
         } else {
             lexer.pushback(symbol);
         }
@@ -416,7 +418,7 @@ public class DotParser {
     /*
     subgraph : [ 'subgraph' [ ID ] ] '{' stmt_list '}'
      */
-    public SubGraph subgraph(boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
+    public SubGraph subgraph(List<SubGraph> standaloneSubgraphs, boolean isDirectedGraph, DotLexer lexer) throws DotParseException, IOException {
         DotParsedSymbol symbol = lexer.lex();
         DotId id = null;
         if (symbol.type == DotParsedSymbol.TYPE_KEYWORD_SUBGRAPH) {
@@ -433,7 +435,7 @@ public class DotParser {
         AttributesMap graphAttributes = new AttributesMap();
         AttributesMap nodeAttributes = new AttributesMap();
         AttributesMap edgeAttributes = new AttributesMap();
-        stmt_list(edges, standaloneNodes, graphAttributes, nodeAttributes, edgeAttributes, isDirectedGraph, lexer);
+        stmt_list(edges, standaloneSubgraphs, standaloneNodes, graphAttributes, nodeAttributes, edgeAttributes, isDirectedGraph, lexer);
         _expect(lexer, DotParsedSymbol.TYPE_BRACE_CLOSE, "}");
         SubGraph graph = new SubGraph(isDirectedGraph);
         graph.edges = edges;
@@ -442,6 +444,7 @@ public class DotParser {
         graph.graphAttributes = graphAttributes;
         graph.nodeAttributes = nodeAttributes;
         graph.edgeAttributes = edgeAttributes;
+        standaloneSubgraphs.add(graph);
         return graph;
     }
 

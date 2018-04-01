@@ -1,0 +1,52 @@
+digraph {
+start;
+ontrue1[label="trace(\"yes\");"]
+onfalse1[label="trace(\"no\");"]
+ifcond1[label=<<FONT color="blue">if</FONT> (a&gt;5)>]
+
+
+start:s
+
+->while:n;
+while:s->body:n;
+body:s
+
+
+// --- if1 begin
+->ifcond1:n;
+ifcond1:sw->ontrue1:n [color=darkgreen fontcolor=darkgreen label="+"];
+ontrue1:s
+
+// --- if2 begin
+->ifcond2:n;
+ifcond2:sw->ontrue2:n [color=darkgreen fontcolor=darkgreen label="+"];
+ontrue2:s
+
+->ifend2:nw;
+ifcond2:se->onfalse2:n [color=red fontcolor=red label="-"];
+onfalse2:s
+->end:ne [_ignoreattrib=true color=brown label=break fontcolor=brown]; //break
+
+//->ifend2:ne;
+ifend2
+// --- if2 end
+
+
+->ifend1:nw;
+ifcond1:se->onfalse1:n [color=red fontcolor=red label="-"];
+onfalse1:s
+
+
+->ifend1:ne;
+ifend1
+// --- if1 end
+
+
+
+->bodyend:n;
+bodyend:se->while:ne [_ignoreattrib=true color=darkorchid1 label=back fontcolor=darkorchid1];
+while:sw
+
+->end:n;
+end;
+}

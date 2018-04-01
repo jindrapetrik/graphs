@@ -1,0 +1,26 @@
+digraph pcode {
+start [shape="circle"]
+start:s -> loc0000:n;
+loc0039 [shape="box" label="debugline 122\ljump ofs005d\l"];
+loc0039:s -> loc005d:n;
+loc0017 [shape="box" label="loc0017:\llabel\ldebugline 114\lgetlocal_1\lpushbyte 9\lifne ofs004b\l"];
+loc0017 -> loc004b:n;
+loc0017 -> loc0021:n;
+loc003f [shape="box" label="loc003f:\ldebugline 124\lfindpropstrict Qname(PackageNamespace(\"\"),\"trace\")\lpushstring \"hello 1\"\lcallpropvoid Qname(PackageNamespace(\"\"),\"trace\") 1\l"];
+loc003f:s -> loc004b:n;
+loc004b [shape="box" label="loc004b:\ldebugline 126\lfindpropstrict Qname(PackageNamespace(\"\"),\"trace\")\lpushstring \"hello2\"\lcallpropvoid Qname(PackageNamespace(\"\"),\"trace\") 1\l"];
+loc004b:s -> loc0057:n;
+loc0021 [shape="box" label="debugline 116\lgetlocal_1\lpushbyte 8\lifne ofs0030\l"];
+loc0021 -> loc0030:n;
+loc0021 -> loc002a:n;
+loc0000 [shape="box" label="debugfile \"D:\\Dropbox\\Programovani\\JavaSE\\F...\ldebugline 109\lgetlocal_0\lpushscope\ldebug 1 \"a\" 0 111\ldebugline 111\lpushbyte 5\lcoerce_a\lsetlocal_1\ljump ofs0057\l"];
+loc0000:s -> loc0057:n;
+loc0057 [shape="box" label="loc0057:\ldebugline 112\ljump ofs0017\l"];
+loc0057:s -> loc0017:n;
+loc002a [shape="box" label="debugline 118\ljump ofs0057\l"];
+loc002a:s -> loc0057:n;
+loc0030 [shape="box" label="loc0030:\ldebugline 120\lgetlocal_1\lpushbyte 9\lifne ofs003f\l"];
+loc0030 -> loc003f:n;
+loc0030 -> loc0039:n;
+loc005d [shape="box" label="loc005d:\ldebugline 128\lreturnvoid\l"];
+}

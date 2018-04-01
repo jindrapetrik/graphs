@@ -56,7 +56,7 @@ public abstract class BasicDecomposedGraphOperation implements StringOperation, 
         return String.join(join, strs);
     }
 
-    protected abstract void executeOnDecomposedGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap, StepHandler stepHandler);
+    protected abstract void executeOnDecomposedGraph(List<DecomposedGraph> decomposedGraphs, StepHandler stepHandler);
 
     protected void step(Graph g, StepHandler stepHandler) {
         if (stepHandler != null) {
@@ -81,19 +81,15 @@ public abstract class BasicDecomposedGraphOperation implements StringOperation, 
     }
 
     public final Graph executeOnGraph(Graph graph, StepHandler stepHandler) {
-        Map<Node, AttributesMap> nodeAttributesMap = new HashMap<>();
-        Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap = new HashMap<>();
-        Map<Edge<EditableNode>, String> edgeCompassesMap = new HashMap<>();
-        Set<EditableNode> nodes = facade.decomposeGraph(graph, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
-
-        executeOnDecomposedGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap, stepHandler);
-        Graph ret = facade.composeGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
+        List<DecomposedGraph> decomposedGraphs = facade.decomposeGraph(graph);
+        executeOnDecomposedGraph(decomposedGraphs, stepHandler);
+        Graph ret = facade.composeGraph(decomposedGraphs);
         return ret;
     }
 
-    protected Graph composeGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
+    protected Graph composeGraph(List<DecomposedGraph> decomposedGraphs) {
         StructuredGraphFacade f = new StructuredGraphFacade();
-        return f.composeGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
+        return f.composeGraph(decomposedGraphs);
     }
 
     protected void markEdge(Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Edge<EditableNode> edge, String color, String label) {

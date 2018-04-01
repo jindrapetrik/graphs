@@ -45,6 +45,7 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
 
     private class Executor implements CodeStructureModifierProgressListener {
 
+        private List<DecomposedGraph> decomposedGraphs;
         private EditableNode startNode;
         private Set<EditableNode> nodes;
         private Map<Node, AttributesMap> nodeAttributesMap;
@@ -54,7 +55,8 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
         private StepHandler stepHandler;
         private Graph currentGraph;
 
-        public Executor(StepHandler stepHandler, Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
+        public Executor(List<DecomposedGraph> decomposedGraphs, StepHandler stepHandler, Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap) {
+            this.decomposedGraphs = decomposedGraphs;
             this.startNode = nodes.iterator().next();
             this.nodes = nodes;
             this.nodeAttributesMap = nodeAttributesMap;
@@ -78,7 +80,7 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
 
         @Override
         public void step() {
-            CodeStructureModifyOperation.this.step(f.composeGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap), stepHandler);
+            CodeStructureModifyOperation.this.step(f.composeGraph(decomposedGraphs), stepHandler);
             regenerate();
         }
 
@@ -202,7 +204,7 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
         }
 
         private void regenerate() {
-            currentGraph = composeGraph(nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
+            currentGraph = composeGraph(decomposedGraphs);
         }
 
         @Override
@@ -261,9 +263,11 @@ public class CodeStructureModifyOperation extends BasicDecomposedGraphOperation 
     }
 
     @Override
-    protected void executeOnDecomposedGraph(Set<EditableNode> nodes, Map<Node, AttributesMap> nodeAttributesMap, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap, Map<Edge<EditableNode>, String> edgeCompassesMap, StepHandler stepHandler) {
-        Executor ex = new Executor(stepHandler, nodes, nodeAttributesMap, edgeAttributesMap, edgeCompassesMap);
-        ex.execute();
+    protected void executeOnDecomposedGraph(List<DecomposedGraph> decomposedGraphs, StepHandler stepHandler) {
+        for (DecomposedGraph dg : decomposedGraphs) {
+            Executor ex = new Executor(decomposedGraphs, stepHandler, dg.nodes, dg.nodeAttributesMap, dg.edgeAttributesMap, dg.edgeCompassesMap);
+            ex.execute();
+        }
     }
 
     private void markTrueFalseOrder(EditableNode n, Set<EditableNode> visited, Map<Edge<EditableNode>, AttributesMap> edgeAttributesMap) {
