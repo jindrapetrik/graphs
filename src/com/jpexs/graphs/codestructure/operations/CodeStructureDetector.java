@@ -416,9 +416,11 @@ public class CodeStructureDetector<N extends Node> {
                         fireEdgeMarked(gotoEdge, DetectedEdgeType.GOTO);
                     }*/
                     if (decisionList.size() > prefix.size()) {
-                        Decision<N> exitDecision = decisionList.get(prefix.size() - 1 + 1);
-                        N exitNode = exitDecision.getIfNode();
-                        removeExitPointFromPrevDlists(decisionListNodes.get(i), BOD, exitNode, new LinkedHashSet<>());
+                        for (int j = decisionList.size() - 1; j >= prefix.size(); j--) {
+                            Decision<N> exitDecision = decisionList.get(j);
+                            N exitNode = exitDecision.getIfNode();
+                            removeExitPointFromPrevDlists(decisionListNodes.get(i), BOD, exitNode, new LinkedHashSet<>());
+                        }
                     }
                 }
                 N nextBod = BOD;
